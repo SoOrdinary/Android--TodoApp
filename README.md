@@ -147,4 +147,3 @@ cd Android--TodoApp
 ```
 
 ## 您也可以直接在手机上下载.apk文件
->>>>>>> c4363d9616ca772a2574bb16cc3fdfab8fc1174d
