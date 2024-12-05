@@ -158,7 +158,7 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.BaseViewHolder
             // 使用 Glide 加载图片
             Glide.with(gridCoverImageView.getContext())
                     .load(todo.getCoverImage())
-                    .placeholder(R.drawable.ic_launcher_background)
+                    .placeholder(R.drawable.app_icon)
                     .into(gridCoverImageView);
             if(todo.isFinish()==true){
                 gridTask.setAlpha(0.3f);

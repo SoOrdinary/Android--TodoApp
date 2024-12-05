@@ -28,15 +28,15 @@ public interface ChatDao {
     void deleteAll();
 
     // 查询所有聊天记录，按时间戳降序排序
-    @Query("SELECT * FROM chats ORDER BY timestamp ASC")
+    @Query("SELECT * FROM chats ORDER BY send_time ASC")
     LiveData<List<Chat>> getAllChats();
 
     // 根据 senderId 查找聊天记录，按时间戳降序排序
-    @Query("SELECT * FROM chats WHERE sender_id = :senderId ORDER BY timestamp ASC")
+    @Query("SELECT * FROM chats WHERE sender_id = :senderId ORDER BY send_time ASC")
     LiveData<List<Chat>> getChatsBySenderId(Long senderId);
 
     // 根据 chatText 中的关键字查找聊天记录，按时间戳降序排序
-    @Query("SELECT * FROM chats WHERE chat_text LIKE '%' || :keyword || '%' ORDER BY timestamp ASC")
+    @Query("SELECT * FROM chats WHERE chat_text LIKE '%' || :keyword || '%' ORDER BY send_time ASC")
     LiveData<List<Chat>> getChatsByTextKeyword(String keyword);
 
 }

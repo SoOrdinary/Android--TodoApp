@@ -1,6 +1,7 @@
 package com.example.todo.data.repository;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -8,6 +9,7 @@ import com.example.todo.data.room.entity.Todo;
 import com.example.todo.data.room.dao.TodoDao;
 import com.example.todo.data.room.database.TodoDatabase;
 
+import java.io.File;
 import java.util.List;
 
 public class TodoRepository {
@@ -47,11 +49,35 @@ public class TodoRepository {
 
     // 更新任务
     public void update(Todo todo) {
-        TodoDatabase.databaseWriteExecutor.execute(() -> todoDao.update(todo));
+        // 执行更新任务操作
+        TodoDatabase.databaseWriteExecutor.execute(() -> {
+            // 获取数据库中原始封面图片 URL
+            Todo oldTodo = todoDao.getTodoById(todo.getId());  // 假设有通过 ID 查询的方法
+            String oldCoverImage = (oldTodo != null ? oldTodo.getCoverImage() : null);
+            // 判断封面图是否发生变化，如果发生变化且原有封面图不为空，删除原来的图片
+            if (oldCoverImage != null && !oldCoverImage.equals(todo.getCoverImage())) {
+                File oldCoverFile = new File(oldCoverImage);
+                if (oldCoverFile.exists()) {
+                    oldCoverFile.delete();  // 删除原有封面图
+                }
+            }
+            todoDao.update(todo);
+        });
     }
 
     // 删除任务
     public void delete(Todo todo) {
-        TodoDatabase.databaseWriteExecutor.execute(() -> todoDao.delete(todo));
+        // 执行删除任务操作
+        TodoDatabase.databaseWriteExecutor.execute(() -> {
+            // 判断是否有封面图片 URL，如果有则删除文件
+            if (todo.getCoverImage() != null && !todo.getCoverImage().isEmpty()) {
+                File coverFile = new File(todo.getCoverImage());
+                if (coverFile.exists()) {
+                    coverFile.delete();
+                }
+            }
+
+            todoDao.delete(todo);
+        });
     }
 }

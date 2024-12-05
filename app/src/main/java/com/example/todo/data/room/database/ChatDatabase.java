@@ -12,7 +12,7 @@ import com.example.todo.data.room.entity.Chat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Chat.class}, version = 3, exportSchema = false)
+@Database(entities = {Chat.class}, version = 1, exportSchema = false)
 public abstract class ChatDatabase extends RoomDatabase {
 
     public abstract ChatDao chatDao(); // 获取 Dao
