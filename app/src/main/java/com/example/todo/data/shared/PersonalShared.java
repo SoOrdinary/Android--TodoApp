@@ -53,7 +53,7 @@ public class PersonalShared {
         }
         cachedUserOwnPic = SharedPreferencesDataBase.getString(USER_OWN_PIC, getDefaultUserPicBase64(context));
         cachedUserChatPic = SharedPreferencesDataBase.getString(USER_CHAT_PIC, "#000000");
-        cachedUserName = SharedPreferencesDataBase.getString(USER_NAME, "SoOrdinary");
+        cachedUserName = SharedPreferencesDataBase.getString(USER_NAME, "Todo");
         cachedUserSignature = SharedPreferencesDataBase.getString(USER_SIGNATURE, "Tencent School Enterprise Joint Project");
     }
     // 获取资源图片的Base64编码

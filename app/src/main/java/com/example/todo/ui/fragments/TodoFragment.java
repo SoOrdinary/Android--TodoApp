@@ -56,7 +56,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TodoFragment extends Fragment implements ClickTaskListener {
@@ -148,22 +147,6 @@ public class TodoFragment extends Fragment implements ClickTaskListener {
         }
     }
 
-    // 初始化模拟任务数据
-    private void initData() {
-        int i=1;
-        for(int j=0;j<3;j++){
-            Todo todo1 = new Todo("任务"+i, "副标题1", "内容1", DateTimeUtils.stringToTimestamp("2024.12.01  10:00"), false, true, null, "life");
-            todoViewModel.insert(todo1);
-            i++;
-            Todo todo2 = new Todo("任务"+i, "副标题3", "内容3", DateTimeUtils.stringToTimestamp("2024.12.03  06:00"), false, false, null, "study");
-            todoViewModel.insert(todo2);
-            i++;
-            Todo todo3 = new Todo("任务"+i, "副标题3", "内容3", DateTimeUtils.stringToTimestamp("2024.12.03  06:00"), false, false, null, "play");
-            todoViewModel.insert(todo3);
-            i++;
-        }
-    }
-
     // 悬浮按钮的创建与渲染
     public void renderFab(View view){
         FloatingActionButton fabAddTodo=(FloatingActionButton) view.findViewById(R.id.fab_add_todo);
@@ -230,7 +213,6 @@ public class TodoFragment extends Fragment implements ClickTaskListener {
                         subtitle,
                         details,
                         dueTimestamp,
-                        false, // 默认不提醒
                         false, // 默认未完成
                         coverImage,
                         tag
@@ -264,12 +246,21 @@ public class TodoFragment extends Fragment implements ClickTaskListener {
                 if(!todo.getSubtitle().equals("")){
                     subtitleOutput.setVisibility(View.VISIBLE);
                     subtitleOutput.setText(todo.getSubtitle());
+                }else {
+                    subtitleOutput.setVisibility(View.GONE);
+                }
+                if(!todo.getDetails().equals("")){
+                    detailsOutput.setVisibility(View.VISIBLE);
+                    detailsOutput.setText("  "+todo.getDetails());
+                }else {
+                    detailsOutput.setVisibility(View.GONE);
                 }
                 if(!todo.getTag().equals("")){
                     tagOutput.setVisibility(View.VISIBLE);
                     tagOutput.setText(todo.getTag());
+                }else {
+                    tagOutput.setVisibility(View.GONE);
                 }
-                detailsOutput.setText(todo.getDetails());
                 dueDateOutput.setText(DateTimeUtils.timestampToString(todo.getDueDate()));
                 // 设置图片监听点击
                 editImage.setOnClickListener( v -> onClickEdit ( v , todo , newTodo->{
@@ -278,12 +269,21 @@ public class TodoFragment extends Fragment implements ClickTaskListener {
                         if(!newTodo.getSubtitle().equals("")){
                             subtitleOutput.setVisibility(View.VISIBLE);
                             subtitleOutput.setText(newTodo.getSubtitle());
+                        }else {
+                            subtitleOutput.setVisibility(View.GONE);
+                        }
+                        if(!newTodo.getDetails().equals("")){
+                            detailsOutput.setVisibility(View.VISIBLE);
+                            detailsOutput.setText("  "+newTodo.getDetails());
+                        }else {
+                            detailsOutput.setVisibility(View.GONE);
                         }
                         if(!newTodo.getTag().equals("")){
                             tagOutput.setVisibility(View.VISIBLE);
                             tagOutput.setText(newTodo.getTag());
+                        }else {
+                            tagOutput.setVisibility(View.GONE);
                         }
-                        detailsOutput.setText(newTodo.getDetails());
                         dueDateOutput.setText(DateTimeUtils.timestampToString(newTodo.getDueDate()));
                     })
                 );
@@ -584,8 +584,6 @@ public class TodoFragment extends Fragment implements ClickTaskListener {
             }catch (IOException e){
                 e.printStackTrace();
             }
-
-            Toast.makeText(requireContext(), "Image saved successfully", Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(requireContext(), "failed to get image",Toast.LENGTH_SHORT).show();
         }

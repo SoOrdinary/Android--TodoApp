@@ -27,7 +27,8 @@ public class Chat {
     private String senderPic;           // 发送者头像颜色[十六进制]
     @ColumnInfo(name = "sender_name")
     private String senderName;          // 发送者昵称
-    private Long timestamp;             // 发送时间（时间戳）
+    @ColumnInfo(name = "send_time")
+    private Long sendTime;            // 发送时间
     @ColumnInfo(name = "chat_type")
     private int chatType;               // 交流类型码（文本、图片、语音）
     @ColumnInfo(name = "chat_text")
@@ -40,11 +41,11 @@ public class Chat {
     public Chat() {}
 
     @Ignore
-    public Chat(Long senderId,String senderPic,String senderName, Long timestamp, int chatType, String chatText, String chatPic, String chatVoice) {
+    public Chat(Long senderId,String senderPic,String senderName, Long sendTime, int chatType, String chatText, String chatPic, String chatVoice) {
         this.senderId = senderId;
         this.senderPic=senderPic;
         this.senderName=senderName;
-        this.timestamp = timestamp;
+        this.sendTime = sendTime;
         this.chatType = chatType;
         this.chatText = chatText;
         this.chatPic = chatPic;
@@ -58,7 +59,7 @@ public class Chat {
                 "senderId=" + senderId + ", " +
                 "senderPic='" + senderPic + "', " +
                 "senderName='" + senderName + "', " +
-                "timestamp=" + timestamp + ", " +
+                "sendTime=" + sendTime + ", " +
                 "chatType=" + chatType + ", " +
                 "chatText='" + chatText + "', " +
                 "chatPic='" + chatPic + "', " +
@@ -94,7 +95,7 @@ public class Chat {
                         chat.setSenderName(value.replace("'", ""));
                         break;
                     case "timestamp":
-                        chat.setTimestamp(Long.parseLong(value));
+                        chat.setSendTime(Long.parseLong(value));
                         break;
                     case "chatType":
                         chat.setChatType(Integer.parseInt(value));
@@ -162,12 +163,12 @@ public class Chat {
         this.senderName = senderName;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
+    public Long getSendTime() {
+        return sendTime;
     }
 
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
+    public void setSendTime(Long sendTime) {
+        this.sendTime = sendTime;
     }
 
     public int getChatType() {

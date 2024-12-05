@@ -113,7 +113,7 @@
                 android:id="@+id/task_cover_image"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:src="@drawable/profile_picture"/>
+                android:src="@drawable/app_icon"/>
             <TextView
                 android:id="@+id/cover_url"
                 android:layout_width="wrap_content"

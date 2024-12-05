@@ -35,7 +35,6 @@ import com.example.todo.ui.listener.ClickChatListener;
 import com.example.todo.utils.DateTimeUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ChatFragment extends Fragment implements ClickChatListener {
@@ -82,7 +81,10 @@ public class ChatFragment extends Fragment implements ClickChatListener {
         });
 
         udpServerTask = new UDPServerTask(requireContext(),chatViewModel);
-
+        // 软键盘弹出后定位至最后一行，bug
+        inputText.setOnClickListener(v-> {
+            recyclerView.scrollToPosition(chatAdapter.getItemCount()- 1);
+        });
         // 发送按钮点击事件
         sendButton.setOnClickListener(v -> {
             String content = inputText.getText().toString();
@@ -96,15 +98,6 @@ public class ChatFragment extends Fragment implements ClickChatListener {
             }
         });
         return view;
-    }
-
-
-    private void simulateReceivedMessage() {
-        // 模拟接收到的消息（示例）
-        Chat receivedChat1 = new Chat(currentUserId + 1, "#123888", null, System.currentTimeMillis(), Chat.TYPE_TEXT, "Hello! This is a test message.", null, null);
-        Chat receivedChat2 = new Chat(currentUserId + 1, "#123888", null, System.currentTimeMillis(), Chat.TYPE_TEXT, "Hi! How are you?", null, null);
-        chatViewModel.insert(receivedChat1);
-        chatViewModel.insert(receivedChat2);
     }
 
     @Override
@@ -175,7 +168,6 @@ public class ChatFragment extends Fragment implements ClickChatListener {
                             subtitle,
                             details,
                             dueTimestamp,
-                            false, // 默认不提醒
                             false, // 默认未完成
                             coverImage,
                             tag

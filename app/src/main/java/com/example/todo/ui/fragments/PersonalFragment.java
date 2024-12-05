@@ -36,14 +36,22 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.todo.R;
+import com.example.todo.data.model.ChatViewModel;
 import com.example.todo.data.model.PersonalSharedViewModel;
 import com.example.todo.data.model.TodoTagSharedViewModel;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import io.noties.markwon.Markwon;
 
 public class PersonalFragment extends Fragment {
 
     private TodoTagSharedViewModel todoTagSharedViewModel;
+    private ChatViewModel chatViewModel;
     private PersonalSharedViewModel personalSharedViewModel;
     private String userId;
     private ImageView pictureImageView;
@@ -79,6 +87,7 @@ public class PersonalFragment extends Fragment {
 
         // 初始化 ViewModel
         todoTagSharedViewModel =new ViewModelProvider(requireActivity()).get(TodoTagSharedViewModel.class);
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         personalSharedViewModel = new ViewModelProvider(requireActivity()).get(PersonalSharedViewModel.class);
         // 控件绑定
         editInformationImageView = view.findViewById(R.id.edit_information);
@@ -260,6 +269,12 @@ public class PersonalFragment extends Fragment {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_chat_clean);
+            Button confirmDeleteAll=dialog.findViewById(R.id.confirm_delete);
+            confirmDeleteAll.setOnClickListener(viewDelete->{
+                chatViewModel.deleteAll();
+                Toast.makeText(requireContext(), "Delete successfully", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            });
             dialog.show();
         });
         lock.setOnClickListener(v->{
@@ -272,10 +287,18 @@ public class PersonalFragment extends Fragment {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_introduction);
+            // 加载 TextView
+            TextView textView = dialog.findViewById(R.id.user_manual);
+            // 加载 Markdown 文件内容
+            String markdown = loadMarkdownFromAssets("user_manual.md");
+            // 使用 Markwon 渲染 Markdown 内容
+            Markwon markwon = Markwon.create(requireActivity());
+            markwon.setMarkdown(textView, markdown);
+
             dialog.show();
         });
         share.setOnClickListener(v->{
-            // 分享
+            // 分享--需要apk
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain"); // 分享文本
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this app");
@@ -295,8 +318,31 @@ public class PersonalFragment extends Fragment {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_author);
+            // 加载 TextView
+            TextView textView = dialog.findViewById(R.id.author);
+            // 加载 Markdown 文件内容
+            String markdown = loadMarkdownFromAssets("author.md");
+            // 使用 Markwon 渲染 Markdown 内容
+            Markwon markwon = Markwon.create(requireActivity());
+            markwon.setMarkdown(textView, markdown);
             dialog.show();
         });
+    }
+
+    // 从 assets 文件夹加载 markdown 文件
+    private String loadMarkdownFromAssets(String url) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try (InputStream inputStream = requireActivity().getAssets().open(url);
+             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
     }
 
     @Override

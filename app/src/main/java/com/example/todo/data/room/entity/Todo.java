@@ -19,8 +19,6 @@ public class Todo {
     private String details;          // 具体内容
     @ColumnInfo(name = "due_date")
     private Long dueDate;            // 截止日期（时间戳，毫秒值）
-    @ColumnInfo(name = "is_reminder")
-    private Boolean isReminder;      // 是否设置闹钟 (true: 是, false: 否)
     @ColumnInfo(name = "is_finish")
     private Boolean isFinish;        // 任务是否完成 (true: 已完成, false: 未完成)
     private String coverImage;       // 封面图片URI
@@ -34,7 +32,6 @@ public class Todo {
                 ", subtitle='" + subtitle + '\'' +
                 ", details='" + details + '\'' +
                 ", dueDate='" + DateTimeUtils.timestampToString(dueDate) + '\'' +
-                ", isReminder=" + isReminder +
                 ", isFinish=" + isFinish +
                 ", coverImage='" + coverImage + '\'' +
                 ", tag='" + tag + '\'' +
@@ -55,12 +52,11 @@ public class Todo {
     public Todo() {}
 
     @Ignore
-    public Todo(String title, String subtitle, String details, Long dueDate, Boolean isReminder, Boolean isFinish, String coverImage, String tag) {
+    public Todo(String title, String subtitle, String details, Long dueDate, Boolean isFinish, String coverImage, String tag) {
         this.title = title;
         this.subtitle = subtitle;
         this.details = details;
         this.dueDate = dueDate;
-        this.isReminder = isReminder;
         this.isFinish = isFinish;
         this.coverImage = coverImage;
         this.tag = tag;
@@ -104,14 +100,6 @@ public class Todo {
 
     public void setDueDate(Long dueDate) {
         this.dueDate = dueDate;
-    }
-
-    public Boolean isReminder() {
-        return isReminder;
-    }
-
-    public void setReminder(Boolean reminder) {
-        isReminder = reminder;
     }
 
     public Boolean isFinish() {

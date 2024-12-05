@@ -23,6 +23,10 @@ public interface TodoDao {
     @Delete
     void delete(Todo todo);
 
+    // 根据 ID 查询任务
+    @Query("SELECT * FROM todos WHERE id = :id")
+    Todo getTodoById(int id);
+
     // 根据完成情况查询任务（支持完成/未完成/所有--null），未完成排在完成的前面，未完成的日期从小到大，完成的日期从大到小
     @Query("SELECT * FROM todos WHERE :isFinish IS null OR is_finish = :isFinish ORDER BY "+
             "CASE WHEN is_finish = 0 THEN 0 ELSE 1 END ASC, "+

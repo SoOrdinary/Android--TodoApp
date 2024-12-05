@@ -236,6 +236,7 @@ public class MainActivity extends AppCompatActivity{
         // 点击逻辑
         navigationView.setNavigationItemSelectedListener( item ->{
             todoFragment.onClickTaskTag(item);
+            mDrawerLayout.close();
             return true;
         });
         int sizeInPx = (int) (30 * getResources().getDisplayMetrics().density);
