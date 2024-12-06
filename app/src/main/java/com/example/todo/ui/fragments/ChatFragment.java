@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,10 +81,10 @@ public class ChatFragment extends Fragment implements ClickChatListener {
             recyclerView.scrollToPosition(chats.size() - 1); // 滚动到底部
         });
 
-        udpServerTask = new UDPServerTask(requireContext(),chatViewModel);
+        udpServerTask = new UDPServerTask(requireContext(), chatViewModel);
         // 软键盘弹出后定位至最后一行，bug
-        inputText.setOnClickListener(v-> {
-            recyclerView.scrollToPosition(chatAdapter.getItemCount()- 1);
+        inputText.setOnClickListener(v -> {
+            recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1);
         });
         // 发送按钮点击事件
         sendButton.setOnClickListener(v -> {
@@ -108,10 +109,9 @@ public class ChatFragment extends Fragment implements ClickChatListener {
     // 长按消息事件
     @Override
     public void onLongClickChat(View view, Chat chat) {
-        Toast.makeText(requireContext(), "AAA", Toast.LENGTH_SHORT).show();
+        // 可以检测语音等
         switch (chat.getChatType()) {
-            case Chat.TYPE_TEXT:
-            {
+            case Chat.TYPE_TEXT: {
                 final Dialog dialog = new Dialog(requireContext());
                 dialog.setCancelable(true);
                 dialog.setContentView(R.layout.fragment_todo_click_edit);
@@ -123,12 +123,11 @@ public class ChatFragment extends Fragment implements ClickChatListener {
                 EditText dueDateHourInput = dialog.findViewById(R.id.task_due_date_hour);
                 EditText dueDateMinuteInput = dialog.findViewById(R.id.task_due_date_minute);
                 Spinner tagSpinner = dialog.findViewById(R.id.task_tag);
-                ImageView giveCoverImage =dialog.findViewById(R.id.task_cover_image);
-                TextView coverUrlInput =dialog.findViewById(R.id.cover_url);
-                Button button_confirm=dialog.findViewById(R.id.button_confirm);
+                LinearLayout photoModule = dialog.findViewById(R.id.photo);
+                Button button_confirm = dialog.findViewById(R.id.button_confirm);
                 titleInput.setText(chat.getChatText());
                 List<String> tags = new ArrayList<>(TodoTagShared.getInstance(requireContext()).getTags());
-                tags.add(0,"default");
+                tags.add(0, "default");
                 // 分隔时间
                 String[] parts = DateTimeUtils.getSeparatedStringFromTimestamp(DateTimeUtils.timestampToString(System.currentTimeMillis()));
                 String day = parts[0];
@@ -148,13 +147,14 @@ public class ChatFragment extends Fragment implements ClickChatListener {
                 button_confirm.setText("Add");
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 tagSpinner.setAdapter(adapter);
-                button_confirm.setOnClickListener( dialogAddView ->{
+                // 需要精简
+                photoModule.setVisibility(View.GONE);
+                button_confirm.setOnClickListener(dialogAddView -> {
                     // 获取输入内容
                     String title = titleInput.getText().toString().trim();
                     String subtitle = subtitleInput.getText().toString().trim();
                     String details = detailsInput.getText().toString().trim();
-                    String dueDate = dueDateDayInput.getText().toString().trim()+"  "+dueDateHourInput.getText().toString().trim()+":"+dueDateMinuteInput.getText().toString().trim();
-                    String coverImage = coverUrlInput.getText().toString().trim();
+                    String dueDate = dueDateDayInput.getText().toString().trim() + "  " + dueDateHourInput.getText().toString().trim() + ":" + dueDateMinuteInput.getText().toString().trim();
                     String tag = tagSpinner.getSelectedItem().toString();
                     // 校验输入
                     if (title.isEmpty() || dueDate.isEmpty()) {
@@ -169,7 +169,7 @@ public class ChatFragment extends Fragment implements ClickChatListener {
                             details,
                             dueTimestamp,
                             false, // 默认未完成
-                            coverImage,
+                            null,// chat界面不搞图片
                             tag
                     );
 
@@ -179,14 +179,14 @@ public class ChatFragment extends Fragment implements ClickChatListener {
                 });
                 dialog.show();
             }
-                break;
+            break;
         }
     }
 
     @Override
     public void onLongClickChatOwnPicture(View view) {
         if (udpServerTask == null || !udpServerTask.executor.isShutdown()) {
-            udpServerTask = new UDPServerTask(requireContext(),chatViewModel);
+            udpServerTask = new UDPServerTask(requireContext(), chatViewModel);
             udpServerTask.startServer();
             Toast.makeText(requireContext(), "服务器已启动，等待客户端广播", Toast.LENGTH_SHORT).show();
         } else {

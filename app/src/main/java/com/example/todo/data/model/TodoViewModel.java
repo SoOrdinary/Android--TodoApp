@@ -21,7 +21,7 @@ public class TodoViewModel extends AndroidViewModel {
     }
 
     // 根据完成情况查询任务
-    public LiveData<List<Todo>> getTodosByFinish(Boolean isFinish){
+    public LiveData<List<Todo>> getTodosByFinish(Boolean isFinish) {
         return repository.getTodosByFinish(isFinish);
     }
 
@@ -32,7 +32,7 @@ public class TodoViewModel extends AndroidViewModel {
 
     // 根据日期和完成状态查询任务
     public LiveData<List<Todo>> getTodosByDueDateAndFinish(Long startDate, Long endDate, Boolean isFinish) {
-        return repository.getTodosByDueDateAndFinish(startDate, endDate,isFinish);
+        return repository.getTodosByDueDateAndFinish(startDate, endDate, isFinish);
     }
 
     // 根据标签和完成状态查询任务

@@ -38,7 +38,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.Set;
 
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private TodoTagSharedViewModel todoTagSharedViewModel;
     private PersonalSharedViewModel personalSharedViewModel;
@@ -76,10 +76,10 @@ public class MainActivity extends AppCompatActivity{
     }
 
     // 隐藏了自带标题栏，创建自定义标题栏toolbar
-    public void createBar(){
+    public void createBar() {
         // 找到自己设计的标题栏，并显示
-        toolbar=(Toolbar) findViewById(R.id.toolbar);
-        toolbarText=findViewById(R.id.toolbar_title);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbarText = findViewById(R.id.toolbar_title);
         setSupportActionBar(toolbar);
         // 隐藏默认标题
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity{
                             .load(decodedBitmap)  // 加载解码后的 Bitmap
                             .override(sizeInPx, sizeInPx)  // 设置图片大小为 30dp*30dp
                             .circleCrop()  // 裁剪为圆形
+                            .placeholder(R.drawable.app_icon)  // 设置占位图
                             .into(new CustomTarget<Bitmap>() {
                                 @Override
                                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -113,12 +114,17 @@ public class MainActivity extends AppCompatActivity{
 
                                 @Override
                                 public void onLoadCleared(@Nullable Drawable placeholder) {
-                                    // 可选：当图片清理时，可以设置占位符
+                                    // 当图片加载失败或者被清除时，做一些清理操作（如显示占位图）
+                                    actionBar.setHomeAsUpIndicator(placeholder);
                                 }
                             });
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                     // 处理 Base64 解码错误
+                }
+                // 如果当前页面不是Fragment，隐藏渲染的导航图标
+                if (activeFragment != todoFragment && actionBar != null) {
+                    actionBar.setDisplayHomeAsUpEnabled(false);
                 }
             }
         });
@@ -180,6 +186,7 @@ public class MainActivity extends AppCompatActivity{
             return true;
         });
     }
+
     // 根据 Fragment 设置 Toolbar 的属性
     private void updateUIVisibility(Fragment fragment) {
         // 获取顶部栏元素
@@ -197,7 +204,7 @@ public class MainActivity extends AppCompatActivity{
                     menu.getItem(i).setVisible(true);
                 }
             }
-        } else if(fragment instanceof ChatFragment){
+        } else if (fragment instanceof ChatFragment) {
             toolbarText.setText("Self-Study Room");
             if (actionBar != null) {
                 actionBar.setDisplayHomeAsUpEnabled(false);
@@ -207,7 +214,7 @@ public class MainActivity extends AppCompatActivity{
                     menu.getItem(i).setVisible(false);
                 }
             }
-        } else if(fragment instanceof PersonalFragment){
+        } else if (fragment instanceof PersonalFragment) {
             toolbarText.setText("Information and Settings");
             if (actionBar != null) {
                 actionBar.setDisplayHomeAsUpEnabled(false);
@@ -221,10 +228,10 @@ public class MainActivity extends AppCompatActivity{
     }
 
     // 侧边栏渲染
-    public void renderSideNav(){
+    public void renderSideNav() {
         // 拿到整个布局对象和侧边栏
-        mDrawerLayout=(DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationView=(NavigationView)findViewById(R.id.side_nav);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.side_nav);
         // 默认选中的按钮
         navigationView.setCheckedItem(R.id.today_task);
         // 获取屏幕宽度
@@ -234,17 +241,17 @@ public class MainActivity extends AppCompatActivity{
         params.width = (int) (screenWidth * 0.66); // 66%屏幕宽度
         navigationView.setLayoutParams(params);
         // 点击逻辑
-        navigationView.setNavigationItemSelectedListener( item ->{
+        navigationView.setNavigationItemSelectedListener(item -> {
             todoFragment.onClickTaskTag(item);
             mDrawerLayout.close();
             return true;
         });
         int sizeInPx = (int) (30 * getResources().getDisplayMetrics().density);
-        navigationView.post(()->{
-            ImageView profilePicture=navigationView.findViewById(R.id.profile_picture);
-            TextView username=navigationView.findViewById(R.id.username);
-            TextView userSignature=navigationView.findViewById(R.id.user_signature);
-            personalSharedViewModel.getUserOwnPicLiveData().observe(this, newOwnPic ->{
+        navigationView.post(() -> {
+            ImageView profilePicture = navigationView.findViewById(R.id.profile_picture);
+            TextView username = navigationView.findViewById(R.id.username);
+            TextView userSignature = navigationView.findViewById(R.id.user_signature);
+            personalSharedViewModel.getUserOwnPicLiveData().observe(this, newOwnPic -> {
                 if (newOwnPic != null && !newOwnPic.isEmpty()) {
                     try {
                         // 解码Base64字符串
@@ -290,6 +297,7 @@ public class MainActivity extends AppCompatActivity{
                                     Drawable drawable = new BitmapDrawable(getResources(), resource);
                                     actionBar.setHomeAsUpIndicator(drawable);
                                 }
+
                                 @Override
                                 public void onLoadCleared(@Nullable Drawable placeholder) {
                                     // 可选：当图片清理时，可以设置占位符
@@ -307,12 +315,13 @@ public class MainActivity extends AppCompatActivity{
                 userSignature.setText(newUserSignature);
             });
             // 观察标签数据的变化
-            todoTagSharedViewModel.getTagListLiveData().observe(this, tags ->{
+            todoTagSharedViewModel.getTagListLiveData().observe(this, tags -> {
                 // 更新 UI，显示标签列表
-                updateTagMenu(navigationView.getMenu(),tags);
+                updateTagMenu(navigationView.getMenu(), tags);
             });
         });
     }
+
     private void updateTagMenu(Menu menu, Set<String> tags) {
         // 清除现有的菜单项
         menu.findItem(R.id.tag).getSubMenu().clear();
@@ -326,14 +335,15 @@ public class MainActivity extends AppCompatActivity{
 
     // 菜单渲染
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.toolbar,menu);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
         this.menu = menu;
         return true;
     }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             // 点击头像打开侧边栏
             case android.R.id.home:
                 if (mDrawerLayout != null) {

@@ -37,6 +37,7 @@ public class Todo {
                 ", tag='" + tag + '\'' +
                 '}';
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,12 +45,14 @@ public class Todo {
         Todo todo = (Todo) o;
         return id == todo.id;
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
 
-    public Todo() {}
+    public Todo() {
+    }
 
     @Ignore
     public Todo(String title, String subtitle, String details, Long dueDate, Boolean isFinish, String coverImage, String tag) {

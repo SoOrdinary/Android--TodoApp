@@ -23,7 +23,7 @@ public class PersonalShared {
     private static PersonalShared instance;
     private final SharedPreferences SharedPreferencesDataBase;
     // 缓存
-    private Long   cachedUserId;
+    private Long cachedUserId;
     private String cachedUserOwnPic;
     private String cachedUserChatPic;
     private String cachedUserName;
@@ -43,7 +43,7 @@ public class PersonalShared {
         return instance;
     }
 
-    private void loadCatch(Context context){
+    private void loadCatch(Context context) {
         cachedUserId = SharedPreferencesDataBase.getLong(USER_ID, 0);
         if (cachedUserId == 0) {
             cachedUserId = System.currentTimeMillis(); // 根据此刻时间生成唯一
@@ -56,6 +56,7 @@ public class PersonalShared {
         cachedUserName = SharedPreferencesDataBase.getString(USER_NAME, "Todo");
         cachedUserSignature = SharedPreferencesDataBase.getString(USER_SIGNATURE, "Tencent School Enterprise Joint Project");
     }
+
     // 获取资源图片的Base64编码
     private String getDefaultUserPicBase64(Context context) {
         try {
@@ -74,7 +75,8 @@ public class PersonalShared {
             return null;  // 如果出错，返回null
         }
     }
-    public SharedPreferences getSharedPreferencesDataBase(){
+
+    public SharedPreferences getSharedPreferencesDataBase() {
         return SharedPreferencesDataBase;
     }
 

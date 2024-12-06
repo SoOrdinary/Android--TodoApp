@@ -29,13 +29,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
 
     public ChatAdapter(Context context, List<Chat> chatList) {
         // 获取当前用户的ID
-        this.currentUserId= PersonalShared.getInstance(context).getUserId();
+        this.currentUserId = PersonalShared.getInstance(context).getUserId();
         this.chatList = chatList;
     }
 
     public void setClickChatListener(ClickChatListener clickChatListener) {
         this.clickChatListener = clickChatListener;
     }
+
     public void setChatList(List<Chat> chatList) {
         this.chatList = (chatList != null) ? chatList : new ArrayList<>(); // 避免空指针
         notifyDataSetChanged();  // 通知 RecyclerView 更新数据
@@ -44,10 +45,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
     @Override
     public int getItemViewType(int position) {
         // 相等返回正数交流码代码代表我是发送者，否则返回负数交流码代码代表我是接收者
-        if(currentUserId.equals(chatList.get(position).getSenderId())){
-            return Chat.TYPE_SEND*chatList.get(position).getChatType();
-        }else{
-            return Chat.TYPE_RECEIVE*chatList.get(position).getChatType();
+        if (currentUserId.equals(chatList.get(position).getSenderId())) {
+            return Chat.TYPE_SEND * chatList.get(position).getChatType();
+        } else {
+            return Chat.TYPE_RECEIVE * chatList.get(position).getChatType();
         }
     }
 
@@ -57,10 +58,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = null;
         switch (viewType) {
-            case Chat.TYPE_SEND*Chat.TYPE_TEXT:
+            case Chat.TYPE_SEND * Chat.TYPE_TEXT:
                 view = inflater.inflate(R.layout.fragment_chat_sent, parent, false);
                 return new SentTextViewHolder(view);
-            case Chat.TYPE_RECEIVE*Chat.TYPE_TEXT:
+            case Chat.TYPE_RECEIVE * Chat.TYPE_TEXT:
                 view = inflater.inflate(R.layout.fragment_chat_received, parent, false);
                 return new ReceivedTextViewHolder(view);
             default:
@@ -111,11 +112,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.BaseViewHolder
             sentName.setText(chat.getSenderName());
             sentText.setText(chat.getChatText());
 
-            sentPicture.setOnClickListener(v->{
+            sentPicture.setOnClickListener(v -> {
 
             });
             // 长按启动服务器
-            sentPicture.setOnLongClickListener(v->{
+            sentPicture.setOnLongClickListener(v -> {
                 clickChatListener.onLongClickChatOwnPicture(v);
                 return true;
             });

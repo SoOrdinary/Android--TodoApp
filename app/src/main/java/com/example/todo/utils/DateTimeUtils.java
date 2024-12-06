@@ -10,7 +10,7 @@ import java.util.Locale;
 public class DateTimeUtils {
 
     // 日期格式：yyyy.MM.dd'  'HH:mm
-    private static final String DATE_FORMAT = "yyyy.MM.dd'  'HH:mm"; 
+    private static final String DATE_FORMAT = "yyyy.MM.dd'  'HH:mm";
 
     // 时间戳转日期字符串
     public static String timestampToString(Long timestamp) {
@@ -20,11 +20,12 @@ public class DateTimeUtils {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
         return dateFormat.format(new Date(timestamp));
     }
+
     // 日期字符串分隔，年月日+时+分
-    public static String[] getSeparatedStringFromTimestamp(String dateString){
+    public static String[] getSeparatedStringFromTimestamp(String dateString) {
         String[] firstParts = dateString.split("  ");
         String[] secondParts = firstParts[1].split(":");
-        return new String[]{firstParts[0],secondParts[0],secondParts[1]};
+        return new String[]{firstParts[0], secondParts[0], secondParts[1]};
     }
 
     // 日期字符串转时间戳

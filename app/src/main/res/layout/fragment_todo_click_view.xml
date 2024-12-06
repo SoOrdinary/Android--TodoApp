@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/input_background">
+    android:background="@color/input_background"
+    android:orientation="vertical">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        android:layout_marginTop="16dp"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/input_box"
         android:scrollbars="none">
 
@@ -18,44 +17,45 @@
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/task_tag"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
-                android:visibility="gone"
+                android:fontFamily="@font/mono"
                 android:text=""
                 android:textSize="8sp"
-                android:fontFamily="@font/mono"/>
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/task_title"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
+                android:fontFamily="@font/mono"
                 android:text=""
-                android:textSize="24sp"
-                android:fontFamily="@font/mono"/>
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/task_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="right"
-                android:visibility="gone"
-                android:text=""
                 android:fontFamily="@font/mono"
-                android:textSize="16sp" />
+                android:text=""
+                android:textSize="16sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/task_details"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="left"
-                android:visibility="gone"
-                android:text=""
                 android:fontFamily="@font/mono"
-                android:textSize="12sp" />
+                android:text=""
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -64,26 +64,29 @@
         android:layout_height="50dp"
         android:layout_marginHorizontal="10dp"
         android:orientation="horizontal">
+
         <TextView
             android:id="@+id/task_due_date"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:paddingLeft="6dp"
             android:gravity="left|center"
-            android:text="2024.11.30  9:30"/>
+            android:paddingLeft="6dp"
+            android:text="2024.11.30  9:30" />
+
         <ImageView
             android:id="@+id/todo_alarm"
             android:layout_width="50dp"
             android:layout_height="47dp"
-            android:layout_marginTop="3dp"
             android:layout_marginHorizontal="10dp"
-            android:src="@drawable/todo_alarm"/>
+            android:layout_marginTop="3dp"
+            android:src="@drawable/todo_alarm" />
+
         <ImageView
             android:id="@+id/todo_edit"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/todo_edit"/>
+            android:src="@drawable/todo_edit" />
     </LinearLayout>
 
 </LinearLayout>

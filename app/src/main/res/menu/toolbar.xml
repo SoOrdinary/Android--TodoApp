@@ -5,10 +5,10 @@
         android:id="@+id/linear"
         android:icon="@drawable/linear"
         android:title=""
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
     <item
         android:id="@+id/waterfall"
         android:icon="@drawable/waterfall"
         android:title=""
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
 </menu>

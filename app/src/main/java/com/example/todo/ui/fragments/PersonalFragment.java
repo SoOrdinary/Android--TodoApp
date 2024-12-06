@@ -32,9 +32,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.todo.BuildConfig;
 import com.example.todo.R;
 import com.example.todo.data.model.ChatViewModel;
 import com.example.todo.data.model.PersonalSharedViewModel;
@@ -42,9 +44,12 @@ import com.example.todo.data.model.TodoTagSharedViewModel;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 
 import io.noties.markwon.Markwon;
 
@@ -66,7 +71,6 @@ public class PersonalFragment extends Fragment {
 
     private LinearLayout taskTag;
     private LinearLayout chatClean;
-    private LinearLayout lock;
     private LinearLayout introduction;
     private LinearLayout share;
     private LinearLayout submitBug;
@@ -81,12 +85,13 @@ public class PersonalFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_personal, container, false);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // 初始化 ViewModel
-        todoTagSharedViewModel =new ViewModelProvider(requireActivity()).get(TodoTagSharedViewModel.class);
+        todoTagSharedViewModel = new ViewModelProvider(requireActivity()).get(TodoTagSharedViewModel.class);
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         personalSharedViewModel = new ViewModelProvider(requireActivity()).get(PersonalSharedViewModel.class);
         // 控件绑定
@@ -101,17 +106,17 @@ public class PersonalFragment extends Fragment {
         currentSignatureTextView = view.findViewById(R.id.current_signature);
 
         // 按钮绑定
-        editInformationImageView.setOnClickListener(v->{
+        editInformationImageView.setOnClickListener(v -> {
             // 如果视图是可见的
-            if(changeInterfaceLinearLayout.getVisibility() == View.VISIBLE){
+            if (changeInterfaceLinearLayout.getVisibility() == View.VISIBLE) {
                 changeInterfaceLinearLayout.setVisibility(View.GONE);
-            }else{
+            } else {
                 changeInterfaceLinearLayout.setVisibility(View.VISIBLE);
             }
         });
 
         // 观察用户个人头像的Url
-        personalSharedViewModel.getUserOwnPicLiveData().observe(getViewLifecycleOwner(), newOwnPic ->{
+        personalSharedViewModel.getUserOwnPicLiveData().observe(getViewLifecycleOwner(), newOwnPic -> {
             if (newOwnPic != null && !newOwnPic.isEmpty()) {
                 try {
                     // 解码Base64字符串
@@ -136,7 +141,7 @@ public class PersonalFragment extends Fragment {
         });
 
         // 观察用户聊天头像的Url
-        personalSharedViewModel.getUserChatPicLiveData().observe(getViewLifecycleOwner(), newChatPic ->{
+        personalSharedViewModel.getUserChatPicLiveData().observe(getViewLifecycleOwner(), newChatPic -> {
             currentChatPictureImageView.setColorFilter(Color.parseColor(newChatPic), PorterDuff.Mode.SRC_IN);
         });
 
@@ -154,40 +159,27 @@ public class PersonalFragment extends Fragment {
 
         // 修改的点击事件绑定
         // 个人头像
-        currentPictureImageView.setOnClickListener(v->{
-            // 创建一个 Dialog 弹窗，用于选择拍照或从相册选择图片
-            final Dialog dialog = new Dialog(requireContext());
-            dialog.setCancelable(true);
-            dialog.setContentView(R.layout.fragment_todo_click_photo);
-
-            // 获取布局中的输入控件
-            LinearLayout choosePhoto = dialog.findViewById(R.id.choose_photo);
-
-
-            // 相册选择按钮点击事件
-            choosePhoto.setOnClickListener(viewChoose -> {
-                if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(requireActivity(),new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-                }else{
-                    Intent intent=new Intent("android.intent.action.GET_CONTENT");
-                    intent.setType("image/*");
-                    startActivityForResult(intent,1);
-                }
-                dialog.dismiss();
-            });
-
-            // 显示对话框
-            dialog.show();
+        currentPictureImageView.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                Intent intent = new Intent("android.intent.action.GET_CONTENT");
+                intent.setType("image/*");
+                startActivityForResult(intent, 1);
+            } else {
+                Intent intent = new Intent("android.intent.action.GET_CONTENT");
+                intent.setType("image/*");
+                startActivityForResult(intent, 1);
+            }
         });
         // 聊天头像
-        currentChatPictureImageView.setOnClickListener(v->{
+        currentChatPictureImageView.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_change);
-            EditText changeChatPicToText=dialog.findViewById(R.id.want_to_chang);
-            Button confirmButton=dialog.findViewById(R.id.confirm_change);
+            EditText changeChatPicToText = dialog.findViewById(R.id.want_to_chang);
+            Button confirmButton = dialog.findViewById(R.id.confirm_change);
             changeChatPicToText.setHint("Hexadecimal color code");
-            confirmButton.setOnClickListener(viewConfirm->{
+            confirmButton.setOnClickListener(viewConfirm -> {
                 String inputColor = changeChatPicToText.getText().toString();
                 // 使用正则表达式直接验证十六进制颜色代码
                 if (inputColor.matches("^[0-9A-Fa-f]{6}$")) {
@@ -202,88 +194,81 @@ public class PersonalFragment extends Fragment {
             dialog.show();
         });
         // 昵称
-        currentNameTextView.setOnClickListener(v->{
+        currentNameTextView.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_change);
-            EditText changeNameToText=dialog.findViewById(R.id.want_to_chang);
-            Button confirmButton=dialog.findViewById(R.id.confirm_change);
+            EditText changeNameToText = dialog.findViewById(R.id.want_to_chang);
+            Button confirmButton = dialog.findViewById(R.id.confirm_change);
             changeNameToText.setHint("Change your name");
-            confirmButton.setOnClickListener(viewConfirm->{
+            confirmButton.setOnClickListener(viewConfirm -> {
                 personalSharedViewModel.updateUserName(changeNameToText.getText().toString());
                 dialog.dismiss();
             });
             dialog.show();
         });
         // 签名
-        currentSignatureTextView.setOnClickListener(v->{
+        currentSignatureTextView.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_change);
-            EditText changeSignatureToText=dialog.findViewById(R.id.want_to_chang);
-            Button confirmButton=dialog.findViewById(R.id.confirm_change);
+            EditText changeSignatureToText = dialog.findViewById(R.id.want_to_chang);
+            Button confirmButton = dialog.findViewById(R.id.confirm_change);
             changeSignatureToText.setHint("Change your signature");
-            confirmButton.setOnClickListener(viewConfirm->{
+            confirmButton.setOnClickListener(viewConfirm -> {
                 personalSharedViewModel.updateUserSignature(changeSignatureToText.getText().toString());
                 dialog.dismiss();
             });
             dialog.show();
         });
-        taskTag=view.findViewById(R.id.task_tag_management);
-        chatClean=view.findViewById(R.id.clean_chat_history);
-        lock=view.findViewById(R.id.privacy_lock);
-        introduction=view.findViewById(R.id.function_introduction);
-        share=view.findViewById(R.id.share_with_your_friend);
-        submitBug=view.findViewById(R.id.submit_a_bug);
-        aboutAuthor=view.findViewById(R.id.about_author);
+        taskTag = view.findViewById(R.id.task_tag_management);
+        chatClean = view.findViewById(R.id.clean_chat_history);
+        introduction = view.findViewById(R.id.function_introduction);
+        share = view.findViewById(R.id.share_with_your_friend);
+        submitBug = view.findViewById(R.id.submit_a_bug);
+        aboutAuthor = view.findViewById(R.id.about_author);
         taskTag.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_todo_tag);
-            EditText changeTag=dialog.findViewById(R.id.change_tag);
-            Button deleteTag=dialog.findViewById(R.id.confirm_delete);
-            Button addTag=dialog.findViewById(R.id.confirm_add);
-            deleteTag.setOnClickListener(viewDelete->{
-                String tag=changeTag.getText().toString();
-                if(todoTagSharedViewModel.isTagExist(tag)){
+            EditText changeTag = dialog.findViewById(R.id.change_tag);
+            Button deleteTag = dialog.findViewById(R.id.confirm_delete);
+            Button addTag = dialog.findViewById(R.id.confirm_add);
+            deleteTag.setOnClickListener(viewDelete -> {
+                String tag = changeTag.getText().toString();
+                if (todoTagSharedViewModel.isTagExist(tag)) {
                     todoTagSharedViewModel.removeTag(tag);
                     Toast.makeText(requireContext(), "Delete successfully", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
-                }else {
+                } else {
                     Toast.makeText(requireContext(), "Delete failed, the tag does not exist", Toast.LENGTH_SHORT).show();
                 }
             });
-            addTag.setOnClickListener(viewDelete->{
-                String tag=changeTag.getText().toString();
-                if(!todoTagSharedViewModel.isTagExist(tag)){
+            addTag.setOnClickListener(viewDelete -> {
+                String tag = changeTag.getText().toString();
+                if (!todoTagSharedViewModel.isTagExist(tag)) {
                     todoTagSharedViewModel.addTag(tag);
                     Toast.makeText(requireContext(), "Add successfully", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
-                }else {
+                } else {
                     Toast.makeText(requireContext(), "Add failed, the tag already exists", Toast.LENGTH_SHORT).show();
                 }
             });
             dialog.show();
         });
-        chatClean.setOnClickListener(v->{
+        chatClean.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_chat_clean);
-            Button confirmDeleteAll=dialog.findViewById(R.id.confirm_delete);
-            confirmDeleteAll.setOnClickListener(viewDelete->{
+            Button confirmDeleteAll = dialog.findViewById(R.id.confirm_delete);
+            confirmDeleteAll.setOnClickListener(viewDelete -> {
                 chatViewModel.deleteAll();
                 Toast.makeText(requireContext(), "Delete successfully", Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             });
             dialog.show();
         });
-        lock.setOnClickListener(v->{
-            final Dialog dialog = new Dialog(requireContext());
-            dialog.setCancelable(true);
-            dialog.setContentView(R.layout.fragment_personal_lock);
-            dialog.show();
-        });
-        introduction.setOnClickListener(v->{
+        introduction.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_introduction);
@@ -297,24 +282,38 @@ public class PersonalFragment extends Fragment {
 
             dialog.show();
         });
-        share.setOnClickListener(v->{
-            // 分享--需要apk
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain"); // 分享文本
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this app");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Todo");
 
-            // 启动分享界面
-            startActivity(Intent.createChooser(shareIntent, "Share via"));
+
+        share.setOnClickListener(v -> {
+            try {
+                // GitHub 项目链接
+                String url = "百度网盘[3.Android--TodoApp]\n" +
+                        "链接: https://pan.baidu.com/s/17nlVIVCPMdmzWI7P4lnCSw\n" +
+                        "提取码: mw74";
+
+                // 创建 Intent 来分享 URL
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain"); // 设定为纯文本类型
+
+                // 添加分享内容
+                shareIntent.putExtra(Intent.EXTRA_TEXT, url);
+
+                // 启动分享界面
+                startActivity(Intent.createChooser(shareIntent, "Share GitHub URL"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(requireContext(), "Error sharing URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
 
-        submitBug.setOnClickListener(v->{
+
+        submitBug.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_submit_bug);
             dialog.show();
         });
-        aboutAuthor.setOnClickListener(v->{
+        aboutAuthor.setOnClickListener(v -> {
             final Dialog dialog = new Dialog(requireContext());
             dialog.setCancelable(true);
             dialog.setContentView(R.layout.fragment_personal_author);
@@ -350,11 +349,11 @@ public class PersonalFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
-                if(resultCode==requireActivity().RESULT_OK){
-                    if(Build.VERSION.SDK_INT>=19){
+                if (resultCode == requireActivity().RESULT_OK) {
+                    if (Build.VERSION.SDK_INT >= 19) {
                         // 4.4及以上的系统
                         handleImageOnKitKat(data);
-                    }else{
+                    } else {
                         handleImageBeforeKitKat(data);
                     }
                 }
@@ -364,45 +363,46 @@ public class PersonalFragment extends Fragment {
     }
 
     @TargetApi(19)
-    private void handleImageOnKitKat(Intent data){
-        String imagePath=null;
-        Uri uri=data.getData();
-        if(DocumentsContract.isDocumentUri(requireContext(),uri)){
+    private void handleImageOnKitKat(Intent data) {
+        String imagePath = null;
+        Uri uri = data.getData();
+        if (DocumentsContract.isDocumentUri(requireContext(), uri)) {
             // document类型的Uri，通过document id处理
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];//解析出数字格式的id
-                String selection= MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,selection);
-            }else if("content".equalsIgnoreCase(uri.getScheme())){
+            String docId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1];//解析出数字格式的id
+                String selection = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
+            } else if ("content".equalsIgnoreCase(uri.getScheme())) {
                 // content类型，普遍处理
-                imagePath=getImagePath(uri,null);
-            }else if("file".equalsIgnoreCase(uri.getScheme())){
+                imagePath = getImagePath(uri, null);
+            } else if ("file".equalsIgnoreCase(uri.getScheme())) {
                 // file类型，直接获取
-                imagePath=uri.getPath();
+                imagePath = uri.getPath();
             }
             saveImage(imagePath);//根据图片路径显示图片
         }
     }
 
-    private void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath=getImagePath(uri,null);
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        String imagePath = getImagePath(uri, null);
         saveImage(imagePath);
     }
 
     @SuppressLint("Range")
-    private String getImagePath(Uri uri, String selection){
-        String path=null;
-        Cursor cursor=requireActivity().getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null){
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
+        Cursor cursor = requireActivity().getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
         }
         return path;
     }
+
     private String bitmapToBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);  // 使用JPEG格式压缩
@@ -410,15 +410,15 @@ public class PersonalFragment extends Fragment {
         return Base64.encodeToString(byteArray, Base64.DEFAULT);  // 将字节数组转换为Base64字符串
     }
 
-    private void saveImage(String imagePath){
-        if(imagePath!=null){
-            Bitmap bitmap=BitmapFactory.decodeFile(imagePath);
+    private void saveImage(String imagePath) {
+        if (imagePath != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             String base64Image = bitmapToBase64(bitmap);
             // 存储到 SharedPreferences 中
             personalSharedViewModel.updateUserOwnPic(base64Image);
             Toast.makeText(requireContext(), "Image saved successfully", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(requireContext(), "failed to get image",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(requireContext(), "failed to get image", Toast.LENGTH_SHORT).show();
         }
     }
 

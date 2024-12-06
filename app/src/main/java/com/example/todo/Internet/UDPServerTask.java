@@ -23,9 +23,9 @@ public class UDPServerTask implements Runnable {
     private Context context;
     private final Handler mainHandler;
 
-    public UDPServerTask(Context context,ChatViewModel chatViewModel) {
-        this.context=context;
-        this.chatViewModel=chatViewModel;
+    public UDPServerTask(Context context, ChatViewModel chatViewModel) {
+        this.context = context;
+        this.chatViewModel = chatViewModel;
         this.executor = Executors.newSingleThreadExecutor();
         this.mainHandler = new Handler(Looper.getMainLooper());
     }
@@ -48,15 +48,17 @@ public class UDPServerTask implements Runnable {
             e.printStackTrace();
         }
     }
+
     private void updateUI(final String message) {
         mainHandler.post(() -> {
-            Chat chat=Chat.fromString(message);
+            Chat chat = Chat.fromString(message);
             // 保存接收的别人消息
-            if(chat.getSenderId()!= PersonalShared.getInstance(context).getUserId()){
+            if (chat.getSenderId() != PersonalShared.getInstance(context).getUserId()) {
                 chatViewModel.insert(chat);
             }
         });
     }
+
     public void startServer() {
         executor.execute(this);
     }

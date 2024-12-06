@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:background="@color/input_background"
     android:orientation="vertical"
-    android:background="@color/input_background">
+    android:padding="16dp">
 
     <EditText
         android:id="@+id/task_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
         android:layout_marginBottom="12dp"
         android:background="@drawable/input_box"
         android:hint="Title"
-        android:inputType="text" />
+        android:inputType="text"
+        android:padding="12dp" />
 
     <EditText
         android:id="@+id/task_subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
         android:layout_marginBottom="12dp"
         android:background="@drawable/input_box"
         android:hint="Subtitle"
-        android:inputType="text" />
+        android:inputType="text"
+        android:padding="12dp" />
 
     <ScrollView
         android:id="@+id/ScrollView2"
@@ -33,100 +32,107 @@
         android:layout_height="200dp"
         android:layout_marginBottom="12dp"
         android:scrollbars="none">
-            <EditText
-                android:id="@+id/task_details"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="200dp"
-                android:background="@drawable/input_box"
-                android:layout_span="10000"
-                android:gravity="top|left"
-                android:hint="Details">
-            </EditText>
+
+        <EditText
+            android:id="@+id/task_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="10000"
+            android:background="@drawable/input_box"
+            android:gravity="top|left"
+            android:hint="Details"
+            android:minHeight="200dp"></EditText>
     </ScrollView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="12dp"
         android:layout_marginBottom="12dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingVertical="12dp">
+
         <EditText
             android:id="@+id/task_due_date_day"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
             android:layout_marginRight="20dp"
+            android:layout_weight="2"
             android:background="@drawable/input_box"
-            android:hint="day"/>
+            android:hint="day" />
+
         <EditText
             android:id="@+id/task_due_date_hour"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginRight="20dp"
+            android:layout_weight="1"
             android:background="@drawable/input_box"
-            android:hint="h"/>
+            android:hint="h" />
+
         <EditText
             android:id="@+id/task_due_date_minute"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/input_box"
-            android:hint="m"/>
+            android:hint="m" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp">
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tag"
                 android:layout_marginRight="20dp"
+                android:text="Tag"
                 android:textSize="16sp" />
+
             <Spinner
                 android:id="@+id/task_tag"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginRight="20dp"
-                android:background="@drawable/input_box"/>
+                android:layout_weight="1"
+                android:background="@drawable/input_box" />
         </LinearLayout>
+
         <LinearLayout
+            android:id="@+id/photo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Photo"
                 android:layout_marginRight="20dp"
+                android:text="Cover"
                 android:textSize="16sp" />
+
             <ImageView
                 android:id="@+id/task_cover_image"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="40dp"
-                android:src="@drawable/app_icon"/>
-            <TextView
-                android:id="@+id/cover_url"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="url"
-                android:visibility="gone"/>
+                android:layout_weight="1"
+                android:gravity="center"
+                android:src="@drawable/app_icon" />
         </LinearLayout>
     </LinearLayout>
     <!-- 确定与取消按钮 -->
-        <Button
-            android:id="@+id/button_confirm"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="edit" />
+    <Button
+        android:id="@+id/button_confirm"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="edit" />
 </LinearLayout>

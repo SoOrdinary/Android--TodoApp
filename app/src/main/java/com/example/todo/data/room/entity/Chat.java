@@ -16,8 +16,8 @@ public class Chat {
     public static final int TYPE_PIC = 2;
     public static final int TYPE_VOICE = 3;
     // 接收发送者识别码
-    public static final int TYPE_RECEIVE=-1;
-    public static final int TYPE_SEND=1;
+    public static final int TYPE_RECEIVE = -1;
+    public static final int TYPE_SEND = 1;
 
     @PrimaryKey(autoGenerate = true)
     private int id;                     // 自增ID
@@ -38,13 +38,14 @@ public class Chat {
     @ColumnInfo(name = "chat_voice")
     private String chatVoice;           // 语音消息
 
-    public Chat() {}
+    public Chat() {
+    }
 
     @Ignore
-    public Chat(Long senderId,String senderPic,String senderName, Long sendTime, int chatType, String chatText, String chatPic, String chatVoice) {
+    public Chat(Long senderId, String senderPic, String senderName, Long sendTime, int chatType, String chatText, String chatPic, String chatVoice) {
         this.senderId = senderId;
-        this.senderPic=senderPic;
-        this.senderName=senderName;
+        this.senderPic = senderPic;
+        this.senderName = senderName;
         this.sendTime = sendTime;
         this.chatType = chatType;
         this.chatText = chatText;

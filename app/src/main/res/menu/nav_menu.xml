@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/classify_by_dates" android:checkableBehavior="single">
+    <group
+        android:id="@+id/classify_by_dates"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/today_task"
             android:title="Today Task" />
@@ -8,18 +10,14 @@
             android:id="@+id/list_task"
             android:title="List Task" />
     </group>
-    <item android:id="@+id/tag" android:title="Tag" >
+    <item
+        android:id="@+id/tag"
+        android:title="Tag">
         <menu>
-            <group android:id="@+id/classify_by_tags" android:checkableBehavior="single">
-            <item
-                android:id="@+id/tag_life"
-                android:title="Life" />
-            <item
-                android:id="@+id/tag_study"
-                android:title="Study" />
-            <item
-                android:id="@+id/tag_play"
-                android:title="Play" />
+            <group
+                android:id="@+id/classify_by_tags"
+                android:checkableBehavior="single">
+
             </group>
         </menu>
     </item>
