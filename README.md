@@ -1,6 +1,6 @@
-## Todo 👆 1.1.2
+## Todo 👆 2.0.0[正在重构！]
 
-一个待办事项管理与即时局域网通信应用。
+一个待办事项管理应用。
 
 ## 使用手册
 
@@ -42,15 +42,15 @@
 
 ## 环境要求
 
-- Android Studio（2021.3.1）
-- Gradle 7.4
-- JDK 1.8
+- Android Studio（2024.2.1.11）
+- Gradle 8.9
+- JDK 21
 
 ## 安装步骤
 
 按照以下步骤来设置和运行本项目：
 
-### 1. 克隆仓库
+### 1. 克隆仓库[有时网络或配置问题会失败，可以先fork到自己的仓库然后使用ssl拉取]
 
 ```bash
 git clone https://github.com/yourusername/Android--TodoApp.git
@@ -74,10 +74,7 @@ cd Android--TodoApp
 
 ## 您也可以直接在手机上下载.apk文件
 
-```
-位于app/release/Todo.apk
-[直接传输源apk可能会自动更改后缀，可压缩后传输]
-```
+- https://github.com/SoOrdinary/Android--TodoApp/releases/download/v1.1.2/Todo.zip
 
 ## 更新日志
 
