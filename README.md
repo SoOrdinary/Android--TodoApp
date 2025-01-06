@@ -50,9 +50,9 @@
 
 按照以下步骤来设置和运行本项目：
 
-### 1. 克隆仓库[有时网络或配置问题会失败，可以先fork到自己的仓库然后使用ssl拉取]
-
+### 1. 克隆仓库
 ```bash
+有时网络或配置问题会失败，可以先fork到自己的仓库然后使用ssl拉取
 git clone https://github.com/yourusername/Android--TodoApp.git
 cd Android--TodoApp
 ```
@@ -72,7 +72,7 @@ cd Android--TodoApp
 打开"MTP"而非"仅充电"
 ```
 
-## 您也可以直接在手机上下载.apk文件
+## 也可以尝试直接在手机上下载.apk文件
 
 - https://github.com/SoOrdinary/Android--TodoApp/releases/download/v1.1.2/Todo.zip
 
