@@ -4,6 +4,7 @@ import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -21,14 +22,20 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                 // putExtra()
             }
             // 设置进入动画和退出动画
-            val options = ActivityOptions.makeCustomAnimation(context, 0, 0)
+            val options = ActivityOptions.makeCustomAnimation(context, R.anim.activity_add_in, R.anim.activity_add_out)
             context.startActivity(intent, options.toBundle())
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+        enableEdgeToEdge()
     }
 
+    override fun finish() {
+        super.finish()
+        // Todo:设置退出动画
+    }
     override fun getBindingInflate()=ActivityAddBinding.inflate(layoutInflater)
 }

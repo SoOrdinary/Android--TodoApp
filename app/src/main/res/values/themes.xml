@@ -1,8 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Todo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- 可选：去掉状态栏下面的阴影 -->
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorPrimary">@color/theme_color</item>
     </style>
 
     <style name="Theme.Todo" parent="Base.Theme.Todo" />

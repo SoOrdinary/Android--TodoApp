@@ -32,13 +32,8 @@ abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         ActivityCollector.addActivity(this)
-
         _binding=getBindingInflate()
-        setContentView(binding.root)
-
-        enableEdgeToEdge()
     }
 
     // 抽象方法，取得加载实例视图
