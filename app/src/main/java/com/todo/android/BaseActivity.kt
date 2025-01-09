@@ -1,18 +1,10 @@
 package com.todo.android
 
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import java.lang.ref.WeakReference
 

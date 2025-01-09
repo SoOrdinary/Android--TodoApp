@@ -6,7 +6,10 @@ import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.todo.android.R
+import com.todo.android.data.room.entity.Task
 import com.todo.android.databinding.FragmentTaskBinding
 import com.todo.android.view.MainActivity
 
@@ -34,12 +37,33 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentTaskBinding.bind(view)
+
+        binding.taskList.apply{
+            this.layoutManager = StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.VERTICAL)
+            this.adapter = TaskAdapter(this@TaskFragment,init(20),1)
+        }
+
         // 点击头像后打开侧边栏
         binding.profile.setOnClickListener{
-            (activity as? MainActivity)?.binding?.layoutMain?.openDrawer(GravityCompat.START)
+            (requireActivity() as MainActivity).binding.layoutMain.openDrawer(GravityCompat.START)
         }
     }
 
+    fun init(i: Int): List<Task> {
+        return List(i) { index ->
+            Task(
+                id = index + 1,  // 设置 id 为 1 到 i
+                title = "任务 ${index + 1}",
+                subtitle = "副标题 ${index + 1}",
+                details = "任务内容 ${index + 1}",
+                voice = null,
+                image = null,
+                dueDate = System.currentTimeMillis() + (index * 10000000L),  // 设置不同的截止日期
+                isFinish = index % 2 == 0,  // 偶数任务完成，奇数未完成
+                tag = "标签 ${index + 1}"
+            )
+        }
+    }
 
 
 }
