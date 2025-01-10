@@ -39,6 +39,11 @@
             android:src="@drawable/task_linear"/>
     </androidx.appcompat.widget.Toolbar>
 
+    <Button
+        android:id="@+id/add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/task_list"
         android:layout_width="match_parent"

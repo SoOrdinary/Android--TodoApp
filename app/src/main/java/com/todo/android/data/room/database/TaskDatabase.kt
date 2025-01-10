@@ -9,7 +9,7 @@ import com.todo.android.data.room.entity.Task
 import kotlin.concurrent.Volatile
 
 
-@Database(version = 1, entities = [Task::class])
+@Database(version = 1, entities = [Task::class],exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao // 获取 Dao

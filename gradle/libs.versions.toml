@@ -12,9 +12,9 @@ activity = "1.8.0"
 constraintlayout = "2.1.4"
 navigationFragmentKtxVersion = "2.6.0"
 legacySupportV4 = "1.0.0"
-lifecycleLivedataKtx = "2.6.1"
-lifecycleViewmodelKtx = "2.6.1"
-fragmentKtx = "1.5.6"
+lifecycleLivedataKtx = "2.8.7"
+lifecycleViewmodelKtx = "2.8.7"
+fragmentKtx = "1.6.0"
 roomKtxVersion = "2.5.1"
 roomRuntimeVersion = "2.5.1"
 
@@ -40,4 +40,3 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtxVersion" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-

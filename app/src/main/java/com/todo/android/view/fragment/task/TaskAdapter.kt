@@ -16,6 +16,7 @@ import com.todo.android.utils.DateTimeUtils
  * Task列表适配器 Todo:写一个带基类的RecycleView扩展库，方便不同布局的实现
  *
  * @improve 基类BaseViewHolder统管不同的item
+ * @improve Todo：适配图片等用Gilde
  */
 class TaskAdapter(private val fragment: TaskFragment, private val taskList: List<Task>, private val itemType: Int) : RecyclerView.Adapter<TaskAdapter.BaseViewHolder>() {
 
@@ -68,7 +69,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                 } else {
                     taskLinearDueDate.setTextColor(Color.parseColor("#018786"));
                 }
-                // 绑定点击事件
+                // Todo:绑定点击事件
 
             }
         }
@@ -105,7 +106,8 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                 } else {
                     taskGridDueDate.setTextColor(Color.parseColor("#018786"));
                 }
-                // 事件绑定
+                // Todo:事件绑定
+
             }
         }
     }
