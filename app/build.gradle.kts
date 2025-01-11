@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    kapt ("com.github.bumptech.glide:compiler:4.15.1")
     kapt("androidx.room:room-compiler:2.5.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

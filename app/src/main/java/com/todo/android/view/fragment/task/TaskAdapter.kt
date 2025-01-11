@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.todo.android.R
 import com.todo.android.data.room.entity.Task
 import com.todo.android.databinding.FragmentTaskGridBinding
@@ -15,24 +17,31 @@ import com.todo.android.utils.DateTimeUtils
 /**
  * Task列表适配器 Todo:写一个带基类的RecycleView扩展库，方便不同布局的实现
  *
- * @improve 基类BaseViewHolder统管不同的item
- * @improve Todo：适配图片等用Gilde
+ * @role1 用于适配Task界面的列表每一项
+ *
+ * @explain1 依次传入的参数为 当前view、需要显示的列表、显示的方式
+ *
+ * @improve1 基类BaseViewHolder统管不同的item，拥有抽象函数bind将事件绑定同一归属
+ * @improve2 Todo:适配图片等用Gilde，增加流畅度
+ * @improve3 Todo:通过diff优化查询更新
  */
 class TaskAdapter(private val fragment: TaskFragment, private val taskList: List<Task>, private val itemType: Int) : RecyclerView.Adapter<TaskAdapter.BaseViewHolder>() {
 
+    // 点击事件适配
+    val listenTaskItemClick = fragment.ListenTaskItemClick()
     // 内部基类，简化多种适配item与bind的书写
     abstract inner class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun bind(task: Task)
     }
 
-    // 根据返回的布局ID判断加载哪个布局
+    // 根据返回的布局ID判断加载哪种布局
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         when(viewType){
-            0-> {
+            1-> {
                 val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_linear, parent, false)
                 return LinearViewHolder(view)
             }
-            1-> {
+            2-> {
                 val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_grid, parent, false)
                 return GridViewHolder(view)
             }
@@ -53,24 +62,34 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
     inner class LinearViewHolder(view: View) : BaseViewHolder(view){
         private val binding = FragmentTaskLinearBinding.bind(view)
         override fun bind(task: Task) {
-            binding.apply {
+            with(binding) {
                 // 基本属性赋值与UI优化
                 taskLinearTitle.text = task.title
                 taskLinearSubtitle.text = task.subtitle
                 taskLinearDueDate.text = DateTimeUtils.timestampToString(task.dueDate)
                 taskLinearStatus.isChecked = task.isFinish
-                if (task.isFinish) {
-                    taskLinear.setAlpha(0.3f);
-                } else {
-                    taskLinear.setAlpha(1.0f);
-                }
+                // 完成的事件变得透明一点
+                taskLinear.alpha = if (task.isFinish) 0.3f else 1.0f
+                // 超时没完成的事件变红
                 if ((!task.isFinish) && (task.dueDate!! < System.currentTimeMillis())) {
-                    taskLinearDueDate.setTextColor(Color.RED);
+                    taskLinearDueDate.setTextColor(Color.RED)
                 } else {
-                    taskLinearDueDate.setTextColor(Color.parseColor("#018786"));
+                    taskLinearDueDate.setTextColor(Color.parseColor("#018786"))
                 }
-                // Todo:绑定点击事件
-
+                // 绑定点击事件
+                taskLinear.setOnClickListener(null)
+                taskLinear.setOnLongClickListener(null)
+                taskLinearStatus.setOnClickListener(null)
+                taskLinear.setOnClickListener {
+                    listenTaskItemClick.onClickItem(it,task)
+                }
+                taskLinear.setOnLongClickListener {
+                    listenTaskItemClick.onLongClickItem(it,task)
+                    true
+                }
+                taskLinearStatus.setOnClickListener {
+                    listenTaskItemClick.onClickCheckBox(task)
+                }
             }
         }
     }
@@ -79,36 +98,51 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
     inner class GridViewHolder(view: View) : BaseViewHolder(view){
         private val binding = FragmentTaskGridBinding.bind(view)
         override fun bind(task: Task) {
-            binding.apply {
+            with(binding) {
                 // 基本属性赋值与UI优化
                 taskGridTitle.text = task.title
-                if(task.subtitle.isNotEmpty()){
-                    taskGridSubtitle.text = task.subtitle
-                    taskGridSubtitle.visibility = View.VISIBLE
-                }else{
+                // 没有副标题的item副标题不占空间
+                if(task.subtitle.isEmpty()){
                     taskGridSubtitle.visibility = View.GONE
+                }else{
+                    taskGridSubtitle.visibility = View.VISIBLE
+                    taskGridSubtitle.text = task.subtitle
                 }
                 taskGridDueDate.text = DateTimeUtils.timestampToString(task.dueDate)
                 taskGridStatus.isChecked = task.isFinish
+                // 没有图片的不会占用空间
                 if(task.image.isNullOrEmpty()){
                     taskGridCoverImage.visibility = View.GONE
                 }else{
                     taskGridCoverImage.visibility = View.VISIBLE
                     // Todo:加载自适应高度的图片
-                }
-                if (task.isFinish) {
-                    taskGrid.setAlpha(0.3f);
-                } else {
-                    taskGrid.setAlpha(1.0f);
-                }
-                if ((!task.isFinish) && (task.dueDate!! < System.currentTimeMillis())) {
-                    taskGridDueDate.setTextColor(Color.RED);
-                } else {
-                    taskGridDueDate.setTextColor(Color.parseColor("#018786"));
-                }
-                // Todo:事件绑定
+                    Glide.with(taskGridCoverImage.context)
 
+                }
+                // 完成的事件变得透明一点
+                taskGrid.alpha = if (task.isFinish) 0.3f else 1.0f
+                // 超时没完成的事件变红
+                if ((!task.isFinish) && (task.dueDate!! < System.currentTimeMillis()))
+                    taskGridDueDate.setTextColor(Color.RED)
+                else
+                    taskGridDueDate.setTextColor(Color.parseColor("#018786"))
+                // Todo:事件绑定
+                taskGrid.setOnClickListener(null)
+                taskGrid.setOnLongClickListener(null)
+                taskGridStatus.setOnClickListener(null)
+                taskGrid.setOnClickListener {
+                    listenTaskItemClick.onClickItem(it,task)
+                }
+                taskGrid.setOnLongClickListener {
+                    listenTaskItemClick.onLongClickItem(it,task)
+                    true
+                }
+                taskGridStatus.setOnClickListener {
+                    listenTaskItemClick.onClickCheckBox(task)
+                }
             }
         }
     }
+
+
 }

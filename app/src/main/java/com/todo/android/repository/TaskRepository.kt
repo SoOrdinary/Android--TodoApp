@@ -11,7 +11,9 @@ import java.io.File
 /**
  * Task仓库,增删改查使用liveData自带的协程
  *
- * @role 提供了常用的task的增删改查函数
+ * @role1 为对room数据库Task进行异步查询提供了常用的函数以便调用
+ *
+ * @improve1 Todo:增加缓存
  */
 class TaskRepository() {
 

@@ -11,28 +11,28 @@ import com.todo.android.utils.DateTimeUtils
 import kotlinx.coroutines.launch
 
 /**
- * Task的ViewModel层，保存临时数据
+ * Task的ViewModel层
  *
- * Todo:room这一整块感觉写的好乱，有时间优化一下，找找规范写法
+ * @role1 查询room数据库Task的相关任务并保存结果
+ * @role2 Todo:查询当天天气并用于显示
+ *
+ * @explain1 ViewModel主构造属性中赋值了 |查询方式+五种查询条件| 可默认值或传参修改，以及调用函数修改，默认为查询当天的所有事件
+ * @explain2 查询会返回各种liveData，最后会通过映射只需要观察taskLiveData就可以了
  */
-class TaskViewModel : ViewModel() {
-
+class TaskViewModel(
+    private val queryTypeLiveData: MutableLiveData<QueryType> = MutableLiveData<QueryType>(QueryType.DUE_DATE_AND_FINISH),
+    private var isFinish: Boolean? = null,
+    private var title: String = "",
+    private var tag: String = "",
+    private var startDate: Long = DateTimeUtils.getStartOfDay(0),
+    private var endDate: Long = DateTimeUtils.getEndOfDay(0)
+) : ViewModel() {
     private val repository: TaskRepository = TaskRepository()
 
-    // 缓存数据
+    // 缓存一些数据或信息
     var taskList = ArrayList<Task>()
-    var viewType = 0
-    var searchKey = ""
-
-    // 定义一个查询标识，指示当前使用哪个查询方法
-    private val queryTypeLiveData = MutableLiveData<QueryType>(QueryType.DUE_DATE_AND_FINISH)
-
-    // 定义查询参数
-    private var isFinish: Boolean? = null
-    private var title: String = ""
-    private var tag: String = ""
-    private var startDate: Long = DateTimeUtils.getStartOfDay(0)
-    private var endDate: Long = DateTimeUtils.getEndOfDay(0)
+    var listCount = 1
+    var listType = 1
 
     // 定义查询类型的枚举
     enum class QueryType {
@@ -49,7 +49,7 @@ class TaskViewModel : ViewModel() {
             QueryType.TITLE_AND_FINISH -> repository.getTasksByTitleAndFinish(title, isFinish)
             QueryType.TAG_AND_FINISH -> repository.getTasksByTagAndFinish(tag, isFinish)
             QueryType.DUE_DATE_AND_FINISH -> repository.getTasksByDueDateAndFinish(startDate, endDate, isFinish)
-            else -> repository.getTasksByDueDateAndFinish(DateTimeUtils.getStartOfDay(0), DateTimeUtils.getEndOfDay(0), null)
+            else -> repository.getTasksByDueDateAndFinish(0, DateTimeUtils.getEndOfDay(0), null)
         }
     }
 
@@ -69,27 +69,27 @@ class TaskViewModel : ViewModel() {
     }
 
     // 设置完成状态查询
-    fun setFinishStatus(isFinish: Boolean) {
+    fun setFinishStatus(isFinish: Boolean?) {
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.FINISH_STATUS
     }
 
     // 设置标题和完成状态查询
-    fun setTitleSearch(title: String, isFinish: Boolean) {
+    fun setTitleSearch(title: String, isFinish: Boolean?) {
         this.title = title
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.TITLE_AND_FINISH
     }
 
     // 设置标签和完成状态查询
-    fun setTagSearch(tag: String, isFinish: Boolean) {
+    fun setTagSearch(tag: String, isFinish: Boolean?) {
         this.tag = tag
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.TAG_AND_FINISH
     }
 
     // 设置日期范围和完成状态查询
-    fun setDueDateRange(startDate: Long, endDate: Long, isFinish: Boolean) {
+    fun setDueDateRange(startDate: Long, endDate: Long, isFinish: Boolean?) {
         this.startDate = startDate
         this.endDate = endDate
         this.isFinish = isFinish

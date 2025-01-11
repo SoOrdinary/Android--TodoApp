@@ -1,19 +1,18 @@
 package com.todo.android
 
 import android.app.Activity
-import android.os.Build
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import java.lang.ref.WeakReference
 
 /**
- * 建立Activity基类，方便后续为所有Activity增加共有变量or方法
+ * 建立Activity基类，方便后续为所有Activity增加共有变量or方法 Todo:写一个公有库
  *
  * @role1 定义静态内部类ActivityCollector，在每个活动create|destroy时分别改变记录器的值
  * @role2 VB 填充泛型，为每个Activity自动绑定binding--需要子类实现getBinding方法,private后子类只能get不能set
- * @role3 完成布局的共有初始化工作，绑定视图、全屏、自动对齐边角等
+ *
+ * @improve 该类所有的role都是对项目的improve
  */
 abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
 
@@ -21,10 +20,11 @@ abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
 
     val binding get() = _binding!!
 
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 将该活动添加入列表
         ActivityCollector.addActivity(this)
+        // binding初始化
         _binding=getBindingInflate()
     }
 

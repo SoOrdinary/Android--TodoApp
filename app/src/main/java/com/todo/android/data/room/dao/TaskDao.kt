@@ -8,6 +8,11 @@ import androidx.room.Query
 import androidx.room.Update
 import com.todo.android.data.room.entity.Task
 
+/**
+ * room数据库的Dao层
+ *
+ * @role1 提供常用的增删改查方式
+ */
 @Dao
 interface TaskDao {
     @Insert
@@ -21,7 +26,7 @@ interface TaskDao {
 
     // 根据 ID 查询任务
     @Query("SELECT * FROM tasks WHERE id = :id")
-    fun getTaskById(id: Int): Task
+    fun getTaskById(id: Long): Task
 
     // 根据完成情况查询任务（支持完成/未完成/所有--null），未完成排在完成的前面，未完成的日期从小到大，完成的日期从大到小
     @Query(

@@ -8,8 +8,10 @@ import com.todo.android.data.room.dao.TaskDao
 import com.todo.android.data.room.entity.Task
 import kotlin.concurrent.Volatile
 
-
-@Database(version = 1, entities = [Task::class],exportSchema = false)
+/**
+ * Task的数据库
+ */
+@Database(version = 1, entities = [Task::class], exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao // 获取 Dao
@@ -21,14 +23,10 @@ abstract class TaskDatabase : RoomDatabase() {
         // 获取 TodoDatabase 实例
         @Synchronized
         fun getDatabase(context: Context): TaskDatabase {
-            instance?.let {
-                return it
-            }
+            instance?.let { return it }
             databaseBuilder(context.applicationContext, TaskDatabase::class.java, "task_database")
                 .build()
-                .apply {
-                    instance = this
-                }
+                .apply { instance = this }
             return instance as TaskDatabase
         }
     }

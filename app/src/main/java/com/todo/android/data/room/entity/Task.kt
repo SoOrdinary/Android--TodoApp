@@ -7,18 +7,16 @@ import com.todo.android.utils.DateTimeUtils
 import java.util.Objects
 
 /**
- * 任务的实体关系类
- *
- * @property
+ * Task的实体关系类
  */
 @Entity(tableName = "tasks")
 data class Task(
     @PrimaryKey(autoGenerate = true)
-    var id: Int = 0,                    // 自增ID
+    var id: Long = 0,                    // 自增ID
     var title: String,                  // 标题
     var subtitle: String,               // 副标题
     var details: String,                // 具体内容
-    var voice: String?,                 // 录音
+    var voice: String?,                 // 录音    Todo: 多录音？
     var image: String?,                 // 图片URI Todo：多图
     @ColumnInfo(name = "due_date")
     var dueDate: Long?,                 // 截止日期（时间戳，毫秒值）

@@ -13,6 +13,13 @@ import com.todo.android.BaseActivity
 import com.todo.android.R
 import com.todo.android.databinding.ActivityAddBinding
 
+/**
+ * 增加Task的界面
+ *
+ * @role1 Todo:设置并新增Task
+ *
+ * @improve1 Todo：进入和退出动画
+ */
 class AddActivity : BaseActivity<ActivityAddBinding>() {
 
     companion object{
