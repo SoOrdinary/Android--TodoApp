@@ -1,9 +1,10 @@
 package com.todo.android.repository
 
+import androidx.lifecycle.MutableLiveData
 import com.todo.android.TodoApplication
-import com.todo.android.data.room.dao.TaskDao
 import com.todo.android.data.room.database.TaskDatabase
 import com.todo.android.data.room.entity.Task
+import com.todo.android.data.shared.TaskSharedPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -12,27 +13,46 @@ import java.io.File
  * Task仓库,增删改查使用liveData自带的协程
  *
  * @role1 为对room数据库Task进行异步查询提供了常用的函数以便调用
+ * @role2 管理SharePreference中的taskTag
  *
  * @improve1 Todo:增加缓存
  */
 class TaskRepository() {
 
-    private val taskDao: TaskDao
-
-    init {
-        val db: TaskDatabase = TaskDatabase.getDatabase(TodoApplication.context)
-        taskDao = db.taskDao()
+    // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData
+    companion object{
+        private val _taskTagsLiveData = MutableLiveData<Set<String>>(TaskSharedPreference.tags)
     }
 
+    private val taskDao =TaskDatabase.getDatabase(TodoApplication.context).taskDao()
+
+    // 可观察的tags
+    val taskTagsLiveData : MutableLiveData<Set<String>> get() = _taskTagsLiveData
+
+    // 插入标签
+    suspend fun insertTaskTag(newTag:String){
+        if(TaskSharedPreference.addTag(newTag)){
+            _taskTagsLiveData.value=TaskSharedPreference.tags
+        }
+    }
+
+    // 删除标签
+    suspend fun deleteTaskTag(oldTag:String){
+        if(TaskSharedPreference.removeTag(oldTag)){
+            _taskTagsLiveData.value=TaskSharedPreference.tags
+        }
+    }
+
+
     // 插入任务
-    suspend fun insert(task: Task) {
+    suspend fun insertTask(task: Task) {
         withContext(Dispatchers.IO) {
             taskDao.insert(task)
         }
     }
 
     // 更新任务
-    suspend fun update(task: Task) {
+    suspend fun updateTask(task: Task) {
         withContext(Dispatchers.IO) {
             // 获取数据库中原始封面图片 URL
             val oldTask: Task = taskDao.getTaskById(task.id) // 假设有通过 ID 查询的方法
@@ -49,7 +69,7 @@ class TaskRepository() {
     }
 
     // 删除任务
-    suspend fun delete(task: Task) {
+    suspend fun deleteTask(task: Task) {
         withContext(Dispatchers.IO) {
             // 判断是否有图片 URL，如果有则删除文件
             task.image?.let {

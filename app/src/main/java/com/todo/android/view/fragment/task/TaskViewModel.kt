@@ -27,6 +27,7 @@ class TaskViewModel(
     private var startDate: Long = DateTimeUtils.getStartOfDay(0),
     private var endDate: Long = DateTimeUtils.getEndOfDay(0)
 ) : ViewModel() {
+
     private val repository: TaskRepository = TaskRepository()
 
     // 缓存一些数据或信息
@@ -53,43 +54,56 @@ class TaskViewModel(
         }
     }
 
+    // 插入标签Todo:失败提示
+    fun insertTaskTag(newTag: String) =  viewModelScope.launch {
+        repository.insertTaskTag(newTag)
+    }
+
+    // 删除标签Todo：失败提示
+    fun deleteTaskTag(oldTag:String) = viewModelScope.launch {
+        repository.deleteTaskTag(oldTag)
+    }
+
+    // 获取当前标签组
+    fun getNowTaskTagsLiveData() = repository.taskTagsLiveData
+
     // 插入任务
-    fun insert(task: Task) = viewModelScope.launch {
-        repository.insert(task)
+    fun insertTask(task: Task) = viewModelScope.launch {
+        repository.insertTask(task)
     }
 
     // 更新任务
-    fun update(task: Task) = viewModelScope.launch {
-        repository.update(task)
+    fun updateTask(task: Task) = viewModelScope.launch {
+        repository.updateTask(task)
     }
 
     // 删除任务
-    fun delete(task: Task) = viewModelScope.launch {
-        repository.delete(task)
+    fun deleteTask(task: Task) = viewModelScope.launch {
+        repository.deleteTask(task)
     }
 
-    // 设置完成状态查询
-    fun setFinishStatus(isFinish: Boolean?) {
+    // 根据完成状态查询
+    fun getTasksByFinish(isFinish: Boolean?) {
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.FINISH_STATUS
     }
 
-    // 设置标题和完成状态查询
-    fun setTitleSearch(title: String, isFinish: Boolean?) {
+    // 根据标题和完成状态查询
+    fun getTasksByTitleAndFinish(title: String, isFinish: Boolean?) {
         this.title = title
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.TITLE_AND_FINISH
     }
 
-    // 设置标签和完成状态查询
-    fun setTagSearch(tag: String, isFinish: Boolean?) {
+    // 根据标签和完成状态查询
+    fun getTasksByTagAndFinish(tag: String, isFinish: Boolean?) {
         this.tag = tag
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.TAG_AND_FINISH
     }
 
-    // 设置日期范围和完成状态查询
-    fun setDueDateRange(startDate: Long, endDate: Long, isFinish: Boolean?) {
+    // 根据日期范围和完成状态查询
+    fun getTasksByDueDateAndFinish(startDate: Long, endDate: Long, isFinish: Boolean?) {
         this.startDate = startDate
         this.endDate = endDate
         this.isFinish = isFinish

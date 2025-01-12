@@ -1,12 +1,19 @@
 package com.todo.android.view.fragment.task
 
 import android.app.Dialog
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -21,7 +28,6 @@ import com.todo.android.utils.DateTimeUtils.getSeparatedStringFromTimestamp
 import com.todo.android.utils.DateTimeUtils.timestampToString
 import com.todo.android.view.AddActivity
 import com.todo.android.view.MainActivity
-import java.util.Locale
 
 
 /**
@@ -33,11 +39,14 @@ import java.util.Locale
  *
  * @improve1 Todo:菜单添加动画效果
  * @improve2 Todo:每天的查看放在页面内
+ * @improve3 将拍照等异步事件的处理函数统一，用一个处理器处理多种事件
  */
 class TaskFragment:Fragment(R.layout.fragment_task) {
 
     private val viewModel: TaskViewModel by viewModels()
     private lateinit var binding: FragmentTaskBinding
+    private lateinit var launcher: ActivityResultLauncher<Intent>
+    private lateinit var handleWay:(ActivityResult)->Unit
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,22 +58,41 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
             adapter = TaskAdapter(this@TaskFragment,viewModel.taskList,viewModel.listType)
         }
 
-        // 设立观察者，观察数据变化实时更新ViewModel的缓存并通知列表更新
-        viewModel.taskLiveData.observe(viewLifecycleOwner){
-            viewModel.taskList.clear()
-            viewModel.taskList.addAll(it)
-            binding.taskList.adapter?.notifyDataSetChanged()
+        // 初始化一个提醒函数体，避免后续未初始化直接调用
+        handleWay= {Toast.makeText(requireActivity(),"处理事件未初始化",Toast.LENGTH_SHORT).show()}
+        // 注册一个事件返回器
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            handleWay(result)
         }
+
+        // 初始化一些数据观察者
+        binding.initLiveData()
+
         // 初始化各种点击事件
         binding.initClick()
     }
 
-    // 将组件点击事件放入一个函数中[扩展函数，直接拥有binding上下文，方便设置]
+    // 初始化观察者
+    private fun FragmentTaskBinding.initLiveData(){
+
+        // 观察数据变化实时更新ViewModel的缓存并通知列表更新
+        viewModel.taskLiveData.observe(viewLifecycleOwner){
+            viewModel.taskList.clear()
+            viewModel.taskList.addAll(it)
+            // Todo:优化更新方式
+            binding.taskList.adapter?.notifyDataSetChanged()
+        }
+
+    }
+
+    // 将组件点击事件绑定放入一个函数中[扩展函数，直接拥有binding上下文，方便设置]
     private fun FragmentTaskBinding.initClick(){
+
         // 点击头像后打开侧边栏[requireActivity不会有空的情况]
         profile.setOnClickListener{
             (requireActivity() as MainActivity).binding.layoutMain.openDrawer(GravityCompat.START)
         }
+
         // 点击图标切换风格
         taskShow.setOnClickListener {
             with(viewModel){
@@ -92,6 +120,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 adapter = TaskAdapter(this@TaskFragment,viewModel.taskList,viewModel.listType)
             }
         }
+
     }
 
 
@@ -121,7 +150,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                         dialog.setCancelable(true)
 
                         confirmDelete.setOnClickListener {
-                            viewModel.delete(task)
+                            viewModel.deleteTask(task)
                             dialog.dismiss()
                         }
 
@@ -134,11 +163,12 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
         // 点击单选框
         fun onClickCheckBox(task: Task){
             task.isFinish=!task.isFinish
-            viewModel.update(task)
+            viewModel.updateTask(task)
         }
         // 点击底部导航栏加号
         fun onClickAdd(){
             with(FragmentTaskClickEditBinding.inflate(LayoutInflater.from(requireActivity()))){
+
                 val dialog=Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -148,39 +178,66 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 val day = parts[0]
                 val hour = parts[1]
                 val minute = parts[2]
+
                 // 绑定时间
                 taskDueDateDay.setText(day)
                 taskDueDateHour.setText(hour)
                 taskDueDateMinute.setText(minute)
                 // 绑定标签 Todo:自定义增删标签
-                taskTag.adapter=ArrayAdapter<String>(requireActivity(),android.R.layout.simple_spinner_item,listOf("default","b","c"))
-                // Todo:照片
-
+                taskTag.adapter=ArrayAdapter<String>(requireActivity(),android.R.layout.simple_spinner_dropdown_item,viewModel.getNowTaskTagsLiveData().value!!.toList())
+                // Todo:拍照
+                var imageUri: Uri? =null
+                with(taskImage){
+                    setOnClickListener {
+                        // 处理函数重置，将uri存下来,并将图片控件设置
+                        handleWay = {
+                            it.data?.data?.let { uri ->
+                                imageUri=uri
+                                val bitmap = BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
+                                setImageBitmap(bitmap)
+                            }
+                        }
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "image/*"
+                        }
+                        try {
+                            launcher.launch(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Toast.makeText(this@TaskFragment.requireActivity(), "error", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                // 确认按钮
                 confirm.setOnClickListener {
-                    // 校验输入
+                    // 校验输入，错误则直接返回
                     if (!checkInput(taskTitle, taskDueDateDay, taskDueDateHour, taskDueDateMinute)) return@setOnClickListener
                     // 成功则插入数据
                     val dueTimestamp = DateTimeUtils.stringToTimestamp("${taskDueDateDay.text.toString().trim()}  ${taskDueDateHour.text.toString().trim()}:${taskDueDateMinute.text.toString().trim()}")
-                    viewModel.insert(Task(
+                    viewModel.insertTask(Task(
                         title = taskTitle.text.toString().trim(),
                         subtitle = taskSubtitle.text.toString().trim(),
                         details = "",
                         voice = null,
-                        image = null,//Todo
+                        image = imageUri?.toString(),// 不加?会返回"null"字符串
                         dueDate = dueTimestamp,
                         isFinish = false,
                         tag = taskTag.selectedItem.toString()
                     ))
+
                     dialog.dismiss()
                 }
                 dialog.show()
             }
         }
+
         // 长按底部导航栏加号
         fun onLongClickAdd(){
             AddActivity.actionStart(requireActivity())
         }
 
+        // 校验函数
         private fun checkInput(taskTitle: EditText, taskDueDateDay: EditText, taskDueDateHour: EditText, taskDueDateMinute: EditText): Boolean {
 
             val title = taskTitle.text.toString().trim()
@@ -205,5 +262,23 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
             return true
         }
 
+        // 使用搜索框搜索时
+        fun onSearchByTitle(key:String){
+            viewModel.getTasksByTitleAndFinish(key,null)
+        }
+
+        // 点击侧边栏菜单查询时
+        fun onClickMenuItem(item: MenuItem){
+            when(item.groupId){
+                // 前两个是默认有的，查询当天/查询所有Todo:当天之前的所有未完成的
+                R.id.classify_by_dates->
+                    when(item.itemId){
+                        R.id.today_task->viewModel.getTasksByDueDateAndFinish(DateTimeUtils.getStartOfDay(0), DateTimeUtils.getEndOfDay(0), null)
+                        R.id.list_task->viewModel.getTasksByFinish(null)
+                    }
+                // 后面的都是tag，直接根据title查询
+                R.id.classify_by_tags->viewModel.getTasksByTagAndFinish(item.title.toString(),null)
+            }
+        }
     }
 }

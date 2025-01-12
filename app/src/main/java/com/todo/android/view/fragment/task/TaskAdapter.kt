@@ -1,13 +1,18 @@
 package com.todo.android.view.fragment.task
 
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.todo.android.R
 import com.todo.android.data.room.entity.Task
 import com.todo.android.databinding.FragmentTaskGridBinding
@@ -115,9 +120,12 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                     taskGridCoverImage.visibility = View.GONE
                 }else{
                     taskGridCoverImage.visibility = View.VISIBLE
-                    // Todo:加载自适应高度的图片
+                    // Todo:自适应高度【原方案有问题，失败了过高】
                     Glide.with(taskGridCoverImage.context)
-
+                        .load(task.image)  // 图片的 URL
+                        .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
+                        .placeholder(R.drawable.app_icon)  // 占位图
+                        .into(taskGridCoverImage)
                 }
                 // 完成的事件变得透明一点
                 taskGrid.alpha = if (task.isFinish) 0.3f else 1.0f
@@ -146,3 +154,33 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
 
 
 }
+
+
+/* 加载自适应高度，有点问题
+
+Glide.with(taskGridCoverImage.context)
+.asBitmap()  // 加载为 Bitmap
+.load(task.image)  // 加载图片的 URL
+.placeholder(R.drawable.app_icon)  // 设置占位图
+.into(object : CustomTarget<Bitmap>() {
+    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+        // 设置 LayoutParams 来动态调整高度
+        val width = taskGridCoverImage.width
+        val height = (width * resource.height.toFloat() / resource.width).toInt()
+
+        taskGridCoverImage.layoutParams = taskGridCoverImage.layoutParams.apply {
+            this.width = width
+            this.height = height
+        }
+
+        // 设置加载的图片
+        taskGridCoverImage.setImageBitmap(resource)
+    }
+
+    override fun onLoadCleared(placeholder: Drawable?) {
+        // 图片加载失败时处理：设置占位图或清除图片
+        taskGridCoverImage.setImageDrawable(placeholder)
+    }
+})
+
+*/

@@ -3,21 +3,25 @@ package com.todo.android.view
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.view.inputmethod.EditorInfo
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ReportFragment.Companion.reportFragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.todo.android.BaseActivity
 import com.todo.android.R
 import com.todo.android.databinding.ActivityMainBinding
+import com.todo.android.databinding.NavSideHeaderBinding
 import com.todo.android.view.fragment.task.TaskFragment
+import com.todo.android.view.fragment.task.TaskViewModel
 
 
 /**
@@ -26,6 +30,8 @@ import com.todo.android.view.fragment.task.TaskFragment
  * @role1 集成4个fragment--task、list、alarm、user[在view.fragment.*中]，显示、切换逻辑在该活动中实现+一个跳转addActivity
  * @role2 调整上下UI修正的样式，适应全屏模式，和一些其他控件UI更改
  * @role3 不同Fragment下add的不同效果
+ * @role4 侧边栏和底部导航栏的点击事件
+ * @role5 task的自定义标签动态更新
  *
  * @improve1 底部导航栏更换为jetpack的方式，结构更清晰点
  * @improve2 Todo:底部导航栏切换时顶部自适应
@@ -42,37 +48,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
     }
 
+    private val viewModel: MainViewModel by viewModels()
+
+    override fun getBindingInflate() = ActivityMainBinding.inflate(layoutInflater)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         enableEdgeToEdge()
 
-        // jetpack式底部导航栏与视图绑定
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.findNavController()
-        NavigationUI.setupWithNavController(binding.navBottom,navController)
-        binding.navBottom.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                // 如果是 "nav_add" 按钮，根据当前fragment设置逻辑，同时返回else表示add按钮不被选中
-                R.id.nav_add -> {
-                    when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
-                        is TaskFragment -> fragment.ListenTaskItemClick().onClickAdd()
-                        else->{}
-                    }
-                    false
-                }
-                // 其他按钮默认导航
-                else -> NavigationUI.onNavDestinationSelected(item, navController)
-            }
-        }
-        // 长按会进入更详细的页面去编辑
-        binding.navBottom.findViewById<View>(R.id.nav_add).setOnLongClickListener{
-            when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
-                is TaskFragment -> fragment.ListenTaskItemClick().onLongClickAdd()
-                else->{}
-            }
-            true
-        }
         // 设置样式[在这里面才能获取到系统UI参数，异步执行的]
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -83,19 +67,91 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             bottomLayoutParams.height = systemBars.bottom
             binding.topImprove.layoutParams = topLayoutParams
             binding.bottomImprove.layoutParams = bottomLayoutParams
-            // 侧边栏UI修正
-            with(binding.navSide) {
-                getHeaderView(0).setPadding(0,systemBars.top,0,0)
-                // 调整宽度
-                val screenWidth = resources.displayMetrics.widthPixels
-                val params: ViewGroup.LayoutParams = layoutParams
-                params.width = (screenWidth * 0.66).toInt()
-                layoutParams=params
-            }
+            // 侧边栏UI修正高度，默认选择today_task
+            binding.navSide.getHeaderView(0).setPadding(0,systemBars.top,0,0)
+            binding.navSide.setCheckedItem(R.id.today_task)
             insets
         }
 
+        // 侧边栏UI修正
+        with(binding.navSide){
+            // 调整宽度,个人设置成了整个屏幕的2/3
+            val screenWidth = resources.displayMetrics.widthPixels
+            val params: ViewGroup.LayoutParams = layoutParams
+            params.width = (screenWidth * 0.66).toInt()
+            layoutParams=params
+            // 获取当前所有的tags并渲染
+            viewModel.getNowTaskTagsLiveData().observe(this@MainActivity){
+                // 清空所有item
+                menu.clear()
+                // 先更新固定的，再根据tags更新菜单项
+                menu.add(R.id.classify_by_dates, R.id.today_task,  Menu.NONE, "Today Task")
+                menu.add(R.id.classify_by_dates, R.id.list_task,  Menu.NONE, "List  Task")
+                it.forEach { tag ->
+                    // 为每个tag动态创建菜单项并添加到菜单中
+                    menu.add(R.id.classify_by_tags, View.generateViewId(), Menu.NONE, tag)
+                }
+            }
+        }
+
+        // 初始化各种点击事件
+        binding.initClick()
     }
 
-    override fun getBindingInflate() = ActivityMainBinding.inflate(layoutInflater)
+
+    // 点击事件初始化扩展函数
+    private fun ActivityMainBinding.initClick(){
+
+        // 获取一些必要的组件实例
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val sideHeaderBinding = NavSideHeaderBinding.bind(navSide.getHeaderView(0))
+
+        // jetpack式底部导航栏点击与视图绑定
+        val navController = navHostFragment.findNavController()
+        NavigationUI.setupWithNavController(binding.navBottom,navController)
+        with(binding.navBottom){
+            setOnItemSelectedListener { item ->
+                when (item.itemId) {
+                    // 如果是 "nav_add" 按钮，根据当前fragment设置逻辑，同时返回else表示add按钮不被选中
+                    R.id.nav_add -> {
+                        when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
+                            is TaskFragment -> fragment.ListenTaskItemClick().onClickAdd()
+                            else->{}
+                        }
+                        false
+                    }
+                    // 其他按钮默认导航
+                    else -> NavigationUI.onNavDestinationSelected(item, navController)
+                }
+            }
+            // 长按加号会进入更详细的页面去编辑
+            findViewById<View>(R.id.nav_add).setOnLongClickListener{
+                when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
+                    is TaskFragment -> fragment.ListenTaskItemClick().onLongClickAdd()
+                    else->{}
+                }
+                true
+            }
+        }
+
+        // 搜索框输入内容并按下回车，回调Fragment自定义方法，并清空内容,以及取消菜单栏按钮的选中情况Todo:回车后隐藏键盘，改为能够实时查询，以及单开一个dialog来查询？还有查询时取消其他tag的选择
+        sideHeaderBinding.searchTask.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if(v.text.isNullOrEmpty()) return@setOnEditorActionListener true
+                val fragment = navHostFragment.childFragmentManager.fragments[0]
+                if (fragment is TaskFragment) fragment.ListenTaskItemClick().onSearchByTitle(v.text.toString().trim())
+                v.text = ""
+                layoutMain.closeDrawers()
+            }
+            true
+        }
+
+        // 点击侧边栏的某一菜单后回调Fragment自定义好的逻辑，然后关闭侧边栏并选中该菜单
+        navSide.setNavigationItemSelectedListener {
+            val fragment = navHostFragment.childFragmentManager.fragments[0]
+            if (fragment is TaskFragment) fragment.ListenTaskItemClick().onClickMenuItem(it)
+            layoutMain.closeDrawers()
+            true
+        }
+    }
 }

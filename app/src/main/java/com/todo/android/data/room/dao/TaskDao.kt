@@ -39,7 +39,7 @@ interface TaskDao {
 
     // 根据标题查询任务（支持完成/未完成/所有--null），按日期排序，未完成任务优先
     @Query(
-        "SELECT * FROM tasks WHERE title LIKE '%' || LOWER(:title) || '%' AND ( :isFinish IS null OR is_finish = :isFinish ) ORDER BY " +
+        "SELECT * FROM tasks WHERE title LIKE '%' || :title || '%' AND ( :isFinish IS null OR is_finish = :isFinish ) ORDER BY " +
                 "CASE WHEN is_finish = 0 THEN 0 ELSE 1 END ASC, " +
                 "CASE WHEN is_finish = 0 THEN due_date END ASC, " +
                 "CASE WHEN is_finish = 1 THEN due_date END DESC"
