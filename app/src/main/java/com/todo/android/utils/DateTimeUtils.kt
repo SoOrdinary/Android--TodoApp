@@ -9,7 +9,9 @@ import java.util.Locale
 /**
  * 时间转换器
  *
- * @role 将Long型时间转换为"yyyy.MM.dd'  'HH:mm"格式
+ * @role1 将Long型时间转换为"yyyy.MM.dd'  'HH:mm"格式
+ * @role2 将时间分隔为年月日时分
+ * @role3 获取当天的时间起始与末尾
  */
 object DateTimeUtils {
     // 日期格式：yyyy.MM.dd'  'HH:mm

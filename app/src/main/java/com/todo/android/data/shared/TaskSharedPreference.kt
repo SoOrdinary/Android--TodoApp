@@ -17,6 +17,7 @@ object TaskSharedPreference {
     val tags: MutableSet<String>
         get() = sharedPreferences.getStringSet(TAG_LIST, emptySet())?.toSortedSet() ?: sortedSetOf()
 
+    // 增加标签
     fun addTag(tag: String): Boolean {
         val currentTags = tags.toMutableSet()
         return if (currentTags.add(tag)) {
@@ -26,6 +27,7 @@ object TaskSharedPreference {
         }
     }
 
+    // 移除标签
     fun removeTag(tag: String): Boolean {
         val currentTags = tags.toMutableSet()
         return if (currentTags.remove(tag)) {
@@ -34,4 +36,7 @@ object TaskSharedPreference {
             false
         }
     }
+
+    // 判断某标签是否包含
+    fun isContain(tag: String):Boolean = sharedPreferences.getStringSet(TAG_LIST, emptySet())?.contains(tag) ?:false
 }

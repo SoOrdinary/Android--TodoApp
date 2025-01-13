@@ -7,6 +7,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.todo.android.repository.TaskRepository
 import com.todo.android.data.room.entity.Task
+import com.todo.android.repository.UserRepository
 import com.todo.android.utils.DateTimeUtils
 import kotlinx.coroutines.launch
 
@@ -28,7 +29,8 @@ class TaskViewModel(
     private var endDate: Long = DateTimeUtils.getEndOfDay(0)
 ) : ViewModel() {
 
-    private val repository: TaskRepository = TaskRepository()
+    private val taskRepository: TaskRepository = TaskRepository()
+    private val userRepository: UserRepository = UserRepository()
 
     // 缓存一些数据或信息
     var taskList = ArrayList<Task>()
@@ -46,40 +48,43 @@ class TaskViewModel(
     // 根据查询类型和参数来返回不同的查询结果
     var taskLiveData: LiveData<List<Task>> = queryTypeLiveData.switchMap { queryType ->
         when (queryType) {
-            QueryType.FINISH_STATUS -> repository.getTasksByFinish(isFinish)
-            QueryType.TITLE_AND_FINISH -> repository.getTasksByTitleAndFinish(title, isFinish)
-            QueryType.TAG_AND_FINISH -> repository.getTasksByTagAndFinish(tag, isFinish)
-            QueryType.DUE_DATE_AND_FINISH -> repository.getTasksByDueDateAndFinish(startDate, endDate, isFinish)
-            else -> repository.getTasksByDueDateAndFinish(0, DateTimeUtils.getEndOfDay(0), null)
+            QueryType.FINISH_STATUS -> taskRepository.getTasksByFinish(isFinish)
+            QueryType.TITLE_AND_FINISH -> taskRepository.getTasksByTitleAndFinish(title, isFinish)
+            QueryType.TAG_AND_FINISH -> taskRepository.getTasksByTagAndFinish(tag, isFinish)
+            QueryType.DUE_DATE_AND_FINISH -> taskRepository.getTasksByDueDateAndFinish(startDate, endDate, isFinish)
+            else -> taskRepository.getTasksByDueDateAndFinish(0, DateTimeUtils.getEndOfDay(0), null)
         }
     }
 
+    // 获取当前的个人头像LiveData
+    fun getIconUriLiveData () = userRepository.userIconUriLiveData
+
     // 插入标签Todo:失败提示
     fun insertTaskTag(newTag: String) =  viewModelScope.launch {
-        repository.insertTaskTag(newTag)
+        taskRepository.insertTaskTag(newTag)
     }
 
     // 删除标签Todo：失败提示
     fun deleteTaskTag(oldTag:String) = viewModelScope.launch {
-        repository.deleteTaskTag(oldTag)
+        taskRepository.deleteTaskTag(oldTag)
     }
 
     // 获取当前标签组
-    fun getNowTaskTagsLiveData() = repository.taskTagsLiveData
+    fun getNowTaskTagsLiveData() = taskRepository.taskTagsLiveData
 
     // 插入任务
     fun insertTask(task: Task) = viewModelScope.launch {
-        repository.insertTask(task)
+        taskRepository.insertTask(task)
     }
 
     // 更新任务
     fun updateTask(task: Task) = viewModelScope.launch {
-        repository.updateTask(task)
+        taskRepository.updateTask(task)
     }
 
     // 删除任务
     fun deleteTask(task: Task) = viewModelScope.launch {
-        repository.deleteTask(task)
+        taskRepository.deleteTask(task)
     }
 
     // 根据完成状态查询

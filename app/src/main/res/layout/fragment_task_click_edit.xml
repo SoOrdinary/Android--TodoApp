@@ -14,7 +14,8 @@
         android:background="@drawable/input_box"
         android:hint="Title"
         android:inputType="text"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/task_subtitle"

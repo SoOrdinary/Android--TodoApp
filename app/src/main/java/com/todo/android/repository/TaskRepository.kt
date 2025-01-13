@@ -19,7 +19,7 @@ import java.io.File
  */
 class TaskRepository() {
 
-    // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData
+    // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData Todo:是否需要异步查询？
     companion object{
         private val _taskTagsLiveData = MutableLiveData<Set<String>>(TaskSharedPreference.tags)
     }
@@ -27,22 +27,28 @@ class TaskRepository() {
     private val taskDao =TaskDatabase.getDatabase(TodoApplication.context).taskDao()
 
     // 可观察的tags
-    val taskTagsLiveData : MutableLiveData<Set<String>> get() = _taskTagsLiveData
+    val taskTagsLiveData get() = _taskTagsLiveData
 
     // 插入标签
     suspend fun insertTaskTag(newTag:String){
-        if(TaskSharedPreference.addTag(newTag)){
-            _taskTagsLiveData.value=TaskSharedPreference.tags
+        withContext(Dispatchers.IO) {
+            if (TaskSharedPreference.addTag(newTag)) {
+                _taskTagsLiveData.postValue(TaskSharedPreference.tags)
+            }
         }
     }
 
     // 删除标签
     suspend fun deleteTaskTag(oldTag:String){
-        if(TaskSharedPreference.removeTag(oldTag)){
-            _taskTagsLiveData.value=TaskSharedPreference.tags
+        withContext(Dispatchers.IO) {
+            if (TaskSharedPreference.removeTag(oldTag)) {
+                _taskTagsLiveData.postValue(TaskSharedPreference.tags)
+            }
         }
     }
 
+    // 判断某标签是否包含 Todo:实现异步
+    fun isContain(tag:String):Boolean = TaskSharedPreference.isContain(tag)
 
     // 插入任务
     suspend fun insertTask(task: Task) {

@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation ("io.noties.markwon:core:4.6.2")
     kapt ("com.github.bumptech.glide:compiler:4.15.1")
     kapt("androidx.room:room-compiler:2.5.1")
     testImplementation(libs.junit)

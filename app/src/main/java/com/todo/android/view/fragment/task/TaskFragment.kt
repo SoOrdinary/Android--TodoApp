@@ -1,5 +1,6 @@
 package com.todo.android.view.fragment.task
 
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -18,6 +19,8 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.todo.android.R
 import com.todo.android.data.room.entity.Task
 import com.todo.android.databinding.FragmentTaskBinding
@@ -36,6 +39,7 @@ import com.todo.android.view.MainActivity
  * @role1 标题栏处单击头像可唤起侧边栏
  * @role2 标题栏处可切换布局
  * @role3 实现监听与Task有关的点击事件内部类ListenTaskItemClick，构造响应事件
+ * @role4 头像的观察
  *
  * @improve1 Todo:菜单添加动画效果
  * @improve2 Todo:每天的查看放在页面内
@@ -45,6 +49,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
     private val viewModel: TaskViewModel by viewModels()
     private lateinit var binding: FragmentTaskBinding
+    // 相册取照的相关回调函数
     private lateinit var launcher: ActivityResultLauncher<Intent>
     private lateinit var handleWay:(ActivityResult)->Unit
 
@@ -83,13 +88,20 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
             binding.taskList.adapter?.notifyDataSetChanged()
         }
 
+        viewModel.getIconUriLiveData().observe(this@TaskFragment){
+            Glide.with(iconP.context)
+                .load(it)  // 图片的 URL
+                .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
+                .placeholder(R.drawable.app_icon)  // 占位图
+                .into(iconP)
+        }
     }
 
     // 将组件点击事件绑定放入一个函数中[扩展函数，直接拥有binding上下文，方便设置]
     private fun FragmentTaskBinding.initClick(){
 
         // 点击头像后打开侧边栏[requireActivity不会有空的情况]
-        profile.setOnClickListener{
+        iconP.setOnClickListener{
             (requireActivity() as MainActivity).binding.layoutMain.openDrawer(GravityCompat.START)
         }
 
@@ -184,23 +196,31 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 taskDueDateHour.setText(hour)
                 taskDueDateMinute.setText(minute)
                 // 绑定标签 Todo:自定义增删标签
-                taskTag.adapter=ArrayAdapter<String>(requireActivity(),android.R.layout.simple_spinner_dropdown_item,viewModel.getNowTaskTagsLiveData().value!!.toList())
+                val taskTags = listOf("default") + (viewModel.getNowTaskTagsLiveData().value?.toList() ?: emptyList())
+                val adapter = ArrayAdapter<String>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, taskTags)
+                taskTag.adapter = adapter
+                // 默认选中 "default"
+                taskTag.setSelection(0)
                 // Todo:拍照
                 var imageUri: Uri? =null
                 with(taskImage){
                     setOnClickListener {
                         // 处理函数重置，将uri存下来,并将图片控件设置
                         handleWay = {
-                            it.data?.data?.let { uri ->
-                                imageUri=uri
-                                val bitmap = BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
-                                setImageBitmap(bitmap)
+                            if (it.resultCode == RESULT_OK) {
+                                it.data?.data?.let { uri ->
+                                    imageUri = uri
+                                    val bitmap = BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(uri))
+                                    setImageBitmap(bitmap)
+                                }
                             }
                         }
+                        // 开启相册
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                             addCategory(Intent.CATEGORY_OPENABLE)
                             type = "image/*"
                         }
+                        // 打开事件回调
                         try {
                             launcher.launch(intent)
                         } catch (e: Exception) {

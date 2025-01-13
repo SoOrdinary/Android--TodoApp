@@ -46,58 +46,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        enableEdgeToEdge()
 
-        val launcherTakePhoto=registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if(result.resultCode == Activity.RESULT_OK){
-                val bitmap= BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri))
-                binding.image.setImageBitmap(bitmap)
-            }
-        }
-        val launcherChoosePhoto=registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if(result.resultCode == Activity.RESULT_OK){
-                result.data?.data?.let { uri ->
-                    val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(uri))
-                    binding.image.setImageBitmap(bitmap)
-                }
-            }
-        }
-
-        binding.apply {
-            takePhoto.setOnClickListener {
-                outputImage = File(externalCacheDir, "output_image.jpg").apply {
-                    if (exists()) delete()
-                    createNewFile()
-                }
-                imageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    FileProvider.getUriForFile(this@AddActivity, "com.todo.android.fileprovider", outputImage)
-                } else {
-                    Uri.fromFile(outputImage)
-                }
-                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                    putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-                }
-                try {
-                    launcherTakePhoto.launch(intent)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(this@AddActivity, "error", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            choosePhoto.setOnClickListener {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "image/*"
-                }
-                try {
-                    launcherChoosePhoto.launch(intent)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(this@AddActivity, "error", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
 
     override fun finish() {

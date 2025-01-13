@@ -2,6 +2,7 @@ package com.todo.android.view
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -16,6 +17,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.todo.android.BaseActivity
 import com.todo.android.R
 import com.todo.android.databinding.ActivityMainBinding
@@ -31,7 +34,8 @@ import com.todo.android.view.fragment.task.TaskViewModel
  * @role2 调整上下UI修正的样式，适应全屏模式，和一些其他控件UI更改
  * @role3 不同Fragment下add的不同效果
  * @role4 侧边栏和底部导航栏的点击事件
- * @role5 task的自定义标签动态更新
+ * @role5 侧边栏的个人信息动态更新
+ * @role6 侧边栏的task的自定义标签动态更新
  *
  * @improve1 底部导航栏更换为jetpack的方式，结构更清晰点
  * @improve2 Todo:底部导航栏切换时顶部自适应
@@ -67,6 +71,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             bottomLayoutParams.height = systemBars.bottom
             binding.topImprove.layoutParams = topLayoutParams
             binding.bottomImprove.layoutParams = bottomLayoutParams
+            binding.navBottom.setPadding(0,0,0,0)
             // 侧边栏UI修正高度，默认选择today_task
             binding.navSide.getHeaderView(0).setPadding(0,systemBars.top,0,0)
             binding.navSide.setCheckedItem(R.id.today_task)
@@ -80,6 +85,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             val params: ViewGroup.LayoutParams = layoutParams
             params.width = (screenWidth * 0.66).toInt()
             layoutParams=params
+            // 观察个人信息
+            with(NavSideHeaderBinding.bind(getHeaderView(0))){
+                viewModel.getIconUriLiveData().observe(this@MainActivity){
+                    Glide.with(icon.context)
+                        .load(it)  // 图片的 URL
+                        .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
+                        .placeholder(R.drawable.app_icon)  // 占位图
+                        .into(icon)
+                }
+                viewModel.getNameLiveData().observe(this@MainActivity){
+                    name.text =it
+                }
+                viewModel.getSignatureLiveData().observe(this@MainActivity){
+                    signature.text=it
+                }
+            }
             // 获取当前所有的tags并渲染
             viewModel.getNowTaskTagsLiveData().observe(this@MainActivity){
                 // 清空所有item
