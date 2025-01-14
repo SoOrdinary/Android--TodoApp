@@ -7,7 +7,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * 时间转换器
+ * 时间转换器，以及一些检验器
  *
  * @role1 将Long型时间转换为"yyyy.MM.dd'  'HH:mm"格式
  * @role2 将时间分隔为年月日时分

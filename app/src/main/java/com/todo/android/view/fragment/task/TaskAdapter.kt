@@ -81,15 +81,15 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                 } else {
                     taskLinearDueDate.setTextColor(Color.parseColor("#018786"))
                 }
-                // 绑定点击事件
+                // 绑定点击事件[先解绑重用视图的绑定事件再绑定]
                 taskLinear.setOnClickListener(null)
                 taskLinear.setOnLongClickListener(null)
                 taskLinearStatus.setOnClickListener(null)
                 taskLinear.setOnClickListener {
-                    listenTaskItemClick.onClickItem(it,task)
+                    listenTaskItemClick.onClickItem(task)
                 }
                 taskLinear.setOnLongClickListener {
-                    listenTaskItemClick.onLongClickItem(it,task)
+                    listenTaskItemClick.onLongClickItem(task)
                     true
                 }
                 taskLinearStatus.setOnClickListener {
@@ -139,10 +139,10 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                 taskGrid.setOnLongClickListener(null)
                 taskGridStatus.setOnClickListener(null)
                 taskGrid.setOnClickListener {
-                    listenTaskItemClick.onClickItem(it,task)
+                    listenTaskItemClick.onClickItem(task)
                 }
                 taskGrid.setOnLongClickListener {
-                    listenTaskItemClick.onLongClickItem(it,task)
+                    listenTaskItemClick.onLongClickItem(task)
                     true
                 }
                 taskGridStatus.setOnClickListener {

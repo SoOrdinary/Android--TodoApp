@@ -27,6 +27,25 @@
         android:inputType="text"
         android:padding="12dp" />
 
+    <ScrollView
+        android:id="@+id/task_details_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:layout_marginBottom="12dp"
+        android:scrollbars="none"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/task_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="10000"
+            android:background="@drawable/input_box"
+            android:gravity="top|left"
+            android:hint="Details"
+            android:minHeight="200dp"/>
+    </ScrollView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -108,14 +127,20 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:src="@drawable/app_icon" />
+            <TextView
+                android:id="@+id/task_photo_uri"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:text=""
+                android:visibility="gone"/>
         </LinearLayout>
     </LinearLayout>
     <!-- 确定与取消按钮 -->
     <Button
         android:id="@+id/confirm"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="45dp"
         android:layout_gravity="right"
         android:paddingHorizontal="0dp"
-        android:text="ADD" />
+        android:text="confirm" />
 </LinearLayout>

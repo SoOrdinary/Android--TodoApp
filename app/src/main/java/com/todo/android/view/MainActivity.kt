@@ -2,7 +2,6 @@ package com.todo.android.view
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -13,7 +12,6 @@ import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -23,8 +21,8 @@ import com.todo.android.BaseActivity
 import com.todo.android.R
 import com.todo.android.databinding.ActivityMainBinding
 import com.todo.android.databinding.NavSideHeaderBinding
+import com.todo.android.utils.SizeUnits
 import com.todo.android.view.fragment.task.TaskFragment
-import com.todo.android.view.fragment.task.TaskViewModel
 
 
 /**
@@ -81,9 +79,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         // 侧边栏UI修正
         with(binding.navSide){
             // 调整宽度,个人设置成了整个屏幕的2/3
-            val screenWidth = resources.displayMetrics.widthPixels
             val params: ViewGroup.LayoutParams = layoutParams
-            params.width = (screenWidth * 0.66).toInt()
+            params.width = (SizeUnits.screenWidth * 0.66).toInt()
             layoutParams=params
             // 观察个人信息
             with(NavSideHeaderBinding.bind(getHeaderView(0))){
@@ -136,7 +133,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     // 如果是 "nav_add" 按钮，根据当前fragment设置逻辑，同时返回else表示add按钮不被选中
                     R.id.nav_add -> {
                         when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
-                            is TaskFragment -> fragment.ListenTaskItemClick().onClickAdd()
+                            is TaskFragment -> fragment.ListenTaskItemClick().onClickAddOrEdit(null){}
                             else->{}
                         }
                         false

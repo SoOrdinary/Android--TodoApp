@@ -66,6 +66,7 @@ class TaskRepository() {
             // 判断封面图是否发生变化，如果发生变化且原有封面图不为空，删除原来的图片
             if (oldCoverImage != null && oldCoverImage != task.image) {
                 val oldCoverFile = File(oldCoverImage)
+                // Todo：有问题
                 if (oldCoverFile.exists()) {
                     oldCoverFile.delete() // 删除原有封面图
                 }
