@@ -15,11 +15,13 @@ class UserRepository {
         private val _userIconUriLiveData = MutableLiveData<Uri>(Uri.parse(UserInfoSharedPreference.userIconUri))
         private val _userNameLiveData = MutableLiveData<String>(UserInfoSharedPreference.userName)
         private val _userSignatureLiveData = MutableLiveData<String>(UserInfoSharedPreference.userSignature)
+        private val _userPasswordLiveData = MutableLiveData<String>(UserInfoSharedPreference.userPassword)
     }
 
     val userIconUriLiveData get() = _userIconUriLiveData
     val userNameLiveData get() = _userNameLiveData
     val userSignatureLiveData get() = _userSignatureLiveData
+    val userPasswordLiveData get() = _userPasswordLiveData
 
     // 更新个人图标
     suspend fun updateUserIcon(newIconUri:Uri){
@@ -43,6 +45,13 @@ class UserRepository {
         withContext(Dispatchers.IO){
             UserInfoSharedPreference.userSignature=newSignature
             _userSignatureLiveData.postValue(newSignature)
+        }
+    }
+
+    suspend fun updateUserPassword(newPassword: String){
+        withContext(Dispatchers.IO){
+            UserInfoSharedPreference.userPassword=newPassword
+            _userPasswordLiveData.postValue(newPassword)
         }
     }
 }

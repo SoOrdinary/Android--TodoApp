@@ -3,6 +3,7 @@ package com.todo.android.view.fragment.user
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import com.todo.android.R
 import com.todo.android.databinding.FragmentUserBinding
 import com.todo.android.databinding.FragmentUserChangeNameOrSignatureBinding
 import com.todo.android.databinding.FragmentUserMenuLockBinding
+import com.todo.android.databinding.FragmentUserMenuSubmitBugBinding
 import com.todo.android.databinding.FragmentUserMenuTaskTagBinding
 import com.todo.android.databinding.FragmentUserShowMarkdownBinding
 import com.todo.android.utils.MarkDownUtils
@@ -160,28 +162,32 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 confirmDelete.setOnClickListener {
                     val tag=changeTag.text.toString().trim()
                     if(tag.isEmpty()){
-                        Toast.makeText(requireActivity(), "删除失败，标签不可为空", Toast.LENGTH_SHORT).show();
-                    }else if(!viewModel.isContain(tag)){
-                        Toast.makeText(requireActivity(), "删除失败，该标签不存在", Toast.LENGTH_SHORT).show();
-                    }else{
-                        viewModel.deleteTaskTag(tag)
-                        Toast.makeText(requireActivity(), "删除成功", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss()
+                        Toast.makeText(requireActivity(), "删除失败，标签不可为空", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
                     }
+                    if(!viewModel.isContain(tag)){
+                        Toast.makeText(requireActivity(), "删除失败，该标签不存在", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    viewModel.deleteTaskTag(tag)
+                    Toast.makeText(requireActivity(), "删除成功", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss()
                 }
 
                 // 添加该标签 有则报错
                 confirmAdd.setOnClickListener {
                     val tag=changeTag.text.toString().trim()
                     if(tag.isEmpty()){
-                        Toast.makeText(requireActivity(), "添加失败，标签不可为空", Toast.LENGTH_SHORT).show();
-                    }else if(viewModel.isContain(tag)){
-                        Toast.makeText(requireActivity(), "添加失败，该标签已存在", Toast.LENGTH_SHORT).show();
-                    }else{
-                        viewModel.insertTaskTag(tag)
-                        Toast.makeText(requireActivity(), "添加成功", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss()
+                        Toast.makeText(requireActivity(), "添加失败，标签不可为空", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
                     }
+                    if(viewModel.isContain(tag)){
+                        Toast.makeText(requireActivity(), "添加失败，该标签已存在", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    viewModel.insertTaskTag(tag)
+                    Toast.makeText(requireActivity(), "添加成功", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }
 
                 dialog.show()
@@ -195,18 +201,40 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
+                var currentPassword=viewModel.getPasswordLiveData().value
+
                 // 删除密码 有密码且输入正确才能删除
                 confirmDelete.setOnClickListener {
-                    val tag=changeTag.text.toString().trim()
-                    //Todo:判断
-                    Toast.makeText(this@UserFragment.requireActivity(),"功能正在完善...",Toast.LENGTH_SHORT).show()
+                    val newPassword=changePassword.text.toString().trim()
+                    // 判断
+                    if(currentPassword.isNullOrEmpty()){
+                        Toast.makeText(this@UserFragment.requireActivity(),"删除失败，暂无密码",Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    if(newPassword != currentPassword){
+                        Toast.makeText(this@UserFragment.requireActivity(),"删除失败，输入密码错误",Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    viewModel.updatePassword("")
+                    Toast.makeText(this@UserFragment.requireActivity(),"删除成功",Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }
 
                 // 添加密码 无密码且有输入才正确
                 confirmSet.setOnClickListener {
-                    val tag=changeTag.text.toString().trim()
-                    //Todo:判断
-                    Toast.makeText(this@UserFragment.requireActivity(),"功能正在完善...",Toast.LENGTH_SHORT).show()
+                    val newPassword=changePassword.text.toString().trim()
+                    // 判断 Todo:开启界面密码锁
+                    if(!currentPassword.isNullOrEmpty()){
+                        Toast.makeText(this@UserFragment.requireActivity(),"添加失败，已有密码",Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    if(newPassword.isNullOrEmpty()){
+                        Toast.makeText(this@UserFragment.requireActivity(),"添加失败，密码不可为空",Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    viewModel.updatePassword(newPassword)
+                    Toast.makeText(this@UserFragment.requireActivity(),"添加成功,密码为${newPassword}",Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }
 
                 dialog.show()
@@ -249,7 +277,29 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-提交bug
         menuSubmitBug.setOnClickListener {
-            Toast.makeText(this@UserFragment.requireActivity(),"功能正在完善...",Toast.LENGTH_SHORT).show()
+            with(FragmentUserMenuSubmitBugBinding.inflate(LayoutInflater.from(requireActivity()))){
+                val dialog = Dialog(requireActivity())
+                dialog.setContentView(root)
+                dialog.setCancelable(true)
+
+                sendEmail.setOnLongClickListener {
+                   // 设置发送邮件的相关API
+                    val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:soordinary@foxmail.com") // 指定邮件地址
+                        putExtra(Intent.EXTRA_SUBJECT, "Bug Report or Improve Feedback About AndroidApp--Todo") // 邮件标题
+                        putExtra(Intent.EXTRA_TEXT, "在此填写内容") // 邮件内容
+                    }
+                    try {
+                        startActivity(Intent.createChooser(emailIntent, "发送邮件"))
+                    } catch (e: android.content.ActivityNotFoundException) {
+                        Toast.makeText(this@UserFragment.requireActivity(), "发送失败\uD83D\uDE2D，可借助电脑发送邮件", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@UserFragment.requireActivity(),"\uD83D\uDC81soordinary@foxmail.com",Toast.LENGTH_LONG).show()
+                    }
+                    true
+                }
+
+                dialog.show()
+            }
         }
 
         // 菜单-关于作者
@@ -266,9 +316,10 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
             }
         }
 
-        // 菜单-检查更新
+        // 菜单-检查更新 Todo:实现远程更新
         menuCheckVersion.setOnClickListener {
-            Toast.makeText(this@UserFragment.requireActivity(),"功能正在完善...",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@UserFragment.requireActivity(),"暂未配置服务器",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@UserFragment.requireActivity(),"\uD83D\uDC46可前往github或百度网盘查询最新版本",Toast.LENGTH_LONG).show()
         }
     }
 

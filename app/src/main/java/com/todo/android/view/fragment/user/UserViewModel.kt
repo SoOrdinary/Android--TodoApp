@@ -46,6 +46,11 @@ class UserViewModel: ViewModel() {
         userRepository.updateUserSignature(newSignature)
     }
 
+    // 修改当前的密码
+    fun updatePassword(newPassword: String)=viewModelScope.launch {
+        userRepository.updateUserPassword(newPassword)
+    }
+
     // 获取当前的个人头像LiveData
     fun getIconUriLiveData () = userRepository.userIconUriLiveData
 
@@ -54,4 +59,7 @@ class UserViewModel: ViewModel() {
 
     // 获取当前的个人签名LiveData
     fun getSignatureLiveData () = userRepository.userSignatureLiveData
+
+    // 获取当前的用户密码的LiveData
+    fun getPasswordLiveData () = userRepository.userPasswordLiveData
 }

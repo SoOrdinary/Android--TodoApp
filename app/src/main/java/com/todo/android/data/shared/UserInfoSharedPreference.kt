@@ -16,6 +16,7 @@ object UserInfoSharedPreference {
     private const val USER_ICON_URI: String = "user_icon_uri" // 个人头像的Uri
     private const val USER_NAME: String = "user_name" // 个人昵称
     private const val USER_SIGNATURE: String = "user_signature" // 个人签名
+    private const val USER_PASSWORD:String ="user_password"  // 用户密码
 
     private val sharedPreferences: SharedPreferences = TodoApplication.context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE)
 
@@ -39,5 +40,9 @@ object UserInfoSharedPreference {
     var userSignature: String?
         get() = sharedPreferences.getString(USER_SIGNATURE, "Tencent School Enterprise Joint Project")
         set(value) = sharedPreferences.edit().putString(USER_SIGNATURE, value).apply()
+
+    var userPassword: String?
+        get() = sharedPreferences.getString(USER_PASSWORD, "")
+        set(value) = sharedPreferences.edit().putString(USER_PASSWORD, value).apply()
 
 }
