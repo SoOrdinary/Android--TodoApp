@@ -9,9 +9,7 @@ import androidx.room.Update
 import com.todo.android.data.room.entity.Task
 
 /**
- * room数据库的Dao层
- *
- * @role1 提供常用的增删改查方式
+ * room数据库的Dao层--Task
  */
 @Dao
 interface TaskDao {

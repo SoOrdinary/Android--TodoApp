@@ -1,22 +1,17 @@
 package com.todo.android.view.fragment.task
 
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.todo.android.R
 import com.todo.android.data.room.entity.Task
-import com.todo.android.databinding.FragmentTaskGridBinding
-import com.todo.android.databinding.FragmentTaskLinearBinding
+import com.todo.android.databinding.FragmentTaskItemGridBinding
+import com.todo.android.databinding.FragmentTaskItemLinearBinding
 import com.todo.android.utils.DateTimeUtils
 
 /**
@@ -30,7 +25,8 @@ import com.todo.android.utils.DateTimeUtils
  * @improve2 Todo:适配图片等用Gilde，增加流畅度
  * @improve3 Todo:通过diff优化查询更新
  */
-class TaskAdapter(private val fragment: TaskFragment, private val taskList: List<Task>, private val itemType: Int) : RecyclerView.Adapter<TaskAdapter.BaseViewHolder>() {
+class TaskAdapter(private val fragment: TaskFragment, private val taskList: List<Task>, private val itemType: Int)
+    : RecyclerView.Adapter<TaskAdapter.BaseViewHolder>() {
 
     // 点击事件适配
     val listenTaskItemClick = fragment.ListenTaskItemClick()
@@ -43,16 +39,16 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         when(viewType){
             1-> {
-                val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_linear, parent, false)
+                val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_item_linear, parent, false)
                 return LinearViewHolder(view)
             }
             2-> {
-                val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_grid, parent, false)
+                val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_item_grid, parent, false)
                 return GridViewHolder(view)
             }
             else-> {
                 Toast.makeText(fragment.context, "传入布局ID不存在,加载默认布局", Toast.LENGTH_SHORT).show()
-                val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_linear, parent, false)
+                val view: View = LayoutInflater.from(parent.context).inflate(R.layout.fragment_task_item_linear, parent, false)
                 return LinearViewHolder(view)
             }
         }
@@ -65,7 +61,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
 
     // 线性列表
     inner class LinearViewHolder(view: View) : BaseViewHolder(view){
-        private val binding = FragmentTaskLinearBinding.bind(view)
+        private val binding = FragmentTaskItemLinearBinding.bind(view)
         override fun bind(task: Task) {
             with(binding) {
                 // 基本属性赋值与UI优化
@@ -101,7 +97,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
 
     // 瀑布流列表
     inner class GridViewHolder(view: View) : BaseViewHolder(view){
-        private val binding = FragmentTaskGridBinding.bind(view)
+        private val binding = FragmentTaskItemGridBinding.bind(view)
         override fun bind(task: Task) {
             with(binding) {
                 // 基本属性赋值与UI优化

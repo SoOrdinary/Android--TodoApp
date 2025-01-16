@@ -10,8 +10,9 @@ import java.util.Locale
  * 时间转换器，以及一些检验器
  *
  * @role1 将Long型时间转换为"yyyy.MM.dd'  'HH:mm"格式
- * @role2 将时间分隔为年月日时分
+ * @role2 将字符串时间分隔为年月日时分
  * @role3 获取当天的时间起始与末尾
+ * @role4 一些时间单位的转换
  */
 object DateTimeUtils {
     // 日期格式：yyyy.MM.dd'  'HH:mm
@@ -82,5 +83,50 @@ object DateTimeUtils {
         calendar[Calendar.SECOND] = 59
         calendar[Calendar.MILLISECOND] = 999
         return calendar.timeInMillis
+    }
+
+    // 将时间长度（毫秒）转换为分钟
+    fun millisToMinutes(millis: Long): Long {
+        return millis / 1000 / 60
+    }
+
+    // 传入天数、时数、分数，计算对应的Long型时间戳
+    fun convertToTimestamp(days: Int, hours: Int, minutes: Int): Long {
+        val millisecondsInDay = 24 * 60 * 60 * 1000L  // 每天的毫秒数
+        val millisecondsInHour = 60 * 60 * 1000L      // 每小时的毫秒数
+        val millisecondsInMinute = 60 * 1000L          // 每分钟的毫秒数
+
+        // 计算总的毫秒数
+        val totalMilliseconds = (days * millisecondsInDay) +
+                (hours * millisecondsInHour) +
+                (minutes * millisecondsInMinute)
+
+        return totalMilliseconds
+    }
+
+    // 反向转换：将时间戳（毫秒数）转换为天数、小时数和分钟数，返回一个数组
+    fun convertFromTimestamp(timestamp: Long): IntArray {
+        val millisecondsInDay = 24 * 60 * 60 * 1000L  // 每天的毫秒数
+        val millisecondsInHour = 60 * 60 * 1000L      // 每小时的毫秒数
+        val millisecondsInMinute = 60 * 1000L          // 每分钟的毫秒数
+        val millisecondsInSecond = 1000L               // 每秒的毫秒数
+
+        // 计算天数
+        val days = (timestamp / millisecondsInDay).toInt()
+
+        // 计算剩余的毫秒数，计算小时
+        val remainingAfterDays = timestamp % millisecondsInDay
+        val hours = (remainingAfterDays / millisecondsInHour).toInt()
+
+        // 计算剩余的毫秒数，计算分钟
+        val remainingAfterHours = remainingAfterDays % millisecondsInHour
+        val minutes = (remainingAfterHours / millisecondsInMinute).toInt()
+
+        // 计算剩余的毫秒数，计算秒
+        val remainingAfterMinutes = remainingAfterHours % millisecondsInMinute
+        val seconds = (remainingAfterMinutes / millisecondsInSecond).toInt()
+
+        // 返回包含天数、小时数、分钟数和秒数的数组
+        return intArrayOf(days, hours, minutes, seconds)
     }
 }

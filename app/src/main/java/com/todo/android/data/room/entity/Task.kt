@@ -2,6 +2,7 @@ package com.todo.android.data.room.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.todo.android.utils.DateTimeUtils
 import java.util.Objects
@@ -9,7 +10,7 @@ import java.util.Objects
 /**
  * Task的实体关系类
  */
-@Entity(tableName = "tasks")
+@Entity(tableName = "tasks",indices = [Index(value = ["due_date"])])
 data class Task(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0,                    // 自增ID

@@ -19,7 +19,7 @@ import java.io.File
  */
 class TaskRepository() {
 
-    // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData Todo:是否需要异步查询？
+    // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData Todo:是否需要异步查询？这种还是共享的ViewModel好？
     companion object{
         private val _taskTagsLiveData = MutableLiveData<Set<String>>(TaskSharedPreference.tags)
     }

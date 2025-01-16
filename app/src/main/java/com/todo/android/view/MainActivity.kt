@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +23,13 @@ import com.todo.android.R
 import com.todo.android.databinding.ActivityMainBinding
 import com.todo.android.databinding.NavSideHeaderBinding
 import com.todo.android.utils.SizeUnits
+import com.todo.android.view.fragment.alarm.AlarmFragment
+import com.todo.android.view.fragment.alarm.AlarmViewModel
 import com.todo.android.view.fragment.task.TaskFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 /**
@@ -37,6 +44,7 @@ import com.todo.android.view.fragment.task.TaskFragment
  *
  * @improve1 底部导航栏更换为jetpack的方式，结构更清晰点
  * @improve2 Todo:底部导航栏切换时顶部自适应
+ * @improve3 用户发出多次闹铃设置，只会让最近的闹钟结束时发出定时通知提醒，避免过多alarm计时器一起被提交
  */
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
@@ -50,7 +58,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
     }
 
+    // 闹钟列表需要发出提醒
     private val viewModel: MainViewModel by viewModels()
+    private val alarmViewModel:AlarmViewModel  by viewModels()
 
     override fun getBindingInflate() = ActivityMainBinding.inflate(layoutInflater)
 
@@ -112,6 +122,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
 
+        // 隐式闹钟提醒,寻找列表中最近的闹钟，并定时发出提醒，做出发通知、删除该闹钟的动作，删除了该闹钟又会触发该观察者，以此往复
+        alarmViewModel.alarmLiveData.observe(this){
+            if(it.size>0){
+                // 如果该任务还没超时，则定时通知，否则开启一个协程等待5s(给用户留点缓冲观察时间)，然后直接删除,触发观察查找下一次
+                if(it[0].alarmDate>System.currentTimeMillis()){
+                    //Todo：闹钟提醒
+                    Toast.makeText(this,it[0].id.toString(),Toast.LENGTH_SHORT).show()
+                }else{
+                    GlobalScope.launch(Dispatchers.Main) {
+                        delay(5000) // 延迟5秒
+                        // 在这里执行删除操作
+                        alarmViewModel.deleteAlarm(it[0])
+                    }
+                }
+            }
+        }
+
         // 初始化各种点击事件
         binding.initClick()
     }
@@ -134,6 +161,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     R.id.nav_add -> {
                         when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
                             is TaskFragment -> fragment.ListenTaskItemClick().onClickAddOrEdit(null){}
+                            is AlarmFragment -> fragment.ListenAlarmItemClick().onClickAdd()
                             else->{}
                         }
                         false

@@ -301,7 +301,10 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                     // 校验输入，错误则直接返回
                     if (!checkInput(taskTitle, taskDueDateDay, taskDueDateHour, taskDueDateMinute)) return@setOnClickListener
                     // 成功则插入数据
-                    val dueTimestamp = DateTimeUtils.stringToTimestamp("${taskDueDateDay.text.toString().trim()}  ${taskDueDateHour.text.toString().trim()}:${taskDueDateMinute.text.toString().trim()}")
+                    val day = taskDueDateDay.text.toString().trim()
+                    val hour = taskDueDateHour.text.toString().trim()
+                    val minute = taskDueDateMinute.text.toString().trim()
+                    val dueTimestamp = DateTimeUtils.stringToTimestamp("$day  $hour:$minute}")
                     // 生成最终task
                     val newTask=Task(
                         id = oldTask?.id ?:0,
