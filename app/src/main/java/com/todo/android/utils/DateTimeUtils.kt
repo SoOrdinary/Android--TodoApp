@@ -36,18 +36,18 @@ object DateTimeUtils {
         return arrayOf(firstParts[0], secondParts[0], secondParts[1])
     }
 
-    // 日期字符串转时间戳
+    // 日期字符串转时间戳,不规范返回此刻时间
     fun stringToTimestamp(dateString: String?): Long {
         if (dateString.isNullOrEmpty()) {
-            return 1L
+            return System.currentTimeMillis()
         }
         val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
         try {
             val date = dateFormat.parse(dateString)
-            return date?.time ?: 1L
+            return date?.time ?: System.currentTimeMillis()
         } catch (e: ParseException) {
             e.printStackTrace()
-            return 1L
+            return System.currentTimeMillis()
         }
     }
 

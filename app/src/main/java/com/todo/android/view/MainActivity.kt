@@ -2,6 +2,7 @@ package com.todo.android.view
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -25,6 +26,7 @@ import com.todo.android.databinding.NavSideHeaderBinding
 import com.todo.android.utils.SizeUnits
 import com.todo.android.view.fragment.alarm.AlarmFragment
 import com.todo.android.view.fragment.alarm.AlarmViewModel
+import com.todo.android.view.fragment.record.RecordFragment
 import com.todo.android.view.fragment.task.TaskFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -66,7 +68,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
         enableEdgeToEdge()
 
         // 设置样式[在这里面才能获取到系统UI参数，异步执行的]
@@ -159,6 +160,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                         when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
                             is TaskFragment -> fragment.ListenTaskItemClick().onClickAddOrEdit(null){}
                             is AlarmFragment -> fragment.ListenAlarmItemClick().onClickAdd()
+                            is RecordFragment->fragment.ListenRecordItemClick().onClickAdd()
                             else->{}
                         }
                         false
@@ -172,6 +174,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
                     is TaskFragment -> fragment.ListenTaskItemClick().onLongClickAdd()
                     is AlarmFragment -> fragment.ListenAlarmItemClick().onLongClickAdd()
+                    is RecordFragment-> fragment.ListenRecordItemClick().onLongClickAdd()
                     else->{}
                 }
                 true

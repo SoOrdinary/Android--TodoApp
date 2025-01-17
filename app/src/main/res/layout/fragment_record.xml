@@ -2,15 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ebe4d2"
     android:orientation="vertical">
 
-    <CalendarView
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:focusedMonthDateColor="#784512"
-        android:unfocusedMonthDateColor="#955342"
-        android:firstDayOfWeek="1"
-        android:showWeekNumber="false"/>
+        android:fontFamily="@font/mono"
+        android:background="#ebe4d2"
+        android:paddingVertical="15dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:text="2025.01.17"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/record_list"

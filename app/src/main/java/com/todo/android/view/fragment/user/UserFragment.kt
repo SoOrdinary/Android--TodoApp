@@ -233,7 +233,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                         return@setOnClickListener
                     }
                     viewModel.updatePassword(newPassword)
-                    Toast.makeText(requireActivity(),"添加成功,密码为${newPassword}",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(),"添加成功,密码为${newPassword}",Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 }
 

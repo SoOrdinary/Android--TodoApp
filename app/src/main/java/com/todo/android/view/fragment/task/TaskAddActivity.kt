@@ -52,7 +52,6 @@ class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
         enableEdgeToEdge()
 
         // 初始化一个提醒函数体，避免后续未初始化直接调用

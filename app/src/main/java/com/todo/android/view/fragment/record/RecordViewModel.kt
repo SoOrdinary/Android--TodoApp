@@ -26,7 +26,7 @@ class RecordViewModel(
     }
 
     // 缓存信息
-    var recordList = ArrayList<Record>()
+    var recordList = ArrayList<RecordSo>()
 
     var recordLiveData = queryTypeLiveData.switchMap { queryType ->
         when (queryType) {
@@ -35,7 +35,11 @@ class RecordViewModel(
         }
     }
 
+    // 获取当前viewModel的日期
+    fun getNowDay() = startDate
+
     fun insertRecord(recordSo: RecordSo)=  viewModelScope.launch{
+        if (recordSo.finishTime>recordSo.planTime)recordSo.isTimeout=true
         recordRepository.insertRecord(recordSo)
     }
 

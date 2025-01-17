@@ -70,7 +70,7 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
                 }else{
                     // 保证只在倒计时为0时只提醒一次
                     if(viewModel.willDoTime !=0L){
-                        binding.time.text ="0:0:0"
+                        binding.time.text ="00:00:00"
                         binding.timeDay.visibility = View.INVISIBLE
                         viewModel.willDoTime = 0
                     }

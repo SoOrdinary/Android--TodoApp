@@ -12,13 +12,11 @@ import androidx.room.PrimaryKey
 data class RecordSo(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0,                   // 自增ID
-    @ColumnInfo(name = "is_auto")
-    val isAuto:Boolean,                 // 是否为用户自定义日志
-    var Name:String,                    // 记录名
+    var content:String,                 // 记录名
     @ColumnInfo(name = "plan_time")
-    var planTime:Long,                  // 计划完成日期（时间戳，毫秒值）
+    var planTime:Long,                  // 计划何时完成（时间戳，毫秒值）
     @ColumnInfo(name = "finish_time")
-    var finishTime: Long,               // 完成日期（时间戳，毫秒值）
+    var finishTime: Long,               // 实际何时完成（时间戳，毫秒值）
     @ColumnInfo(name = "is_timeout")
-    var isTimeout: Boolean,             // 任务是否超时 (true: 超时, false: 未超时)
+    var isTimeout: Boolean = false,             // 任务是否超时 (true: 超时, false: 未超时)
 )

@@ -1,6 +1,7 @@
 package com.todo.android
 
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
@@ -18,7 +19,7 @@ abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
 
     private  var _binding: VB? = null
 
-    val binding get() = _binding!!
+    val binding get() = _binding ?: throw NullPointerException("Binding is not initialized")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +27,7 @@ abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
         ActivityCollector.addActivity(this)
         // binding初始化
         _binding=getBindingInflate()
+        setContentView(binding.root)
     }
 
     // 抽象方法，取得加载实例视图

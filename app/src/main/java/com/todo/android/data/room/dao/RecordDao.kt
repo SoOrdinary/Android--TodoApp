@@ -32,7 +32,7 @@ interface RecordDao {
     fun getRecordsByTimeoutStatus(isTimeout: Boolean): LiveData<List<RecordSo>>
 
     // 根据任务名模糊匹配查询记录并按完成时间降序排序
-    @Query("SELECT * FROM record_so WHERE name LIKE '%' || :taskName || '%' ORDER BY finish_time DESC")
-    fun getRecordsByTaskName(taskName: String): LiveData<List<RecordSo>>
+    @Query("SELECT * FROM record_so WHERE content LIKE '%' || :content || '%' ORDER BY finish_time DESC")
+    fun getRecordsByContent(content: String): LiveData<List<RecordSo>>
 
 }

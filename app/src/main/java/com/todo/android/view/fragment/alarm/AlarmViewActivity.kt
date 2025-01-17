@@ -1,17 +1,15 @@
 package com.todo.android.view.fragment.alarm
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
-import android.icu.util.Calendar
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import com.todo.android.BaseActivity
-import com.todo.android.R
 import com.todo.android.databinding.ActivityAlarmViewBinding
 import com.todo.android.utils.DateTimeUtils
 
@@ -31,20 +29,19 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
             val intent = Intent(context, AlarmViewActivity::class.java).apply{
                 putExtra("time",time)
             }
-            // 设置进入动画和退出动画Todo：修改
-            val options = ActivityOptions.makeCustomAnimation(context, R.anim.activity_add_in, R.anim.activity_add_out)
-            context.startActivity(intent, options.toBundle())
+            context.startActivity(intent)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(binding.root)
+
+        // 启用横屏模式,会丢失数据?
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
         var willDoTime = intent.getLongExtra("time", -1L)
         // 每秒检查一次，当前分钟数变化就触发更新
-        var lastMinute = -1 // 用来存储上一次的分钟数
         handler = Handler(Looper.getMainLooper())
         alarmRunnable = object : Runnable {
             override fun run() {
@@ -63,7 +60,7 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
                 }else{
                     // 保证只在倒计时为0时只提醒一次
                     if(willDoTime !=0L){
-                        binding.time.text ="0:0:0"
+                        binding.time.text ="00:00:00"
                         binding.timeDay.visibility = View.INVISIBLE
                         willDoTime = 0
                     }
@@ -75,16 +72,30 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
         // 开始定时器
         handler.postDelayed(alarmRunnable, 0)
 
-        Toast.makeText(this,"$willDoTime",Toast.LENGTH_LONG).show()
-
     }
 
-    override fun finish() {
-        super.finish()
-
+    override fun onDestroy() {
+        super.onDestroy()
         handler.removeCallbacks(alarmRunnable)
     }
 
     override fun getBindingInflate(): ActivityAlarmViewBinding = ActivityAlarmViewBinding.inflate(layoutInflater)
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            enableImmersiveMode()
+        }
+    }
+
+    // Todo:为什么都是弃用的？
+    private fun enableImmersiveMode() {
+        window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                )
+    }
+
 
 }

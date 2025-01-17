@@ -13,6 +13,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/input_box"
+        android:inputType="number"
         android:hint="input your password"
         android:textSize="14sp" />
 

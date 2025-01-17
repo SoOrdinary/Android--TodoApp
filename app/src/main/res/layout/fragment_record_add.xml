@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@color/input_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ScrollView
+        android:id="@+id/task_details_parent"
+        android:layout_width="268dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="12dp"
+        android:scrollbars="none">
+
+        <EditText
+            android:id="@+id/record_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_span="10000"
+            android:background="@drawable/input_box"
+            android:gravity="top|left"
+            android:hint="日记内容"
+            android:minHeight="200dp"/>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/customize_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        >
+
+        <EditText
+            android:id="@+id/record_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_weight="2"
+            android:background="@drawable/input_box"
+            android:hint="finish date" />
+
+        <EditText
+            android:id="@+id/timeout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/input_box"
+            android:inputType="numberSigned"
+            android:hint="timeout/h" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_gravity="right"
+        android:paddingHorizontal="0dp"
+        android:text="confirm" />
+</LinearLayout>

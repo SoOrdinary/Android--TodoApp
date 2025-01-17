@@ -16,8 +16,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:rotation="90">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:layout_width="0dp"
@@ -29,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textColor="@color/gray"
+            android:textColor="@color/white"
             android:fontFamily="@font/mono"
             android:text="00:00:00"
             android:textSize="100sp" />
@@ -41,11 +40,11 @@
             android:layout_gravity="top"
             android:layout_weight="1"
             android:fontFamily="@font/mono"
-            android:textColor="@color/gray"
-            android:paddingLeft="3dp"
-            android:paddingTop="3dp"
+            android:textColor="@color/white"
+            android:paddingLeft="15dp"
+            android:paddingTop="15dp"
             android:text="+0"
-            android:textSize="10sp" />
+            android:textSize="50sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
