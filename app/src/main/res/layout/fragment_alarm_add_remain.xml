@@ -63,5 +63,5 @@
         android:layout_height="45dp"
         android:layout_gravity="right"
         android:paddingHorizontal="0dp"
-        android:text="confirm" />
+        android:text="remind" />
 </LinearLayout>

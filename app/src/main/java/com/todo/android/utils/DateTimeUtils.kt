@@ -39,15 +39,15 @@ object DateTimeUtils {
     // 日期字符串转时间戳
     fun stringToTimestamp(dateString: String?): Long {
         if (dateString.isNullOrEmpty()) {
-            return 0L
+            return 1L
         }
         val dateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
         try {
             val date = dateFormat.parse(dateString)
-            return date?.time ?: 0L
+            return date?.time ?: 1L
         } catch (e: ParseException) {
             e.printStackTrace()
-            return 0L
+            return 1L
         }
     }
 

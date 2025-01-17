@@ -47,7 +47,8 @@
                 android:layout_gravity="top"
                 android:paddingTop="3dp"
                 android:textSize="10sp"
-                android:text="+0"/>
+                android:text="+0"
+                android:visibility="invisible"/>
         </LinearLayout>
         <TextView
             android:layout_width="match_parent"

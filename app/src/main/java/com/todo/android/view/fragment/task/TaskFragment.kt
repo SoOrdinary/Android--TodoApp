@@ -4,7 +4,6 @@ import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -23,15 +22,16 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.todo.android.R
 import com.todo.android.TodoApplication
+import com.todo.android.data.room.entity.Alarm
 import com.todo.android.data.room.entity.Task
 import com.todo.android.databinding.FragmentTaskBinding
+import com.todo.android.databinding.FragmentTaskClickAlarmBinding
 import com.todo.android.databinding.FragmentTaskClickDeleteBinding
 import com.todo.android.databinding.FragmentTaskClickEditBinding
 import com.todo.android.databinding.FragmentTaskClickViewBinding
 import com.todo.android.utils.DateTimeUtils
 import com.todo.android.utils.DateTimeUtils.getSeparatedStringFromTimestamp
 import com.todo.android.utils.DateTimeUtils.timestampToString
-import com.todo.android.view.AddActivity
 import com.todo.android.view.MainActivity
 
 
@@ -173,7 +173,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 taskDueDate.text=timestampToString(task.dueDate)
                 // 闹钟响应
                 taskAlarm.setOnClickListener {
-                    Toast.makeText(this@TaskFragment.requireActivity(),"...",Toast.LENGTH_SHORT).show()
+                    onClickAlarm(task)
                 }
                 // 编辑响应
                 taskEdit.setOnClickListener {
@@ -213,11 +213,38 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 dialog.show()
             }
         }
+
         // 点击单选框
         fun onClickCheckBox(task: Task){
             task.isFinish=!task.isFinish
             viewModel.updateTask(task)
         }
+
+        // 点击详情界面的alarm图标
+        fun onClickAlarm(task: Task){
+            with(FragmentTaskClickAlarmBinding.inflate(LayoutInflater.from(requireActivity()))){
+                val dialog=Dialog(requireActivity())
+                dialog.setContentView(root)
+                dialog.setCancelable(true)
+
+                confirm.setOnClickListener {
+                    val day = earlyDays.text.toString().toInt()
+                    val hour = earlyHours.text.toString().toInt()
+                    val minute = earlyMinutes.text.toString().toInt()
+
+                    val advanceTime=task.dueDate-DateTimeUtils.convertToTimestamp(day,hour,minute)
+                    val alarm = Alarm(
+                        name = task.title,
+                        alarmDate = advanceTime)
+                    (requireActivity() as MainActivity).alarmViewModel.insertAlarm(alarm)
+
+                    dialog.dismiss()
+                }
+
+                dialog.show()
+            }
+        }
+
         // 点击底部导航栏加号或详情页面修改，取决于是否传入Task，第二个参数是用来回调异步修改UI的,
         fun onClickAddOrEdit(oldTask:Task?,block:(newTask:Task)->Unit){
             with(FragmentTaskClickEditBinding.inflate(LayoutInflater.from(requireActivity()))){
@@ -292,7 +319,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                             launcher.launch(intent)
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            Toast.makeText(this@TaskFragment.requireActivity(), "error", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireActivity(), "error", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -336,7 +363,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
         // 长按底部导航栏加号
         fun onLongClickAdd(){
-            AddActivity.actionStart(requireActivity())
+            TaskAddActivity.actionStart(requireActivity())
         }
 
         // 使用搜索框搜索时
@@ -359,7 +386,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
         }
     }
 
-    // 校验函数(每次修改要保持和AddActivity中的checkInput同步)
+    // 校验函数(每次修改要保持和AddActivity中的checkInput同步)Todo:检测具体时间是否规范
     private fun checkInput(taskTitle: EditText, taskDueDateDay: EditText, taskDueDateHour: EditText, taskDueDateMinute: EditText): Boolean {
 
         val title = taskTitle.text.toString().trim()
@@ -378,7 +405,6 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
             Toast.makeText(requireContext(), "日期不可为空", Toast.LENGTH_SHORT).show()
             return false // 如果日期不完整，返回 false
         }
-        // Todo:检测具体时间是否规范
 
         // 所有校验通过，返回 true
         return true

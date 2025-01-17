@@ -1,9 +1,8 @@
-package com.todo.android.view
+package com.todo.android.view.fragment.task
 
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -17,12 +16,11 @@ import androidx.activity.viewModels
 import com.todo.android.BaseActivity
 import com.todo.android.R
 import com.todo.android.data.room.entity.Task
-import com.todo.android.databinding.ActivityAddBinding
+import com.todo.android.databinding.ActivityTaskAddBinding
 import com.todo.android.utils.DateTimeUtils
 import com.todo.android.utils.DateTimeUtils.getSeparatedStringFromTimestamp
 import com.todo.android.utils.DateTimeUtils.timestampToString
 import com.todo.android.utils.SizeUnits
-import com.todo.android.view.fragment.task.TaskViewModel
 
 /**
  * 增加Task的界面,目的是短按用于快速添加任务，长按进入更多设置的页面，方便添加描述性内容
@@ -31,7 +29,7 @@ import com.todo.android.view.fragment.task.TaskViewModel
  *
  * @improve1 Todo：进入和退出动画
  */
-class AddActivity : BaseActivity<ActivityAddBinding>() {
+class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
 
     private val taskViewModel: TaskViewModel by viewModels()
     // 相册取照的相关回调函数
@@ -41,7 +39,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
     companion object{
         // 静态打开方法，指明打开该类需要哪些参数
         fun actionStart(context: Context){
-            val intent = Intent(context, AddActivity::class.java).apply{
+            val intent = Intent(context, TaskAddActivity::class.java).apply{
                 // putExtra()
             }
             // 设置进入动画和退出动画
@@ -50,7 +48,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
         }
     }
 
-    override fun getBindingInflate()=ActivityAddBinding.inflate(layoutInflater)
+    override fun getBindingInflate()=ActivityTaskAddBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +71,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
             val minute = parts[2]
             // 绑定标签
             val taskTags = listOf("default") + (taskViewModel.getNowTaskTagsLiveData().value?.toList() ?: emptyList())
-            val adapter = ArrayAdapter<String>(this@AddActivity, android.R.layout.simple_spinner_dropdown_item, taskTags)
+            val adapter = ArrayAdapter<String>(this@TaskAddActivity, android.R.layout.simple_spinner_dropdown_item, taskTags)
             taskTag.adapter = adapter
 
 
@@ -94,7 +92,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
     }
 
     // 扩展函数绑定点击事件
-    private fun ActivityAddBinding.initClick(){
+    private fun ActivityTaskAddBinding.initClick(){
 
         // 点击返回退出该活动
         taskReturn.setOnClickListener {
@@ -108,7 +106,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                 if (it.resultCode == RESULT_OK) {
                     it.data?.data?.let { uri ->
                         taskPhotoUri.text = uri.toString()
-                        val bitmap = BitmapFactory.decodeStream(this@AddActivity.contentResolver.openInputStream(uri))
+                        val bitmap = BitmapFactory.decodeStream(this@TaskAddActivity.contentResolver.openInputStream(uri))
                         val size15dp=SizeUnits.dpToPx(15)
                         taskPhoto.setImageBitmap(bitmap)
                         taskPhoto.setPadding(size15dp,size15dp,size15dp,size15dp)
@@ -125,7 +123,7 @@ class AddActivity : BaseActivity<ActivityAddBinding>() {
                 launcher.launch(intent)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@AddActivity, "error", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@TaskAddActivity, "error", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -109,7 +109,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 launcher.launch(intent)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@UserFragment.requireActivity(), "error", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireActivity(), "error", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -123,7 +123,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 wantToChang.hint = "修改你的昵称"
                 confirmChange.setOnClickListener {
                     if(wantToChang.text.isNullOrEmpty()){
-                        Toast.makeText(this@UserFragment.requireActivity(),"昵称不可为空",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(),"昵称不可为空",Toast.LENGTH_SHORT).show()
                     }else{
                         viewModel.updateName(wantToChang.text.toString().trim())
                         dialog.dismiss()
@@ -208,15 +208,15 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                     val newPassword=changePassword.text.toString().trim()
                     // 判断
                     if(currentPassword.isNullOrEmpty()){
-                        Toast.makeText(this@UserFragment.requireActivity(),"删除失败，暂无密码",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(),"删除失败，暂无密码",Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     if(newPassword != currentPassword){
-                        Toast.makeText(this@UserFragment.requireActivity(),"删除失败，输入密码错误",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(),"删除失败，输入密码错误",Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     viewModel.updatePassword("")
-                    Toast.makeText(this@UserFragment.requireActivity(),"删除成功",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(),"删除成功",Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
 
@@ -225,15 +225,15 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                     val newPassword=changePassword.text.toString().trim()
                     // 判断 Todo:开启界面密码锁
                     if(!currentPassword.isNullOrEmpty()){
-                        Toast.makeText(this@UserFragment.requireActivity(),"添加失败，已有密码",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(),"添加失败，已有密码",Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     if(newPassword.isNullOrEmpty()){
-                        Toast.makeText(this@UserFragment.requireActivity(),"添加失败，密码不可为空",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(),"添加失败，密码不可为空",Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     viewModel.updatePassword(newPassword)
-                    Toast.makeText(this@UserFragment.requireActivity(),"添加成功,密码为${newPassword}",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(),"添加成功,密码为${newPassword}",Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
 
@@ -292,8 +292,8 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                     try {
                         startActivity(Intent.createChooser(emailIntent, "发送邮件"))
                     } catch (e: android.content.ActivityNotFoundException) {
-                        Toast.makeText(this@UserFragment.requireActivity(), "发送失败\uD83D\uDE2D，可借助电脑发送邮件", Toast.LENGTH_SHORT).show()
-                        Toast.makeText(this@UserFragment.requireActivity(),"\uD83D\uDC81soordinary@foxmail.com",Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireActivity(), "发送失败\uD83D\uDE2D，可借助电脑发送邮件", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireActivity(),"\uD83D\uDC81soordinary@foxmail.com",Toast.LENGTH_LONG).show()
                     }
                     true
                 }
@@ -318,8 +318,8 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-检查更新 Todo:实现远程更新
         menuCheckVersion.setOnClickListener {
-            Toast.makeText(this@UserFragment.requireActivity(),"暂未配置服务器",Toast.LENGTH_SHORT).show()
-            Toast.makeText(this@UserFragment.requireActivity(),"\uD83D\uDC46可前往github或百度网盘查询最新版本",Toast.LENGTH_LONG).show()
+            Toast.makeText(requireActivity(),"暂未配置服务器",Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireActivity(),"\uD83D\uDC46可前往github或百度网盘查询最新版本",Toast.LENGTH_LONG).show()
         }
     }
 

@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation ("androidx.work:work-runtime:2.8.0")
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     implementation ("io.noties.markwon:core:4.6.2")
     kapt ("com.github.bumptech.glide:compiler:4.15.1")

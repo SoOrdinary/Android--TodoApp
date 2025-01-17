@@ -45,13 +45,18 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
             with(binding){
                 // UI绑定[统一绑定一个时间计时器，逻辑写入Fragment]Todo：取余有点问题
                 alarmName.text=alarm.name
-                var remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-System.currentTimeMillis())
+                var remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(System.currentTimeMillis()/ 60000) * 60000)
                 if(remain>0){
                     remainTime.text="${remain} 分钟"
                     remainTime.setTextColor(Color.parseColor("#018786"))
                 }else{
                     remainTime.text ="时间到"
                     remainTime.setTextColor(Color.RED)
+                    // 页面内也尝试删除，每分钟都会更新
+                    GlobalScope.launch(Dispatchers.Main) {
+                        delay(10000)
+                        fragment.viewModel.removeAlarm(alarm)
+                    }
                 }
                 alarmDate.text=DateTimeUtils.timestampToString(alarm.alarmDate)
                 // 事件绑定
