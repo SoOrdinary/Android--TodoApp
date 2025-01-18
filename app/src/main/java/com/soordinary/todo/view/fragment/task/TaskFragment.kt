@@ -245,6 +245,10 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 dialog.setCancelable(true)
 
                 confirm.setOnClickListener {
+                    if(earlyDays.text.isNullOrEmpty()||earlyHours.text.isNullOrEmpty()||earlyMinutes.text.isNullOrEmpty()){
+                        Toast.makeText(requireActivity(),"时间不可为空",Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
                     val day = earlyDays.text.toString().toInt()
                     val hour = earlyHours.text.toString().toInt()
                     val minute = earlyMinutes.text.toString().toInt()
