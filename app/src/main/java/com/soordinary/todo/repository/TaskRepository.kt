@@ -27,7 +27,7 @@ class TaskRepository() {
     private val taskDao =TaskDatabase.getDatabase(TodoApplication.context).taskDao()
 
     // 可观察的tags
-    val taskTagsLiveData = MutableLiveData<Set<String>>(TaskSharedPreference.tags)
+    val taskTagsLiveData = _taskTagsLiveData
 
     // 插入标签
     suspend fun insertTaskTag(newTag:String){
