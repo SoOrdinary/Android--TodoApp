@@ -12,22 +12,22 @@ import kotlinx.coroutines.withContext
 class UserRepository {
 
     companion object{
-        private val _userIconUriLiveData = MutableLiveData<Uri>(Uri.parse(UserInfoSharedPreference.userIconUri))
+        private val _userIconUriLiveData = MutableLiveData<String>(UserInfoSharedPreference.userIconUri)
         private val _userNameLiveData = MutableLiveData<String>(UserInfoSharedPreference.userName)
         private val _userSignatureLiveData = MutableLiveData<String>(UserInfoSharedPreference.userSignature)
         private val _userPasswordLiveData = MutableLiveData<String>(UserInfoSharedPreference.userPassword)
     }
 
+    // 获取相应的liveData
     val userIconUriLiveData get() = _userIconUriLiveData
     val userNameLiveData get() = _userNameLiveData
     val userSignatureLiveData get() = _userSignatureLiveData
     val userPasswordLiveData get() = _userPasswordLiveData
 
     // 更新个人图标
-    suspend fun updateUserIcon(newIconUri:Uri){
+    suspend fun updateUserIcon(newIconUri:String){
         withContext(Dispatchers.IO){
-            val newIconUriString = newIconUri.toString()
-            UserInfoSharedPreference.userIconUri=newIconUriString
+            UserInfoSharedPreference.userIconUri=newIconUri
             _userIconUriLiveData.postValue(newIconUri)
         }
     }

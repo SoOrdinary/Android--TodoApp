@@ -32,7 +32,7 @@ class UserViewModel: ViewModel() {
     fun isContain(tag: String) = taskRepository.isContain(tag)
 
     // 修改当前的个人头像
-    fun updateIconUri(newIconUri: Uri) = viewModelScope.launch {
+    fun updateIconUri(newIconUri: String) = viewModelScope.launch {
         userRepository.updateUserIcon(newIconUri)
     }
 

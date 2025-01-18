@@ -12,7 +12,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.todo.android.TodoApplication
 import com.todo.android.data.room.entity.Alarm
+import com.todo.android.data.room.entity.RecordSo
 import com.todo.android.repository.AlarmRepository
+import com.todo.android.repository.RecordRepository
 import com.todo.android.utils.DateTimeUtils
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit
  */
 class AlarmViewModel : ViewModel() {
 
+    private val recordRepository:RecordRepository = RecordRepository()
     private val alarmRepository: AlarmRepository = AlarmRepository()
 
     // 用于触发数据更新的标志(LiveData开始时设置值，才能触发第一次映射)
@@ -47,10 +50,18 @@ class AlarmViewModel : ViewModel() {
         WorkManager.getInstance(TodoApplication.context).enqueue(workRequest)
         alarm.alarmWordId=workRequest.id
         alarmRepository.insertAlarm(alarm)
-        // 插入成功后触发更新
+        // 插入成功后触发更新并提醒用户
         _triggerUpdate.value = Unit
         Toast.makeText(TodoApplication.context, "Alarm set : " + DateTimeUtils.timestampToString(alarm.alarmDate), Toast.LENGTH_LONG).show()
-
+        // 随后更新日志
+        val currentTime = System.currentTimeMillis()
+        val remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(currentTime/ 60000) * 60000)
+        val record = RecordSo(
+            content="设置定时任务：${alarm.name},倒计时${remain}分钟",
+            planTime = alarm.alarmDate,
+            finishTime = currentTime
+        )
+        recordRepository.insertRecord(record)
     }
 
     // 移除超时闹钟

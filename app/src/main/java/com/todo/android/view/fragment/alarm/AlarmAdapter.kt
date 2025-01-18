@@ -43,9 +43,11 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
         private val binding = FragmentAlarmItemBinding.bind(view)
         override fun bind(alarm: Alarm) {
             with(binding){
-                // UI绑定[统一绑定一个时间计时器，逻辑写入Fragment]Todo：取余有点问题
+                alarmItem.setOnLongClickListener(null)
+                alarmItem.setOnLongClickListener(null)
+                // UI绑定[统一绑定一个时间计时器，逻辑写入Fragment]
                 alarmName.text=alarm.name
-                var remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(System.currentTimeMillis()/ 60000) * 60000)
+                val remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(System.currentTimeMillis()/ 60000) * 60000)
                 if(remain>0){
                     remainTime.text="${remain} 分钟"
                     remainTime.setTextColor(Color.parseColor("#018786"))
@@ -60,8 +62,6 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
                 }
                 alarmDate.text=DateTimeUtils.timestampToString(alarm.alarmDate)
                 // 事件绑定
-                alarmItem.setOnLongClickListener(null)
-                alarmItem.setOnLongClickListener(null)
                 alarmItem.setOnClickListener {
                     listenAlarmItemClick.onClickItem(binding)
                 }

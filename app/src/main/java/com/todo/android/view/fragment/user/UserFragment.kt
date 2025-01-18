@@ -12,18 +12,20 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.todo.android.R
+import com.todo.android.databinding.DialogUserChangeNameOrSignatureBinding
+import com.todo.android.databinding.DialogUserMenuLockBinding
+import com.todo.android.databinding.DialogUserMenuSubmitBugBinding
+import com.todo.android.databinding.DialogUserMenuTaskTagBinding
+import com.todo.android.databinding.DialogUserShowMarkdownBinding
 import com.todo.android.databinding.FragmentUserBinding
-import com.todo.android.databinding.FragmentUserChangeNameOrSignatureBinding
-import com.todo.android.databinding.FragmentUserMenuLockBinding
-import com.todo.android.databinding.FragmentUserMenuSubmitBugBinding
-import com.todo.android.databinding.FragmentUserMenuTaskTagBinding
-import com.todo.android.databinding.FragmentUserShowMarkdownBinding
 import com.todo.android.utils.MarkDownUtils
 import io.noties.markwon.Markwon
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * 应用的第四个Fragment，实现一些信息管理
@@ -34,7 +36,7 @@ import io.noties.markwon.Markwon
  */
 class UserFragment: Fragment(R.layout.fragment_user)  {
 
-    private val viewModel: UserViewModel by viewModels()
+    private val viewModel: UserViewModel by activityViewModels()
     private lateinit var binding: FragmentUserBinding
     // 相册取照的相关回调函数
     private lateinit var launcher: ActivityResultLauncher<Intent>
@@ -95,7 +97,27 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
             handleWay = {
                 if (it.resultCode == RESULT_OK) {
                     it.data?.data?.let { uri ->
-                        viewModel.updateIconUri(uri)
+                        // 将图片保存至应用缓存目录
+                        try {
+                            // 获取图片流
+                            val inputStream = requireActivity().contentResolver.openInputStream(uri)
+                            // 获取缓存目录
+                            val cacheDir = requireContext().cacheDir
+                            val fileName = "user_icon.jpg"
+                            val file = File(cacheDir, fileName)
+                            // 将图片流保存到缓存目录
+                            val outputStream = FileOutputStream(file)
+                            inputStream?.copyTo(outputStream)
+                            // 保存为缓存目录中的文件路径
+                            viewModel.updateIconUri(file.absolutePath)
+                            // 关闭流
+                            outputStream.flush()
+                            outputStream.close()
+                            inputStream?.close()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Toast.makeText(requireActivity(), "图片保存失败", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -115,7 +137,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 点击昵称，来修改昵称
         currentName.setOnClickListener {
-            with(FragmentUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -136,7 +158,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 点击签名，来修改签名
         currentSignature.setOnClickListener {
-            with(FragmentUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -153,7 +175,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-标签管理
         menuTaskTag.setOnClickListener {
-            with(FragmentUserMenuTaskTagBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserMenuTaskTagBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -196,7 +218,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-密码锁
         menuLock.setOnClickListener {
-            with(FragmentUserMenuLockBinding.inflate(LayoutInflater.from(requireActivity()))) {
+            with(DialogUserMenuLockBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -243,7 +265,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-功能简介
         menuFunctionIntroduction.setOnClickListener {
-            with(FragmentUserShowMarkdownBinding.inflate(LayoutInflater.from(requireActivity()))) {
+            with(DialogUserShowMarkdownBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -277,7 +299,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-提交bug
         menuSubmitBug.setOnClickListener {
-            with(FragmentUserMenuSubmitBugBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserMenuSubmitBugBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -304,7 +326,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-关于作者
         menuAboutAuthor.setOnClickListener {
-            with(FragmentUserShowMarkdownBinding.inflate(LayoutInflater.from(requireActivity()))) {
+            with(DialogUserShowMarkdownBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)

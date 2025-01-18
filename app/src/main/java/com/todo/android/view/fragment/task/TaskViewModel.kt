@@ -59,16 +59,6 @@ class TaskViewModel(
     // 获取当前的个人头像LiveData
     fun getIconUriLiveData () = userRepository.userIconUriLiveData
 
-    // 插入标签Todo:失败提示
-    fun insertTaskTag(newTag: String) =  viewModelScope.launch {
-        taskRepository.insertTaskTag(newTag)
-    }
-
-    // 删除标签Todo：失败提示
-    fun deleteTaskTag(oldTag:String) = viewModelScope.launch {
-        taskRepository.deleteTaskTag(oldTag)
-    }
-
     // 获取当前标签组
     fun getNowTaskTagsLiveData() = taskRepository.taskTagsLiveData
 

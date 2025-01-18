@@ -14,10 +14,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.todo.android.R
 import com.todo.android.data.room.entity.Alarm
-import com.todo.android.databinding.FragmentAlarmAddDateBinding
-import com.todo.android.databinding.FragmentAlarmAddRemainBinding
+import com.todo.android.databinding.DialogAlarmAddDateBinding
+import com.todo.android.databinding.DialogAlarmAddRemainBinding
 import com.todo.android.databinding.FragmentAlarmBinding
-import com.todo.android.databinding.FragmentAlarmDeleteBinding
+import com.todo.android.databinding.DialogAlarmDeleteBinding
 import com.todo.android.databinding.FragmentAlarmItemBinding
 import com.todo.android.utils.DateTimeUtils
 import com.todo.android.utils.DateTimeUtils.getSeparatedStringFromTimestamp
@@ -129,7 +129,7 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
 
         // 单击底部栏添加按钮时
         fun onClickAdd(){
-            with(FragmentAlarmAddRemainBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogAlarmAddRemainBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog= Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -159,7 +159,7 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
 
         // 长按底部加号时
         fun onLongClickAdd(){
-            with(FragmentAlarmAddDateBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogAlarmAddDateBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog= Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -224,7 +224,7 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
 
         // todo:什么事件作用于删除好？
         fun onClickToDelete(alarm: Alarm){
-            with(FragmentAlarmDeleteBinding.inflate(LayoutInflater.from(requireActivity()))) {
+            with(DialogAlarmDeleteBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)

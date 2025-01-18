@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -16,23 +17,28 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.todo.android.R
 import com.todo.android.TodoApplication
 import com.todo.android.data.room.entity.Alarm
+import com.todo.android.data.room.entity.RecordSo
 import com.todo.android.data.room.entity.Task
+import com.todo.android.databinding.DialogTaskClickAlarmBinding
+import com.todo.android.databinding.DialogTaskClickDeleteBinding
+import com.todo.android.databinding.DialogTaskClickEditBinding
+import com.todo.android.databinding.DialogTaskClickViewBinding
 import com.todo.android.databinding.FragmentTaskBinding
-import com.todo.android.databinding.FragmentTaskClickAlarmBinding
-import com.todo.android.databinding.FragmentTaskClickDeleteBinding
-import com.todo.android.databinding.FragmentTaskClickEditBinding
-import com.todo.android.databinding.FragmentTaskClickViewBinding
 import com.todo.android.utils.DateTimeUtils
 import com.todo.android.utils.DateTimeUtils.getSeparatedStringFromTimestamp
 import com.todo.android.utils.DateTimeUtils.timestampToString
 import com.todo.android.view.MainActivity
+import com.todo.android.view.fragment.alarm.AlarmViewModel
+import com.todo.android.view.fragment.record.RecordViewModel
+import java.io.File
+import java.io.FileOutputStream
 
 
 /**
@@ -49,7 +55,9 @@ import com.todo.android.view.MainActivity
  */
 class TaskFragment:Fragment(R.layout.fragment_task) {
 
-    private val viewModel: TaskViewModel by viewModels()
+    private val taskViewModel: TaskViewModel by activityViewModels()
+    private val recordViewModel: RecordViewModel by activityViewModels()
+    private val alarmViewModel: AlarmViewModel by activityViewModels()
     private lateinit var binding: FragmentTaskBinding
     // 相册取照的相关回调函数
     private lateinit var launcher: ActivityResultLauncher<Intent>
@@ -61,8 +69,8 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
         // 初始化RecycleView的配置
         binding.taskList.apply{
-            layoutManager = StaggeredGridLayoutManager(viewModel.listCount, StaggeredGridLayoutManager.VERTICAL)
-            adapter = TaskAdapter(this@TaskFragment,viewModel.taskList,viewModel.listType)
+            layoutManager = StaggeredGridLayoutManager(taskViewModel.listCount, StaggeredGridLayoutManager.VERTICAL)
+            adapter = TaskAdapter(this@TaskFragment,taskViewModel.taskList,taskViewModel.listType)
         }
 
         // 初始化一个提醒函数体，避免后续未初始化直接调用
@@ -83,14 +91,14 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
     private fun FragmentTaskBinding.initLiveData(){
 
         // 观察数据变化实时更新ViewModel的缓存并通知列表更新
-        viewModel.taskLiveData.observe(viewLifecycleOwner){
-            viewModel.taskList.clear()
-            viewModel.taskList.addAll(it)
+        taskViewModel.taskLiveData.observe(viewLifecycleOwner){
+            taskViewModel.taskList.clear()
+            taskViewModel.taskList.addAll(it)
             // Todo:优化更新方式
             binding.taskList.adapter?.notifyDataSetChanged()
         }
 
-        viewModel.getIconUriLiveData().observe(this@TaskFragment){
+        taskViewModel.getIconUriLiveData().observe(this@TaskFragment){
             Glide.with(iconP.context)
                 .load(it)  // 图片的 URL
                 .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
@@ -109,7 +117,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
         // 点击图标切换风格
         taskShow.setOnClickListener {
-            with(viewModel){
+            with(taskViewModel){
                 listType++
                 when(listType){
                     1 -> {
@@ -130,8 +138,8 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
             }
             // 应用该风格
             binding.taskList.apply{
-                layoutManager = StaggeredGridLayoutManager(viewModel.listCount, StaggeredGridLayoutManager.VERTICAL)
-                adapter = TaskAdapter(this@TaskFragment,viewModel.taskList,viewModel.listType)
+                layoutManager = StaggeredGridLayoutManager(taskViewModel.listCount, StaggeredGridLayoutManager.VERTICAL)
+                adapter = TaskAdapter(this@TaskFragment,taskViewModel.taskList,taskViewModel.listType)
             }
         }
 
@@ -152,7 +160,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
     inner class ListenTaskItemClick {
         // 单击任务打开详细情况页面
         fun onClickItem(task: Task){
-            with(FragmentTaskClickViewBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogTaskClickViewBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -200,13 +208,13 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
         }
         // 长按删除
         fun onLongClickItem(task:Task) {
-            with(FragmentTaskClickDeleteBinding.inflate(LayoutInflater.from(requireActivity()))) {
+            with(DialogTaskClickDeleteBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
                 confirmDelete.setOnClickListener {
-                    viewModel.deleteTask(task)
+                    taskViewModel.deleteTask(task)
                     dialog.dismiss()
                 }
 
@@ -215,14 +223,23 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
         }
 
         // 点击单选框
-        fun onClickCheckBox(task: Task){
-            task.isFinish=!task.isFinish
-            viewModel.updateTask(task)
+        fun onClickCheckBox(task: Task, status:Boolean){
+            task.isFinish=status
+            taskViewModel.updateTask(task)
+            // 如果是完成了，更新日志
+            if(status){
+                val record = RecordSo(
+                    content="完成任务：${task.title}",
+                    planTime = task.dueDate,
+                    finishTime = System.currentTimeMillis()
+                )
+                recordViewModel.insertRecord(record)
+            }
         }
 
         // 点击详情界面的alarm图标
         fun onClickAlarm(task: Task){
-            with(FragmentTaskClickAlarmBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogTaskClickAlarmBinding.inflate(LayoutInflater.from(requireActivity()))){
                 val dialog=Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -236,7 +253,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                     val alarm = Alarm(
                         name = task.title,
                         alarmDate = advanceTime)
-                    (requireActivity() as MainActivity).alarmViewModel.insertAlarm(alarm)
+                    alarmViewModel.insertAlarm(alarm)
 
                     dialog.dismiss()
                 }
@@ -247,14 +264,14 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
         // 点击底部导航栏加号或详情页面修改，取决于是否传入Task，第二个参数是用来回调异步修改UI的,
         fun onClickAddOrEdit(oldTask:Task?,block:(newTask:Task)->Unit){
-            with(FragmentTaskClickEditBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogTaskClickEditBinding.inflate(LayoutInflater.from(requireActivity()))){
 
                 val dialog=Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
                 // 绑定标签
-                val taskTags = listOf("default") + (viewModel.getNowTaskTagsLiveData().value?.toList() ?: emptyList())
+                val taskTags = listOf("default") + (taskViewModel.getNowTaskTagsLiveData().value?.toList() ?: emptyList())
                 val adapter = ArrayAdapter<String>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, taskTags)
                 taskTag.adapter = adapter
 
@@ -332,6 +349,28 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                     val hour = taskDueDateHour.text.toString().trim()
                     val minute = taskDueDateMinute.text.toString().trim()
                     val dueTimestamp = DateTimeUtils.stringToTimestamp("$day  $hour:$minute}")
+                    // 将图片保存至应用缓存目录
+                    try {
+                        // 获取图片流
+                        val inputStream = requireActivity().contentResolver.openInputStream(Uri.parse(taskPhotoUri.text.toString().trim()))
+                        // 获取缓存目录
+                        val cacheDir = requireContext().cacheDir
+                        val fileName = "task_image_${System.currentTimeMillis()}.jpg"
+                        val file = File(cacheDir, fileName)
+                        // 将图片流保存到缓存目录
+                        val outputStream = FileOutputStream(file)
+                        inputStream?.copyTo(outputStream)
+                        // 更新 taskPhotoUri 为缓存目录中的文件路径
+                        taskPhotoUri.text = file.absolutePath
+                        // 关闭流
+                        outputStream.flush()
+                        outputStream.close()
+                        inputStream?.close()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(requireActivity(), "图片保存失败", Toast.LENGTH_SHORT).show()
+                    }
+
                     // 生成最终task
                     val newTask=Task(
                         id = oldTask?.id ?:0,
@@ -347,9 +386,9 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
                     // 判断是插入还是更新
                     if(oldTask == null){
-                        viewModel.insertTask(newTask)
+                        taskViewModel.insertTask(newTask)
                     }else{
-                        viewModel.updateTask(newTask)
+                        taskViewModel.updateTask(newTask)
                         // 更新界面,确信block一定不为空
                         block(newTask)
                     }
@@ -368,7 +407,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
 
         // 使用搜索框搜索时
         fun onSearchByTitle(key:String){
-            viewModel.getTasksByTitleAndFinish(key,null)
+            taskViewModel.getTasksByTitleAndFinish(key,null)
         }
 
         // 点击侧边栏菜单查询时
@@ -377,11 +416,11 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                 // 前两个是默认有的，查询当天/查询所有Todo:当天之前的所有未完成的
                 R.id.classify_by_dates->
                     when(item.itemId){
-                        R.id.today_task->viewModel.getTasksByDueDateAndFinish(DateTimeUtils.getStartOfDay(0), DateTimeUtils.getEndOfDay(0), null)
-                        R.id.list_task->viewModel.getTasksByFinish(null)
+                        R.id.today_task->taskViewModel.getTasksByDueDateAndFinish(DateTimeUtils.getStartOfDay(0), DateTimeUtils.getEndOfDay(0), null)
+                        R.id.list_task->taskViewModel.getTasksByFinish(null)
                     }
                 // 后面的都是tag，直接根据title查询
-                R.id.classify_by_tags->viewModel.getTasksByTagAndFinish(item.title.toString(),null)
+                R.id.classify_by_tags->taskViewModel.getTasksByTagAndFinish(item.title.toString(),null)
             }
         }
     }

@@ -64,6 +64,10 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
         private val binding = FragmentTaskItemLinearBinding.bind(view)
         override fun bind(task: Task) {
             with(binding) {
+                // 解绑先前的事件Todo:优化
+                taskLinear.setOnClickListener(null)
+                taskLinear.setOnLongClickListener(null)
+                taskLinearStatus.setOnCheckedChangeListener(null)
                 // 基本属性赋值与UI优化
                 taskLinearTitle.text = task.title
                 taskLinearSubtitle.text = task.subtitle
@@ -78,9 +82,6 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                     taskLinearDueDate.setTextColor(Color.parseColor("#018786"))
                 }
                 // 绑定点击事件[先解绑重用视图的绑定事件再绑定]
-                taskLinear.setOnClickListener(null)
-                taskLinear.setOnLongClickListener(null)
-                taskLinearStatus.setOnClickListener(null)
                 taskLinear.setOnClickListener {
                     listenTaskItemClick.onClickItem(task)
                 }
@@ -88,8 +89,8 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                     listenTaskItemClick.onLongClickItem(task)
                     true
                 }
-                taskLinearStatus.setOnClickListener {
-                    listenTaskItemClick.onClickCheckBox(task)
+                taskLinearStatus.setOnCheckedChangeListener { _, isChecked ->
+                    listenTaskItemClick.onClickCheckBox(task,isChecked)
                 }
             }
         }
@@ -100,6 +101,10 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
         private val binding = FragmentTaskItemGridBinding.bind(view)
         override fun bind(task: Task) {
             with(binding) {
+                // 解绑先前的事件Todo:优化
+                taskGrid.setOnClickListener(null)
+                taskGrid.setOnLongClickListener(null)
+                taskGridStatus.setOnCheckedChangeListener(null)
                 // 基本属性赋值与UI优化
                 taskGridTitle.text = task.title
                 // 没有副标题的item副标题不占空间
@@ -130,10 +135,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                     taskGridDueDate.setTextColor(Color.RED)
                 else
                     taskGridDueDate.setTextColor(Color.parseColor("#018786"))
-                // Todo:事件绑定
-                taskGrid.setOnClickListener(null)
-                taskGrid.setOnLongClickListener(null)
-                taskGridStatus.setOnClickListener(null)
+                // 事件绑定
                 taskGrid.setOnClickListener {
                     listenTaskItemClick.onClickItem(task)
                 }
@@ -141,13 +143,12 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                     listenTaskItemClick.onLongClickItem(task)
                     true
                 }
-                taskGridStatus.setOnClickListener {
-                    listenTaskItemClick.onClickCheckBox(task)
+                taskGridStatus.setOnCheckedChangeListener { _, isChecked ->
+                    listenTaskItemClick.onClickCheckBox(task,isChecked)
                 }
             }
         }
     }
-
 
 }
 

@@ -3,7 +3,6 @@ package com.todo.android.view.fragment.record
 import android.app.Dialog
 import android.icu.util.Calendar
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -11,15 +10,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.todo.android.R
 import com.todo.android.data.room.entity.RecordSo
-import com.todo.android.databinding.FragmentAlarmBinding
-import com.todo.android.databinding.FragmentRecordAddBinding
+import com.todo.android.databinding.DialogRecordAddBinding
+import com.todo.android.databinding.DialogRecordDateBinding
+import com.todo.android.databinding.DialogRecordDeleteBinding
 import com.todo.android.databinding.FragmentRecordBinding
-import com.todo.android.databinding.FragmentRecordDateBinding
-import com.todo.android.databinding.FragmentRecordDeleteBinding
 import com.todo.android.utils.DateTimeUtils
-import com.todo.android.view.fragment.alarm.AlarmAdapter
-import com.todo.android.view.fragment.alarm.AlarmViewModel
-import kotlin.random.Random
 
 /**
  * 应用的第二个Fragment--record，将用户的各种事件记录下来
@@ -35,6 +30,9 @@ class RecordFragment:Fragment(R.layout.fragment_record) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRecordBinding.bind(view)
 
+        // 更新UI
+        val timeString = DateTimeUtils.timestampToString(System.currentTimeMillis())
+        binding.date.text=DateTimeUtils.getSeparatedStringFromTimestamp(timeString)[0]
         // 初始化RecycleView的配置
         binding.recordList.apply {
             layoutManager = LinearLayoutManager(
@@ -63,7 +61,7 @@ class RecordFragment:Fragment(R.layout.fragment_record) {
     // 点击事件
     private fun FragmentRecordBinding.initClick() {
         date.setOnClickListener {
-            with(FragmentRecordDateBinding.inflate(layoutInflater)){
+            with(DialogRecordDateBinding.inflate(layoutInflater)){
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -94,7 +92,7 @@ class RecordFragment:Fragment(R.layout.fragment_record) {
 
         // 长按日志时删除
         fun onLongClickItem(recordSo: RecordSo){
-            with(FragmentRecordDeleteBinding.inflate(layoutInflater)) {
+            with(DialogRecordDeleteBinding.inflate(layoutInflater)) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -110,7 +108,7 @@ class RecordFragment:Fragment(R.layout.fragment_record) {
 
         // 单击底部加号时添加自定义日志
         fun onClickAdd(){
-            with(FragmentRecordAddBinding.inflate(layoutInflater)) {
+            with(DialogRecordAddBinding.inflate(layoutInflater)) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -133,7 +131,7 @@ class RecordFragment:Fragment(R.layout.fragment_record) {
 
         // 长按底部加号时添加自定义日志
         fun onLongClickAdd(){
-            with(FragmentRecordAddBinding.inflate(layoutInflater)) {
+            with(DialogRecordAddBinding.inflate(layoutInflater)) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)

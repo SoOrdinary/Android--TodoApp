@@ -37,6 +37,7 @@ class RecordAdapter(private val fragment: RecordFragment, private val recordList
         private val binding = FragmentRecordItemBinding.bind(view)
         override fun bind(recordSo: RecordSo) {
             with(binding){
+                recordItem.setOnLongClickListener(null)
                 // UI渲染
                 var finishTime=DateTimeUtils.convertFromTimestamp(recordSo.finishTime)
                 val formattedTime = String.format("%02d:%02d", (finishTime[1]+8)%24, finishTime[2])
@@ -49,7 +50,6 @@ class RecordAdapter(private val fragment: RecordFragment, private val recordList
                 // 用户自定义日志则自定义写法
                 record.text = recordSo.content
                 // 点击事件
-                recordItem.setOnLongClickListener(null)
                 recordItem.setOnLongClickListener {
                     listenRecordItemClick.onLongClickItem(recordSo)
                     true

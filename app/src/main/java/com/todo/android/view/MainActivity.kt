@@ -2,13 +2,11 @@ package com.todo.android.view
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -28,6 +26,8 @@ import com.todo.android.view.fragment.alarm.AlarmFragment
 import com.todo.android.view.fragment.alarm.AlarmViewModel
 import com.todo.android.view.fragment.record.RecordFragment
 import com.todo.android.view.fragment.task.TaskFragment
+import com.todo.android.view.fragment.task.TaskViewModel
+import com.todo.android.view.fragment.user.UserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -61,8 +61,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     // 闹钟列表需要发出提醒,且其他fragment可能需要调用
-    private val viewModel: MainViewModel by viewModels()
-    val alarmViewModel:AlarmViewModel  by viewModels()
+    private val taskViewModel: TaskViewModel by viewModels()
+    private val alarmViewModel:AlarmViewModel  by viewModels()
+    private val userViewModel:UserViewModel by viewModels()
 
     override fun getBindingInflate() = ActivityMainBinding.inflate(layoutInflater)
 
@@ -95,22 +96,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             layoutParams=params
             // 观察个人信息
             with(NavSideHeaderBinding.bind(getHeaderView(0))){
-                viewModel.getIconUriLiveData().observe(this@MainActivity){
+                userViewModel.getIconUriLiveData().observe(this@MainActivity){
                     Glide.with(icon.context)
                         .load(it)  // 图片的 URL
                         .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
                         .placeholder(R.drawable.app_icon)  // 占位图
                         .into(icon)
                 }
-                viewModel.getNameLiveData().observe(this@MainActivity){
+                userViewModel.getNameLiveData().observe(this@MainActivity){
                     name.text =it
                 }
-                viewModel.getSignatureLiveData().observe(this@MainActivity){
+                userViewModel.getSignatureLiveData().observe(this@MainActivity){
                     signature.text=it
                 }
             }
             // 获取当前所有的tags并渲染
-            viewModel.getNowTaskTagsLiveData().observe(this@MainActivity){
+            taskViewModel.getNowTaskTagsLiveData().observe(this@MainActivity){
                 // 清空所有item
                 menu.clear()
                 // 先更新固定的，再根据tags更新菜单项

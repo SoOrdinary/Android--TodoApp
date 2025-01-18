@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * 记录提取仓库--仅服务record界面，若需要多页面协同需更改逻辑
+ * 记录提取仓库--仅服务record界面
  */
 class RecordRepository {
 
@@ -15,6 +15,7 @@ class RecordRepository {
 
     // 插入记录
     suspend fun insertRecord(recordSo: RecordSo) {
+        if (recordSo.finishTime>recordSo.planTime)recordSo.isTimeout=true
         withContext(Dispatchers.IO) {
             recordDao.insert(recordSo)
         }
