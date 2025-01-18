@@ -312,8 +312,6 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                         .into(taskImage)
                 }
 
-
-                // Todo:拍照，将相册取下的照片存在应用缓存目录
                 with(taskImage){
                     setOnClickListener {
                         // 处理函数重置，将uri存下来,并将图片控件设置
@@ -350,27 +348,27 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                     val minute = taskDueDateMinute.text.toString().trim()
                     val dueTimestamp = DateTimeUtils.stringToTimestamp("$day  $hour:$minute}")
                     // 将图片保存至应用缓存目录
-                    try {
-                        // 获取图片流
-                        val inputStream = requireActivity().contentResolver.openInputStream(Uri.parse(taskPhotoUri.text.toString().trim()))
-                        // 获取缓存目录
-                        val cacheDir = requireContext().cacheDir
-                        val fileName = "task_image_${System.currentTimeMillis()}.jpg"
-                        val file = File(cacheDir, fileName)
-                        // 将图片流保存到缓存目录
-                        val outputStream = FileOutputStream(file)
-                        inputStream?.copyTo(outputStream)
-                        // 更新 taskPhotoUri 为缓存目录中的文件路径
-                        taskPhotoUri.text = file.absolutePath
-                        // 关闭流
-                        outputStream.flush()
-                        outputStream.close()
-                        inputStream?.close()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Toast.makeText(requireActivity(), "图片保存失败", Toast.LENGTH_SHORT).show()
-                    }
-
+                    if(taskPhotoUri.text.isNotEmpty()){
+                        try {
+                            // 获取图片流
+                            val inputStream = requireActivity().contentResolver.openInputStream(Uri.parse(taskPhotoUri.text.toString().trim()))
+                            // 获取缓存目录
+                            val cacheDir = requireContext().cacheDir
+                            val fileName = "task_image_${System.currentTimeMillis()}.jpg"
+                            val file = File(cacheDir, fileName)
+                            // 将图片流保存到缓存目录
+                            val outputStream = FileOutputStream(file)
+                            inputStream?.copyTo(outputStream)
+                            // 更新 taskPhotoUri 为缓存目录中的文件路径
+                            taskPhotoUri.text = file.absolutePath
+                            // 关闭流
+                            outputStream.flush()
+                            outputStream.close()
+                            inputStream?.close()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    } p
                     // 生成最终task
                     val newTask=Task(
                         id = oldTask?.id ?:0,
