@@ -20,7 +20,7 @@
             android:layout_span="10000"
             android:background="@drawable/input_box"
             android:gravity="top|left"
-            android:hint="日记内容"
+            android:hint="Record content"
             android:minHeight="200dp"/>
     </ScrollView>
 

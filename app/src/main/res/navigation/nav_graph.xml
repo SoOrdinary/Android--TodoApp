@@ -7,26 +7,26 @@
 
     <fragment
         android:id="@+id/fragment_task"
-        android:name="com.todo.android.view.fragment.task.TaskFragment"
+        android:name="com.soordinary.todo.view.fragment.task.TaskFragment"
         android:label="task"
         tools:layout="@layout/fragment_task"/>
 
     <fragment
         android:id="@+id/fragment_record"
-        android:name="com.todo.android.view.fragment.record.RecordFragment"
+        android:name="com.soordinary.todo.view.fragment.record.RecordFragment"
         android:label="list"
         tools:layout="@layout/fragment_record"/>
 
     <fragment
         android:id="@+id/fragment_alarm"
-        android:name="com.todo.android.view.fragment.alarm.AlarmFragment"
+        android:name="com.soordinary.todo.view.fragment.alarm.AlarmFragment"
         android:label="alarm"
         tools:layout="@layout/fragment_alarm">
     </fragment>
 
     <fragment
         android:id="@+id/fragment_user"
-        android:name="com.todo.android.view.fragment.user.UserFragment"
+        android:name="com.soordinary.todo.view.fragment.user.UserFragment"
         android:label="user"
         tools:layout="@layout/fragment_user"/>
 
