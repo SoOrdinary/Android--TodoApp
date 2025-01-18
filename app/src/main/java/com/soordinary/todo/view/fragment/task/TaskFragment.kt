@@ -368,7 +368,7 @@ class TaskFragment:Fragment(R.layout.fragment_task) {
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
-                    } p
+                    }
                     // 生成最终task
                     val newTask=Task(
                         id = oldTask?.id ?:0,
