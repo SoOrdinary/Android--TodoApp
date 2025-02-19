@@ -64,10 +64,10 @@ class ForegroundService : LifecycleService() {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "前台显示服务渠道",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_LOW
             )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
+            serviceChannel.setSound(null,null)
+            notificationManager.createNotificationChannel(serviceChannel)
         }
         val intent = Intent(this, StartActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
