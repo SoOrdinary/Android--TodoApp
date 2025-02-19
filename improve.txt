@@ -1,0 +1,9 @@
+1.通知最近alarm前台显示 √ 多进程防止被杀死 √
+2.Task列表myers算法优化->筛选列表的时候根据myers算法优化,record和alarm同理 √
+3.alarm的recycleView列表增加滑动功能 √
+4.record的recycleView增加滑动删除功能，长按改为显示事件 √
+
+5.计网加密复习完后对密码进行加密，实现局域网下的数据加密转移
+
+1.看看recycleView源码
+2.容易考的知识点复习一下

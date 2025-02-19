@@ -59,7 +59,7 @@
             android:text="轻触以沉浸"/>
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.soordinary.todo.component.SwipeRecyclerView
         android:id="@+id/alarm_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -62,7 +62,7 @@ class TaskRepository() {
         withContext(Dispatchers.IO) {
             // 获取数据库中原始封面图片 URL
             val oldTask: Task = taskDao.getTaskById(task.id) // 假设有通过 ID 查询的方法
-            val oldCoverImage: String? = (oldTask.image)
+            val oldCoverImage: String? = oldTask.image
             // 判断封面图是否发生变化，如果发生变化且原有封面图不为空，删除原来的图片
             if (oldCoverImage != null && oldCoverImage != task.image) {
                 val oldCoverFile = File(oldCoverImage)
@@ -104,4 +104,9 @@ class TaskRepository() {
     fun getTasksByTagAndFinish(tag: String, isFinish: Boolean?) =
         taskDao.getTasksByTagAndFinish(tag, isFinish)
 
+    // 用于Service前台调用
+    fun getCompletedTaskCount() = taskDao.getCompletedTaskCount()
+    fun getTaskCountInTimeRange(startDate: Long, endDate: Long) = taskDao.getTaskCountInTimeRange(startDate,endDate)
+    fun getCompletedTaskCountInTimeRange(startDate: Long, endDate: Long) = taskDao.getCompletedTaskCountInTimeRange(startDate,endDate)
+    fun getOverdueUncompletedTaskCount(currentTime: Long) = taskDao.getOverdueUncompletedTaskCount(currentTime)
 }

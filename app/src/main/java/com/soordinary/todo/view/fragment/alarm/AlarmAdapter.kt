@@ -9,10 +9,6 @@ import com.soordinary.todo.R
 import com.soordinary.todo.data.room.entity.Alarm
 import com.soordinary.todo.databinding.FragmentAlarmItemBinding
 import com.soordinary.todo.utils.DateTimeUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 /**
@@ -20,8 +16,11 @@ import kotlinx.coroutines.launch
  *
  * @role1 当时间为超时时间时，加入一个非阻塞协程在30s后删除该项的数据库存储
  */
-class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: List<Alarm>, private val itemType: Int) : RecyclerView.Adapter<AlarmAdapter.BaseViewHolder>() {
+class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: List<Alarm>) : RecyclerView.Adapter<AlarmAdapter.BaseViewHolder>() {
 
+    init {
+        setHasStableIds(true)
+    }
     // 点击事件适配
     val listenAlarmItemClick = fragment.ListenAlarmItemClick()
     // 内部基类，简化多种适配item与bind的书写
@@ -34,9 +33,9 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
         return ItemViewHolder(view)
     }
 
-    // 三个重写函数，依次说明布局类型、item个数、声明绑定(调用对应布局Holder重写的binding函数)
-    override fun getItemViewType(position: Int) =  0
+    // 重写函数，依次说明布局类型、item个数、声明绑定(调用对应布局Holder重写的binding函数)
     override fun getItemCount() = alarmList.size
+    override fun getItemId(position: Int) = alarmList[position].id
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) = holder.bind(alarmList[position])
 
     inner class ItemViewHolder(view:View): BaseViewHolder(view){
@@ -45,6 +44,7 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
             with(binding){
                 alarmItem.setOnLongClickListener(null)
                 alarmItem.setOnLongClickListener(null)
+                delete.setOnClickListener(null)
                 // UI绑定[统一绑定一个时间计时器，逻辑写入Fragment]
                 alarmName.text=alarm.name
                 val remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(System.currentTimeMillis()/ 60000) * 60000)
@@ -54,11 +54,6 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
                 }else{
                     remainTime.text ="时间到"
                     remainTime.setTextColor(Color.RED)
-                    // 页面内也尝试删除，每分钟都会更新
-                    GlobalScope.launch(Dispatchers.Main) {
-                        delay(10000)
-                        fragment.viewModel.removeAlarm(alarm)
-                    }
                 }
                 alarmDate.text=DateTimeUtils.timestampToString(alarm.alarmDate)
                 // 事件绑定
@@ -69,7 +64,14 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
                     listenAlarmItemClick.onLongClickItem(alarm.name,alarm.alarmDate)
                     true
                 }
+                delete.setOnClickListener {
+                    listenAlarmItemClick.onClickToDelete(alarm)
+                }
             }
         }
     }
+
+
+    // 滑动动画处理
+
 }

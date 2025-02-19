@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <!-- 左侧布局：完成任务总数和今日待完成任务 -->
+    <LinearLayout
+        android:id="@+id/left_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/timeout_task"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:textColor="#FF0000"
+            android:gravity="center_vertical|left"
+            android:text="超时任务：0"
+            android:textSize="16sp"
+            android:visibility="gone"/>
+
+        <!-- 今日待完成任务 -->
+        <TextView
+            android:id="@+id/today_task"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:gravity="center_vertical|left"
+            android:text="今日待办: 0/0"
+            android:textSize="16sp" />
+
+        <!-- 完成任务总数 -->
+        <TextView
+            android:id="@+id/completed_total_text"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:gravity="center_vertical|left"
+            android:text="完成总计: 0"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- 右侧布局：闹钟任务名和闹钟倒计时 -->
+    <LinearLayout
+        android:id="@+id/right_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- 闹钟任务名 -->
+        <TextView
+            android:id="@+id/alarm_name"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="Hello World"
+            android:textSize="16sp" />
+
+        <!-- 闹钟倒计时 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/time"
+                android:fontFamily="@font/mono"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="00:00:00"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/time_day"
+                android:fontFamily="@font/mono"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:paddingLeft="3dp"
+                android:layout_weight="1"
+                android:layout_gravity="top"
+                android:paddingTop="3dp"
+                android:textSize="10sp"
+                android:text="+0"
+                android:visibility="invisible"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

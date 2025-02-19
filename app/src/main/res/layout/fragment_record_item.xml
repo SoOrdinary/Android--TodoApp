@@ -3,6 +3,7 @@
     android:id="@+id/record_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginVertical="5dp"
     android:paddingHorizontal="5dp"
     android:orientation="vertical">
 

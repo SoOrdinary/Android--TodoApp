@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.soordinary.todo.data.room.entity.Task
+import kotlinx.coroutines.flow.Flow
 
 /**
  * room数据库的Dao层--Task
@@ -61,4 +62,20 @@ interface TaskDao {
                 "CASE WHEN is_finish = 1 THEN due_date END DESC"
     )
     fun getTasksByTagAndFinish(tag: String, isFinish: Boolean?): LiveData<List<Task>>
+
+    // 查询数据库内完成任务数量
+    @Query("SELECT COUNT(*) FROM tasks WHERE is_finish = 1")
+    fun getCompletedTaskCount(): Flow<Int>
+
+    // 查询某一时间段任务总数
+    @Query("SELECT COUNT(*) FROM tasks WHERE due_date BETWEEN :startDate AND :endDate")
+    fun getTaskCountInTimeRange(startDate: Long, endDate: Long): Flow<Int>
+
+    // 查询某一时间段完成任务数量
+    @Query("SELECT COUNT(*) FROM tasks WHERE due_date BETWEEN :startDate AND :endDate AND is_finish = 1")
+    fun getCompletedTaskCountInTimeRange(startDate: Long, endDate: Long): Flow<Int>
+
+    // 查询超时未完成任务数量
+    @Query("SELECT COUNT(*) FROM tasks WHERE due_date < :currentTime AND is_finish = 0")
+    fun getOverdueUncompletedTaskCount(currentTime: Long): Flow<Int>
 }

@@ -18,5 +18,5 @@ data class RecordSo(
     @ColumnInfo(name = "finish_time")
     var finishTime: Long,               // 实际何时完成（时间戳，毫秒值）
     @ColumnInfo(name = "is_timeout")
-    var isTimeout: Boolean = false,             // 任务是否超时 (true: 超时, false: 未超时)
+    var isTimeout: Boolean = false,     // 任务是否超时 (true: 超时, false: 未超时)
 )

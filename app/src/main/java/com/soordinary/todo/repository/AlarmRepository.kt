@@ -21,13 +21,23 @@ class AlarmRepository {
         }
     }
 
-    // 删除记录
-    suspend fun deleteAlarm(alarm: Alarm) {
+    // 通过id删除记录
+    suspend fun deleteAlarmById(id: Long) {
         withContext(Dispatchers.IO) {
-            alarmDao.delete(alarm)
+            alarmDao.deleteById(id)
+        }
+    }
+
+    // 通过date删除记录
+    suspend fun deleteAlarmByDate(date: Long) {
+        withContext(Dispatchers.IO) {
+            alarmDao.deleteByDate(date)
         }
     }
 
     // 查询全部闹铃
-    fun getAllAlarmsSortedByDate(): LiveData<List<Alarm>> =alarmDao.getAllAlarmsSortedByDate()
+    fun getAllAlarmsSortedByDate(): LiveData<List<Alarm>> = alarmDao.getAllAlarmsSortedByDate()
+
+    // Service前台调用
+    fun getNearestAlarm() = alarmDao.getNearestAlarm()
 }

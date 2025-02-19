@@ -22,6 +22,7 @@ import com.soordinary.todo.R
 import com.soordinary.todo.databinding.ActivityMainBinding
 import com.soordinary.todo.databinding.NavSideHeaderBinding
 import com.soordinary.todo.utils.SizeUnits
+import com.soordinary.todo.view.foreground.ForegroundService
 import com.soordinary.todo.view.fragment.alarm.AlarmFragment
 import com.soordinary.todo.view.fragment.alarm.AlarmViewModel
 import com.soordinary.todo.view.fragment.record.RecordFragment
@@ -62,7 +63,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     // 闹钟列表需要发出提醒,且其他fragment可能需要调用
     private val taskViewModel: TaskViewModel by viewModels()
-    private val alarmViewModel:AlarmViewModel  by viewModels()
+    private val alarmViewModel: AlarmViewModel by viewModels()
     private val userViewModel:UserViewModel by viewModels()
 
     override fun getBindingInflate() = ActivityMainBinding.inflate(layoutInflater)
@@ -125,17 +126,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
 
         // 在每次打开应用的时候都检查并删除超时闹钟，删除第一个后又会触发下一个，不用担心一直不点开alarm页面就一直不清理了
-        alarmViewModel.alarmLiveData.observe(this){
-            if(it.isNotEmpty()){
-                val alarm = it[0]
-                // 如果该任务超时，则开启一个协程等待5s然后删除
-                if(alarm.alarmDate<System.currentTimeMillis()){
-                    GlobalScope.launch(Dispatchers.Main) {
-                        delay(5000)
-                        alarmViewModel.removeAlarm(alarm)
-                    }
-                }
-            }
+        GlobalScope.launch(Dispatchers.Main) {
+            delay(5000)
+            alarmViewModel.removeAllFinishAlarm()
         }
 
         // 初始化各种点击事件

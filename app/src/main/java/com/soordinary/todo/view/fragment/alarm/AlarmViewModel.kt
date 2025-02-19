@@ -33,6 +33,7 @@ class AlarmViewModel : ViewModel() {
     }
 
     // 缓存
+    var willDoName:String = "Hello world"
     var willDoTime:Long = 0
     var alarmList = ArrayList<Alarm>()
 
@@ -41,39 +42,36 @@ class AlarmViewModel : ViewModel() {
         // 同时增加通知的定时任务Todo：第一次时请求权限
         val inputData = Data.Builder()
             .putString("title", alarm.name)
+            .putLong("date",alarm.alarmDate)
             .build()
-        val workRequest = OneTimeWorkRequestBuilder<NotifyWork>()
+        val workRequest = OneTimeWorkRequestBuilder<AlarmNotifyWork>()
             .setInitialDelay(alarm.alarmDate-System.currentTimeMillis(),TimeUnit.MILLISECONDS)
             .setInputData(inputData)
             .build()
         WorkManager.getInstance(TodoApplication.context).enqueue(workRequest)
         alarm.alarmWordId=workRequest.id
         alarmRepository.insertAlarm(alarm)
-        // 插入成功后触发更新并提醒用户
-        _triggerUpdate.value = Unit
         Toast.makeText(TodoApplication.context, "Alarm set : " + DateTimeUtils.timestampToString(alarm.alarmDate), Toast.LENGTH_LONG).show()
         // 随后更新日志
         val currentTime = System.currentTimeMillis()
         val remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(currentTime/ 60000) * 60000)
         val record = RecordSo(
-            content="设置定时任务：${alarm.name},倒计时${remain}分钟",
-            planTime = alarm.alarmDate,
+            // 通过 && 判断此日志类型，不可乱改
+            content="&& 定时提醒：${alarm.name},倒计时${remain}分钟",
+            // 这样倒计时为0的闹钟就不会一直显示超时红色，不然太讨厌了
+            planTime = alarm.alarmDate + 59999,
             finishTime = currentTime
         )
         recordRepository.insertRecord(record)
     }
 
-    // 移除超时闹钟
-    fun removeAlarm(alarm: Alarm) = viewModelScope.launch {
-        alarmRepository.deleteAlarm(alarm)
-        // 删除成功后触发更新
-        _triggerUpdate.value = Unit
+    // 移除所有超时闹钟
+    fun removeAllFinishAlarm() = viewModelScope.launch {
+        alarmRepository.deleteAlarmByDate(System.currentTimeMillis())
     }
     // 删除未使用闹钟
     fun deleteAlarm(alarm: Alarm) = viewModelScope.launch {
         WorkManager.getInstance(TodoApplication.context).cancelWorkById(alarm.alarmWordId)
-        alarmRepository.deleteAlarm(alarm)
-        // 删除成功后触发更新
-        _triggerUpdate.value = Unit
+        alarmRepository.deleteAlarmById(alarm.id)
     }
 }

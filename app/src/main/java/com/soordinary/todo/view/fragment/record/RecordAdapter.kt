@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.soordinary.todo.R
+import com.soordinary.todo.component.ItemSlideDeleteCallback
 import com.soordinary.todo.data.room.entity.RecordSo
 import com.soordinary.todo.databinding.FragmentRecordItemBinding
 import com.soordinary.todo.utils.DateTimeUtils
@@ -14,8 +15,11 @@ import com.soordinary.todo.utils.DateTimeUtils
 /**
  * Record的列表适配器，原理同TaskAdapter基本一致
  */
-class RecordAdapter(private val fragment: RecordFragment, private val recordList: List<RecordSo>, private val itemType: Int) : RecyclerView.Adapter<RecordAdapter.BaseViewHolder>(){
+class RecordAdapter(private val fragment: RecordFragment, private val recordList: List<RecordSo>) : RecyclerView.Adapter<RecordAdapter.BaseViewHolder>() ,ItemSlideDeleteCallback.SlideDeleteListener{
 
+    init {
+        setHasStableIds(true)
+    }
     // 点击事件适配
     val listenRecordItemClick = fragment.ListenRecordItemClick()
     // 内部基类，简化多种适配item与bind的书写
@@ -28,9 +32,9 @@ class RecordAdapter(private val fragment: RecordFragment, private val recordList
         return ItemViewHolder(view)
     }
 
-    // 三个重写函数，依次说明布局类型、item个数、声明绑定(调用对应布局Holder重写的binding函数)
-    override fun getItemViewType(position: Int) =  0
+    // 重写函数，依次说明布局类型、item个数、声明绑定(调用对应布局Holder重写的binding函数)
     override fun getItemCount() = recordList.size
+    override fun getItemId(position: Int) = recordList[position].id
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) = holder.bind(recordList[position])
 
     inner class ItemViewHolder(view:View): BaseViewHolder(view){
@@ -54,8 +58,11 @@ class RecordAdapter(private val fragment: RecordFragment, private val recordList
                     listenRecordItemClick.onLongClickItem(recordSo)
                     true
                 }
-
             }
         }
+    }
+
+    override fun onSwipedItem(position: Int) {
+        listenRecordItemClick.onSwipedItem(recordList[position])
     }
 }

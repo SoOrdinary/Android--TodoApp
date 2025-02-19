@@ -49,7 +49,7 @@
             android:layout_weight="1"
             android:background="@drawable/input_box"
             android:inputType="numberSigned"
-            android:hint="timeout/h" />
+            android:hint="timeout/m" />
     </LinearLayout>
 
     <Button

@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
  * Task的ViewModel层
  *
  * @role1 查询room数据库Task的相关任务并保存结果
- * @role2 Todo:查询当天天气并用于显示
  *
  * @explain1 ViewModel主构造属性中赋值了 |查询方式+五种查询条件| 可默认值或传参修改，以及调用函数修改，默认为查询当天的所有事件
  * @explain2 查询会返回各种liveData，最后会通过映射只需要观察taskLiveData就可以了
@@ -45,6 +44,17 @@ class TaskViewModel(
         DUE_DATE_AND_FINISH
     }
 
+    // 定义查询类型的枚举
+    enum class ChangeType {
+        CREATE,
+        DELETE,
+        UPDATE,
+        QUERY
+    }
+
+    // 留存更新方式
+    var changeType: ChangeType = ChangeType.QUERY
+
     // 根据查询类型和参数来返回不同的查询结果
     var taskLiveData: LiveData<List<Task>> = queryTypeLiveData.switchMap { queryType ->
         when (queryType) {
@@ -57,34 +67,39 @@ class TaskViewModel(
     }
 
     // 获取当前的个人头像LiveData
-    fun getIconUriLiveData () = userRepository.userIconUriLiveData
+    fun getIconUriLiveData() = userRepository.userIconUriLiveData
 
     // 获取当前标签组
     fun getNowTaskTagsLiveData() = taskRepository.taskTagsLiveData
 
     // 插入任务
     fun insertTask(task: Task) = viewModelScope.launch {
+        changeType = ChangeType.CREATE
         taskRepository.insertTask(task)
     }
 
     // 更新任务
     fun updateTask(task: Task) = viewModelScope.launch {
+        changeType = ChangeType.UPDATE
         taskRepository.updateTask(task)
     }
 
     // 删除任务
     fun deleteTask(task: Task) = viewModelScope.launch {
+        changeType = ChangeType.DELETE
         taskRepository.deleteTask(task)
     }
 
     // 根据完成状态查询
     fun getTasksByFinish(isFinish: Boolean?) {
+        changeType = ChangeType.QUERY
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.FINISH_STATUS
     }
 
     // 根据标题和完成状态查询
     fun getTasksByTitleAndFinish(title: String, isFinish: Boolean?) {
+        changeType = ChangeType.QUERY
         this.title = title
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.TITLE_AND_FINISH
@@ -92,6 +107,7 @@ class TaskViewModel(
 
     // 根据标签和完成状态查询
     fun getTasksByTagAndFinish(tag: String, isFinish: Boolean?) {
+        changeType = ChangeType.QUERY
         this.tag = tag
         this.isFinish = isFinish
         queryTypeLiveData.value = QueryType.TAG_AND_FINISH
@@ -99,6 +115,7 @@ class TaskViewModel(
 
     // 根据日期范围和完成状态查询
     fun getTasksByDueDateAndFinish(startDate: Long, endDate: Long, isFinish: Boolean?) {
+        changeType = ChangeType.QUERY
         this.startDate = startDate
         this.endDate = endDate
         this.isFinish = isFinish

@@ -12,7 +12,6 @@ import java.lang.ref.WeakReference
  * @role1 定义静态内部类ActivityCollector，在每个活动create|destroy时分别改变记录器的值
  * @role2 VB 填充泛型，为每个Activity自动绑定binding--需要子类实现getBinding方法,private后子类只能get不能set
  *
- * @improve 该类所有的role都是对项目的improve
  */
 abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
 

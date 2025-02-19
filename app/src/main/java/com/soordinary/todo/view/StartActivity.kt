@@ -1,6 +1,7 @@
 package com.soordinary.todo.view
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -8,6 +9,7 @@ import androidx.core.widget.addTextChangedListener
 import com.soordinary.todo.BaseActivity
 import com.soordinary.todo.databinding.ActivityStartBinding
 import com.soordinary.todo.databinding.DiagStartForgetPasswordBinding
+import com.soordinary.todo.view.foreground.ForegroundService
 import com.soordinary.todo.view.fragment.user.UserViewModel
 
 /**
@@ -17,15 +19,18 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
 
     private val viewModel: UserViewModel by viewModels()
     private var currentPassword : String? =null
+    private lateinit var serviceIntent:Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // 启动前台服务
+        startForeground()
+
         currentPassword=viewModel.getPasswordLiveData().value
         // 当前无密码才能直接进入
         if(currentPassword.isNullOrEmpty()){
-            MainActivity.actionStart(this)
-            finish()
+            passwordAfter()
         }
 
         binding.initClick()
@@ -36,8 +41,7 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
     private fun ActivityStartBinding.initClick(){
         password.addTextChangedListener { input->
             if(input.toString() == currentPassword){
-                MainActivity.actionStart(this@StartActivity)
-                finish()
+                passwordAfter()
             }
         }
 
@@ -65,6 +69,29 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
 
                 dialog.show()
             }
+        }
+    }
+
+    // 无密码或输入正确做的事
+    private fun passwordAfter(){
+        // 重写调用前台服务，开始更新数据
+        ForegroundService.passwordFinish = true
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
+        MainActivity.actionStart(this)
+        finish()
+    }
+
+    private fun startForeground(){
+        // 启动服务
+        serviceIntent = Intent(this, ForegroundService::class.java)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
         }
     }
 }
