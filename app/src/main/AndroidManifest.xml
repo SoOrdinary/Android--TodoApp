@@ -20,16 +20,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Todo"
         tools:targetApi="31">
-        <receiver
-            android:name=".view.foreground.ForegroundRestartReceiver"
-            android:enabled="true"
-            android:exported="true"/>
-
-        <service
-            android:name=".view.foreground.ForegroundService"
-            android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback" />
 
         <activity
             android:name=".view.fragment.alarm.AlarmViewActivity"
@@ -50,6 +40,17 @@
             android:name=".view.MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan|stateHidden" />
+
+        <receiver
+            android:name=".view.foreground.ForegroundRestartReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".view.foreground.ForegroundService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

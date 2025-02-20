@@ -84,8 +84,8 @@
         android:id="@+id/delete"
         android:layout_width="60dp"
         android:layout_height="match_parent"
-        android:background="#F44336"
         android:layout_marginVertical="8dp"
+        android:background="#F44336"
         android:padding="10dp"
         android:src="@drawable/alarm_delete" />
 

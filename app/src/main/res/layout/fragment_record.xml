@@ -9,18 +9,18 @@
         android:id="@+id/date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/mono"
         android:background="#ebe4d2"
-        android:paddingVertical="15dp"
+        android:fontFamily="@font/mono"
         android:gravity="center"
-        android:textSize="20sp"
+        android:paddingVertical="15dp"
+        android:text="2025.01.17"
         android:textColor="@color/black"
-        android:text="2025.01.17"/>
+        android:textSize="20sp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/record_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginHorizontal="5dp"/>
+        android:layout_marginHorizontal="5dp" />
 
 </LinearLayout>

@@ -12,7 +12,7 @@ object TaskSharedPreference {
     private const val SP_NAME = "task_tags"
     private const val TAG_LIST = "tag_list"
 
-    private val sharedPreferences: SharedPreferences=TodoApplication.context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE)
+    private val sharedPreferences: SharedPreferences = TodoApplication.context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE)
 
     val tags: MutableSet<String>
         get() = sharedPreferences.getStringSet(TAG_LIST, emptySet())?.toSortedSet() ?: sortedSetOf()
@@ -38,5 +38,5 @@ object TaskSharedPreference {
     }
 
     // 判断某标签是否包含
-    fun isContain(tag: String):Boolean = sharedPreferences.getStringSet(TAG_LIST, emptySet())?.contains(tag) ?:false
+    fun isContain(tag: String): Boolean = sharedPreferences.getStringSet(TAG_LIST, emptySet())?.contains(tag) ?: false
 }

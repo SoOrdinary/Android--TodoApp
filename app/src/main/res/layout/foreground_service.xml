@@ -12,8 +12,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_weight="1"
         android:layout_gravity="center"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -21,11 +21,11 @@
             android:id="@+id/timeout_task"
             android:layout_width="150dp"
             android:layout_height="30dp"
-            android:textColor="#FF0000"
             android:gravity="center_vertical|left"
             android:text="超时任务：0"
+            android:textColor="#FF0000"
             android:textSize="16sp"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <!-- 今日待完成任务 -->
         <TextView
@@ -43,6 +43,7 @@
             android:layout_height="30dp"
             android:gravity="center_vertical|left"
             android:text="完成总计: 0"
+            android:textColor="@color/gray"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -52,8 +53,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_weight="1"
         android:layout_gravity="center"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -71,30 +72,33 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:orientation="horizontal">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/time"
-                android:fontFamily="@font/mono"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:fontFamily="@font/mono"
                 android:text="00:00:00"
-                android:textSize="16sp"/>
+                android:textSize="16sp" />
+
             <TextView
                 android:id="@+id/time_day"
-                android:fontFamily="@font/mono"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:paddingLeft="3dp"
-                android:layout_weight="1"
                 android:layout_gravity="top"
+                android:layout_weight="1"
+                android:fontFamily="@font/mono"
+                android:paddingLeft="3dp"
                 android:paddingTop="3dp"
-                android:textSize="10sp"
                 android:text="+0"
-                android:visibility="invisible"/>
+                android:textSize="10sp"
+                android:visibility="invisible" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

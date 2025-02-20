@@ -33,11 +33,12 @@ import com.soordinary.todo.utils.Diff
  * @role4 通知
  *
  */
-class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
+class AlarmFragment : Fragment(R.layout.fragment_alarm) {
 
     // 适配器需要使用该viewModel
     val viewModel: AlarmViewModel by activityViewModels()
     private lateinit var binding: FragmentAlarmBinding
+
     // 设置定时器
     private lateinit var handler: Handler
     private lateinit var alarmRunnable: Runnable
@@ -47,9 +48,9 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
         binding = FragmentAlarmBinding.bind(view)
 
         // 初始化RecycleView的配置
-        binding.alarmList.apply{
-            layoutManager = LinearLayoutManager(requireActivity(),LinearLayoutManager.VERTICAL,false)
-            adapter = AlarmAdapter(this@AlarmFragment,viewModel.alarmList)
+        binding.alarmList.apply {
+            layoutManager = LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false)
+            adapter = AlarmAdapter(this@AlarmFragment, viewModel.alarmList)
         }
 
         // 每秒检查一次，当前分钟数变化就触发更新
@@ -58,9 +59,9 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
         alarmRunnable = object : Runnable {
             override fun run() {
                 // willDoTime大于当前时间，更新UI与viewModel
-                val currentTime =System.currentTimeMillis()
+                val currentTime = System.currentTimeMillis()
                 if (viewModel.willDoTime > currentTime) {
-                    val remainTime = DateTimeUtils.convertFromTimestamp(viewModel.willDoTime-currentTime)
+                    val remainTime = DateTimeUtils.convertFromTimestamp(viewModel.willDoTime - currentTime)
                     val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                     binding.willDo.text = viewModel.willDoName
                     binding.time.text = formattedTime
@@ -70,11 +71,11 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
                         binding.timeDay.visibility = View.VISIBLE
                         binding.timeDay.text = "+${remainTime[0]}"
                     }
-                }else{
+                } else {
                     // 保证只在倒计时为0时只提醒一次
-                    if(viewModel.willDoTime !=0L){
+                    if (viewModel.willDoTime != 0L) {
                         viewModel.willDoName = "Hello world"
-                        binding.time.text ="00:00:00"
+                        binding.time.text = "00:00:00"
                         binding.timeDay.visibility = View.INVISIBLE
                         viewModel.willDoTime = 0
                     }
@@ -103,10 +104,10 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
     }
 
     // 观察事件 Todo:删除总会让最后一个alarm闪一下
-    private fun FragmentAlarmBinding.initLiveData(){
+    private fun FragmentAlarmBinding.initLiveData() {
         // 观察数据变化实时更新ViewModel的缓存并通知列表更新
-        with(viewModel){
-            alarmLiveData.observe(viewLifecycleOwner){
+        with(viewModel) {
+            alarmLiveData.observe(viewLifecycleOwner) {
                 val oldAlarm = ArrayList<Alarm>(alarmList)
                 alarmList.clear()
                 alarmList.addAll(it)
@@ -117,27 +118,27 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
     }
 
     // 点击事件
-    private fun FragmentAlarmBinding.initClick(){
+    private fun FragmentAlarmBinding.initClick() {
         model.setOnClickListener {
-            val currentTime =System.currentTimeMillis()
+            val currentTime = System.currentTimeMillis()
             var willDoTime = 0L
             if (viewModel.willDoTime > currentTime) {
                 willDoTime = viewModel.willDoTime
             }
             // 启动沉浸模式并传入时间
-            AlarmViewActivity.actionStart(requireActivity(),willDoTime)
+            AlarmViewActivity.actionStart(requireActivity(), willDoTime)
         }
     }
 
     /**
      * 用于alarm的列表项的点击事件处理
      */
-    inner class ListenAlarmItemClick{
+    inner class ListenAlarmItemClick {
 
         // 单击底部栏添加按钮时
-        fun onClickAdd(){
-            with(DialogAlarmAddRemainBinding.inflate(LayoutInflater.from(requireActivity()))){
-                val dialog= Dialog(requireActivity())
+        fun onClickAdd() {
+            with(DialogAlarmAddRemainBinding.inflate(LayoutInflater.from(requireActivity()))) {
+                val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
@@ -149,10 +150,11 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
                     val hour = alarmDueDateHour.text.toString().toInt()
                     val minute = alarmDueDateMinute.text.toString().toInt()
                     // 约去毫秒
-                    val dueTimestamp = ((System.currentTimeMillis() + DateTimeUtils.convertToTimestamp(day,hour,minute))/ 60000) * 60000
+                    val dueTimestamp = ((System.currentTimeMillis() + DateTimeUtils.convertToTimestamp(day, hour, minute)) / 60000) * 60000
                     val alarm = Alarm(
                         name = alarmName.text.toString().trim(),
-                        alarmDate = dueTimestamp)
+                        alarmDate = dueTimestamp
+                    )
                     viewModel.insertAlarm(alarm)
 
                     dialog.dismiss()
@@ -163,9 +165,9 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
         }
 
         // 长按底部加号时
-        fun onLongClickAdd(){
-            with(DialogAlarmAddDateBinding.inflate(LayoutInflater.from(requireActivity()))){
-                val dialog= Dialog(requireActivity())
+        fun onLongClickAdd() {
+            with(DialogAlarmAddDateBinding.inflate(LayoutInflater.from(requireActivity()))) {
+                val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
@@ -187,7 +189,8 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
                     val dueTimestamp = DateTimeUtils.stringToTimestamp("${alarmDueDateDay.text.toString().trim()}  ${alarmDueDateHour.text.toString().trim()}:${alarmDueDateMinute.text.toString().trim()}")
                     val alarm = Alarm(
                         name = alarmName.text.toString().trim(),
-                        alarmDate = dueTimestamp)
+                        alarmDate = dueTimestamp
+                    )
                     viewModel.insertAlarm(alarm)
                     dialog.dismiss()
                 }
@@ -223,36 +226,36 @@ class AlarmFragment: Fragment(R.layout.fragment_alarm)  {
 
 
         // 点击表项可查看响铃具体时间
-        fun onClickItem(binding: FragmentAlarmItemBinding){
-            binding.date.visibility = if( binding.date.visibility==View.GONE)View.VISIBLE else View.GONE
+        fun onClickItem(binding: FragmentAlarmItemBinding) {
+            binding.date.visibility = if (binding.date.visibility == View.GONE) View.VISIBLE else View.GONE
         }
 
         // 长按表项的时间可添加至计时器中
-        fun onLongClickItem(name:String, willDoTime:Long){
-            val currentTime=System.currentTimeMillis()
-            if(willDoTime>currentTime){
+        fun onLongClickItem(name: String, willDoTime: Long) {
+            val currentTime = System.currentTimeMillis()
+            if (willDoTime > currentTime) {
                 viewModel.willDoName = name
                 viewModel.willDoTime = willDoTime
                 // 因为定时器会有一点点延迟，需要直接更新一下UI
                 binding.willDo.text = name
-                val remainTime=DateTimeUtils.convertFromTimestamp(viewModel.willDoTime-currentTime)
+                val remainTime = DateTimeUtils.convertFromTimestamp(viewModel.willDoTime - currentTime)
                 val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                 binding.time.text = formattedTime
-                if(remainTime[0]==0){
+                if (remainTime[0] == 0) {
                     binding.timeDay.visibility = View.INVISIBLE
-                }else{
+                } else {
                     binding.timeDay.visibility = View.VISIBLE
                     binding.timeDay.text = "+${remainTime[0]}"
                 }
-            }else{
+            } else {
                 binding.willDo.text = name
-                binding.time.text ="00:00:00"
+                binding.time.text = "00:00:00"
                 viewModel.willDoTime = currentTime
             }
         }
 
         // 单击删除键删除该闹钟
-        fun onClickToDelete(alarm: Alarm){
+        fun onClickToDelete(alarm: Alarm) {
             viewModel.deleteAlarm(alarm)
             // 删除该部件后需要把菜单栏收回，不然视图重用会效果出错
             binding.alarmList.closeMenu()

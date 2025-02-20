@@ -28,7 +28,7 @@ import com.soordinary.todo.utils.DateTimeUtils
 class TaskAdapter(private val fragment: TaskFragment, private val taskList: List<Task>, private val itemType: Int) : RecyclerView.Adapter<TaskAdapter.BaseViewHolder>() {
 
     init {
-       setHasStableIds(true)
+        setHasStableIds(true)
     }
 
     // 点击事件适配

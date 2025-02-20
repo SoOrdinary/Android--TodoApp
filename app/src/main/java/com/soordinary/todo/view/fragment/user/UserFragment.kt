@@ -34,20 +34,21 @@ import java.io.FileOutputStream
  * @role2 管理个人信息的修改
  * @role3 一些系统性菜单的点击事件
  */
-class UserFragment: Fragment(R.layout.fragment_user)  {
+class UserFragment : Fragment(R.layout.fragment_user) {
 
     private val viewModel: UserViewModel by activityViewModels()
     private lateinit var binding: FragmentUserBinding
+
     // 相册取照的相关回调函数
     private lateinit var launcher: ActivityResultLauncher<Intent>
-    private lateinit var handleWay:(ActivityResult)->Unit
+    private lateinit var handleWay: (ActivityResult) -> Unit
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentUserBinding.bind(view)
 
         // 初始化一个提醒函数体，避免后续未初始化直接调用
-        handleWay= {Toast.makeText(requireActivity(),"处理事件未初始化",Toast.LENGTH_SHORT).show()}
+        handleWay = { Toast.makeText(requireActivity(), "处理事件未初始化", Toast.LENGTH_SHORT).show() }
         // 注册一个事件返回器
         launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             handleWay(result)
@@ -59,35 +60,35 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
     }
 
     // 观察者
-    private fun FragmentUserBinding.initLiveData(){
+    private fun FragmentUserBinding.initLiveData() {
 
         // 更新个人头像、昵称、签名
-        viewModel.getIconUriLiveData().observe(viewLifecycleOwner){
+        viewModel.getIconUriLiveData().observe(viewLifecycleOwner) {
             Glide.with(icon.context)
                 .load(it)  // 图片的 URL
                 .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
                 .placeholder(R.drawable.app_icon)  // 占位图
-                .apply{
+                .apply {
                     into(icon)
                     into(currentIcon)
                 }
         }
 
-        viewModel.getNameLiveData().observe(viewLifecycleOwner){
+        viewModel.getNameLiveData().observe(viewLifecycleOwner) {
             name.text = it
             currentName.text = it
         }
 
-        viewModel.getSignatureLiveData().observe(viewLifecycleOwner){
+        viewModel.getSignatureLiveData().observe(viewLifecycleOwner) {
             signature.text = it
             currentSignature.text = it
         }
     }
 
-    private fun FragmentUserBinding.initClick(){
+    private fun FragmentUserBinding.initClick() {
 
         // 点击编辑箭头，展开编辑窗来改变个人信息
-        editInformation.setOnClickListener{
+        editInformation.setOnClickListener {
             changeUserInfo.visibility = if (changeUserInfo.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
 
@@ -137,16 +138,16 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 点击昵称，来修改昵称
         currentName.setOnClickListener {
-            with(DialogUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
                 wantToChang.hint = "修改你的昵称"
                 confirmChange.setOnClickListener {
-                    if(wantToChang.text.isNullOrEmpty()){
-                        Toast.makeText(requireActivity(),"昵称不可为空",Toast.LENGTH_SHORT).show()
-                    }else{
+                    if (wantToChang.text.isNullOrEmpty()) {
+                        Toast.makeText(requireActivity(), "昵称不可为空", Toast.LENGTH_SHORT).show()
+                    } else {
                         viewModel.updateName(wantToChang.text.toString().trim())
                         dialog.dismiss()
                     }
@@ -158,7 +159,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 点击签名，来修改签名
         currentSignature.setOnClickListener {
-            with(DialogUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserChangeNameOrSignatureBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
@@ -175,19 +176,19 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-标签管理
         menuTaskTag.setOnClickListener {
-            with(DialogUserMenuTaskTagBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserMenuTaskTagBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
                 // 删除该标签 无则报错
                 confirmDelete.setOnClickListener {
-                    val tag=changeTag.text.toString().trim()
-                    if(tag.isEmpty()){
+                    val tag = changeTag.text.toString().trim()
+                    if (tag.isEmpty()) {
                         Toast.makeText(requireActivity(), "删除失败，标签不可为空", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if(!viewModel.isContain(tag)){
+                    if (!viewModel.isContain(tag)) {
                         Toast.makeText(requireActivity(), "删除失败，该标签不存在", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
@@ -198,12 +199,12 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
                 // 添加该标签 有则报错
                 confirmAdd.setOnClickListener {
-                    val tag=changeTag.text.toString().trim()
-                    if(tag.isEmpty()){
+                    val tag = changeTag.text.toString().trim()
+                    if (tag.isEmpty()) {
                         Toast.makeText(requireActivity(), "添加失败，标签不可为空", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if(viewModel.isContain(tag)){
+                    if (viewModel.isContain(tag)) {
                         Toast.makeText(requireActivity(), "添加失败，该标签已存在", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
@@ -223,39 +224,39 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                var currentPassword=viewModel.getPasswordLiveData().value
+                var currentPassword = viewModel.getPasswordLiveData().value
 
                 // 删除密码 有密码且输入正确才能删除
                 confirmDelete.setOnClickListener {
-                    val newPassword=changePassword.text.toString().trim()
+                    val newPassword = changePassword.text.toString().trim()
                     // 判断
-                    if(currentPassword.isNullOrEmpty()){
-                        Toast.makeText(requireActivity(),"删除失败，暂无密码",Toast.LENGTH_SHORT).show()
+                    if (currentPassword.isNullOrEmpty()) {
+                        Toast.makeText(requireActivity(), "删除失败，暂无密码", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if(newPassword != currentPassword){
-                        Toast.makeText(requireActivity(),"删除失败，输入密码错误",Toast.LENGTH_SHORT).show()
+                    if (newPassword != currentPassword) {
+                        Toast.makeText(requireActivity(), "删除失败，输入密码错误", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     viewModel.updatePassword("")
-                    Toast.makeText(requireActivity(),"删除成功",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), "删除成功", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
 
                 // 添加密码 无密码且有输入才正确
                 confirmSet.setOnClickListener {
-                    val newPassword=changePassword.text.toString().trim()
+                    val newPassword = changePassword.text.toString().trim()
                     // 判断 Todo:开启界面密码锁
-                    if(!currentPassword.isNullOrEmpty()){
-                        Toast.makeText(requireActivity(),"添加失败，已有密码",Toast.LENGTH_SHORT).show()
+                    if (!currentPassword.isNullOrEmpty()) {
+                        Toast.makeText(requireActivity(), "添加失败，已有密码", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if(newPassword.isNullOrEmpty()){
-                        Toast.makeText(requireActivity(),"添加失败，密码不可为空",Toast.LENGTH_SHORT).show()
+                    if (newPassword.isNullOrEmpty()) {
+                        Toast.makeText(requireActivity(), "添加失败，密码不可为空", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
                     viewModel.updatePassword(newPassword)
-                    Toast.makeText(requireActivity(),"添加成功,密码为${newPassword}",Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireActivity(), "添加成功,密码为${newPassword}", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 }
 
@@ -270,8 +271,8 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                val markDown = MarkDownUtils.loadMarkdownFromAssets(requireActivity(),"user_manual.md")
-                Markwon.create(requireActivity()).setMarkdown(textContent,markDown)
+                val markDown = MarkDownUtils.loadMarkdownFromAssets(requireActivity(), "user_manual.md")
+                Markwon.create(requireActivity()).setMarkdown(textContent, markDown)
 
                 dialog.show()
             }
@@ -302,13 +303,13 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-提交bug
         menuSubmitBug.setOnClickListener {
-            with(DialogUserMenuSubmitBugBinding.inflate(LayoutInflater.from(requireActivity()))){
+            with(DialogUserMenuSubmitBugBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
                 sendEmail.setOnLongClickListener {
-                   // 设置发送邮件的相关API
+                    // 设置发送邮件的相关API
                     val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                         data = Uri.parse("mailto:soordinary@foxmail.com") // 指定邮件地址
                         putExtra(Intent.EXTRA_SUBJECT, "Bug Report or Improve Feedback About AndroidApp--Todo") // 邮件标题
@@ -318,7 +319,7 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                         startActivity(Intent.createChooser(emailIntent, "发送邮件"))
                     } catch (e: android.content.ActivityNotFoundException) {
                         Toast.makeText(requireActivity(), "发送失败\uD83D\uDE2D，可借助电脑发送邮件", Toast.LENGTH_SHORT).show()
-                        Toast.makeText(requireActivity(),"\uD83D\uDC81soordinary@foxmail.com",Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireActivity(), "\uD83D\uDC81soordinary@foxmail.com", Toast.LENGTH_LONG).show()
                     }
                     true
                 }
@@ -334,8 +335,8 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                val markDown = MarkDownUtils.loadMarkdownFromAssets(requireActivity(),"author.md")
-                Markwon.create(requireActivity()).setMarkdown(textContent,markDown)
+                val markDown = MarkDownUtils.loadMarkdownFromAssets(requireActivity(), "author.md")
+                Markwon.create(requireActivity()).setMarkdown(textContent, markDown)
 
                 dialog.show()
             }
@@ -343,8 +344,8 @@ class UserFragment: Fragment(R.layout.fragment_user)  {
 
         // 菜单-检查更新 Todo:实现远程更新
         menuCheckVersion.setOnClickListener {
-            Toast.makeText(requireActivity(),"暂未配置服务器",Toast.LENGTH_SHORT).show()
-            Toast.makeText(requireActivity(),"\uD83D\uDC46可前往github或百度网盘查询最新版本",Toast.LENGTH_LONG).show()
+            Toast.makeText(requireActivity(), "暂未配置服务器", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireActivity(), "\uD83D\uDC46可前往github或百度网盘查询最新版本", Toast.LENGTH_LONG).show()
         }
     }
 

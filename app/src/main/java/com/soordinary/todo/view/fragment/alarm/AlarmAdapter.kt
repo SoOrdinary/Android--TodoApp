@@ -21,8 +21,10 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
     init {
         setHasStableIds(true)
     }
+
     // 点击事件适配
     val listenAlarmItemClick = fragment.ListenAlarmItemClick()
+
     // 内部基类，简化多种适配item与bind的书写
     abstract inner class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun bind(alarm: Alarm)
@@ -38,30 +40,30 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
     override fun getItemId(position: Int) = alarmList[position].id
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) = holder.bind(alarmList[position])
 
-    inner class ItemViewHolder(view:View): BaseViewHolder(view){
+    inner class ItemViewHolder(view: View) : BaseViewHolder(view) {
         private val binding = FragmentAlarmItemBinding.bind(view)
         override fun bind(alarm: Alarm) {
-            with(binding){
+            with(binding) {
                 alarmItem.setOnLongClickListener(null)
                 alarmItem.setOnLongClickListener(null)
                 delete.setOnClickListener(null)
                 // UI绑定[统一绑定一个时间计时器，逻辑写入Fragment]
-                alarmName.text=alarm.name
-                val remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(System.currentTimeMillis()/ 60000) * 60000)
-                if(remain>0){
-                    remainTime.text="${remain} 分钟"
+                alarmName.text = alarm.name
+                val remain = DateTimeUtils.millisToMinutes(alarm.alarmDate - (System.currentTimeMillis() / 60000) * 60000)
+                if (remain > 0) {
+                    remainTime.text = "${remain} 分钟"
                     remainTime.setTextColor(Color.parseColor("#018786"))
-                }else{
-                    remainTime.text ="时间到"
+                } else {
+                    remainTime.text = "时间到"
                     remainTime.setTextColor(Color.RED)
                 }
-                alarmDate.text=DateTimeUtils.timestampToString(alarm.alarmDate)
+                alarmDate.text = DateTimeUtils.timestampToString(alarm.alarmDate)
                 // 事件绑定
                 alarmItem.setOnClickListener {
                     listenAlarmItemClick.onClickItem(binding)
                 }
                 alarmItem.setOnLongClickListener {
-                    listenAlarmItemClick.onLongClickItem(alarm.name,alarm.alarmDate)
+                    listenAlarmItemClick.onLongClickItem(alarm.name, alarm.alarmDate)
                     true
                 }
                 delete.setOnClickListener {
@@ -70,8 +72,4 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
             }
         }
     }
-
-
-    // 滑动动画处理
-
 }

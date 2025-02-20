@@ -14,15 +14,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AlarmDao {
     @Insert
-    fun insert(alarm: Alarm):Unit
+    fun insert(alarm: Alarm): Unit
 
     // 通过 id 删除 Alarm 数据
     @Query("DELETE FROM task_alarms WHERE id = :id")
-    fun deleteById(id: Long):Unit
+    fun deleteById(id: Long): Unit
 
     // 通过 date 删除 Alarm 数据
     @Query("DELETE FROM task_alarms WHERE alarm_date <= :date")
-    fun deleteByDate(date: Long):Unit
+    fun deleteByDate(date: Long): Unit
 
     // 根据 ID 查询闹铃记录
     @Query("SELECT * FROM task_alarms WHERE id = :id")

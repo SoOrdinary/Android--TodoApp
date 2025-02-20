@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.graphics.Color
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
@@ -29,18 +30,19 @@ import kotlinx.coroutines.launch
  */
 class ForegroundService : LifecycleService() {
 
-    companion object{
+    companion object {
         // 密码输入完成与否标志
-        var passwordFinish:Boolean = false
+        var passwordFinish: Boolean = false
+
         // 是否需要关闭前台显示[拒绝广播接收器重启服务]
-        var closeComplete:Boolean = false
+        var closeComplete: Boolean = false
     }
 
     private val CHANNEL_ID = "前台显示服务渠道"
     private val NOTIFICATION_ID = 999
     private lateinit var foregroundRestartReceiver: ForegroundRestartReceiver
-    private lateinit var notificationManager :NotificationManager
-    private lateinit var builder :NotificationCompat.Builder
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var builder: NotificationCompat.Builder
     private lateinit var foregroundDataCache: ForegroundDataCache
     private lateinit var view: RemoteViews
     private var countDownTimer: CountDownTimer? = null
@@ -66,7 +68,7 @@ class ForegroundService : LifecycleService() {
                 "前台显示服务渠道",
                 NotificationManager.IMPORTANCE_LOW
             )
-            serviceChannel.setSound(null,null)
+            serviceChannel.setSound(null, null)
             notificationManager.createNotificationChannel(serviceChannel)
         }
         val intent = Intent(this, StartActivity::class.java).apply {
@@ -98,7 +100,7 @@ class ForegroundService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
 
         // 首次启动时先不要更新数据，等待用户输入密码后，再次执行该方法时再更新数据
-        if(!passwordFinish){
+        if (!passwordFinish) {
             return START_STICKY
         }
 
@@ -121,6 +123,11 @@ class ForegroundService : LifecycleService() {
                 launch {
                     completedTaskCountInTimeRangeFlow.distinctUntilChanged().collect {
                         completedTaskCountInTimeRange = it
+                        if (completedTaskCountInTimeRange == taskCountInTimeRange) {
+                            view.setTextColor(R.id.today_task, Color.parseColor("#018786"))
+                        } else {
+                            view.setTextColor(R.id.today_task, Color.parseColor("#000000"))
+                        }
                         view.setTextViewText(R.id.today_task, "今日代办：$completedTaskCountInTimeRange/$taskCountInTimeRange")
                         emitNewNotification()
                     }
@@ -128,6 +135,11 @@ class ForegroundService : LifecycleService() {
                 launch {
                     taskCountInTimeRangeFlow.distinctUntilChanged().collect {
                         taskCountInTimeRange = it
+                        if (completedTaskCountInTimeRange == taskCountInTimeRange) {
+                            view.setTextColor(R.id.today_task, Color.parseColor("#018786"))
+                        } else {
+                            view.setTextColor(R.id.today_task, Color.parseColor("#000000"))
+                        }
                         view.setTextViewText(R.id.today_task, "今日代办：$completedTaskCountInTimeRange/$taskCountInTimeRange")
                         emitNewNotification()
                     }
@@ -142,15 +154,15 @@ class ForegroundService : LifecycleService() {
                 launch {
                     nearestAlarmFlow.distinctUntilChanged().collect {
                         nearestAlarm = it
-                        if(nearestAlarm == null){
+                        if (nearestAlarm == null) {
                             countDownTimer?.cancel()
-                            view.setTextViewText(R.id.alarm_name,"Hello World")
-                            view.setTextViewText(R.id.time,"00:00:00")
+                            view.setTextViewText(R.id.alarm_name, "Hello World")
+                            view.setTextViewText(R.id.time, "00:00:00")
                             view.setViewVisibility(R.id.time_day, View.INVISIBLE)
                             emitNewNotification()
                             return@collect
                         }
-                        view.setTextViewText(R.id.alarm_name,nearestAlarm!!.name)
+                        view.setTextViewText(R.id.alarm_name, nearestAlarm!!.name)
                         startAlarmCountdown(nearestAlarm!!.alarmDate)
                         emitNewNotification()
                     }
@@ -168,7 +180,7 @@ class ForegroundService : LifecycleService() {
 
     override fun onDestroy() {
         // 发送错误关闭广播
-        if(!closeComplete){
+        if (!closeComplete) {
             val intent = Intent(this, ForegroundRestartReceiver::class.java)
             intent.action = "error_close_foreground_service"
         }
@@ -191,7 +203,7 @@ class ForegroundService : LifecycleService() {
                         view.setViewVisibility(R.id.time_day, View.INVISIBLE)
                     } else {
                         view.setViewVisibility(R.id.time_day, View.VISIBLE)
-                        view.setTextViewText(R.id.time_day,"+${remainTime[0]}")
+                        view.setTextViewText(R.id.time_day, "+${remainTime[0]}")
                     }
                     view.setTextViewText(R.id.time, formattedTime)
                     emitNewNotification()

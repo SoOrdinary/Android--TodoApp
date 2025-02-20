@@ -16,11 +16,11 @@
             android:id="@+id/send_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="20dp"
             android:layout_gravity="center"
             android:fontFamily="@font/mono"
             android:gravity="center"
             android:inputType="textMultiLine"
+            android:paddingVertical="20dp"
             android:text="手机中邮箱登录需在对应邮箱网页端\n进行POP3服务配置\n登录密码为POP3授权码而非邮箱密码\n若不了解可上网查询相关教程\n🌟长按文字以唤起邮件编辑功能🌟" />
     </LinearLayout>
 

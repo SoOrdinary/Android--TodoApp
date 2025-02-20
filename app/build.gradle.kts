@@ -12,8 +12,8 @@ android {
         applicationId = "com.soordinary.todo"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0.1"
+        versionCode = 3
+        versionName = "2.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,12 +56,12 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    implementation ("androidx.work:work-runtime:2.8.0")
-    implementation ("com.github.bumptech.glide:glide:4.15.1")
-    implementation ("io.noties.markwon:core:4.6.2")
-    implementation ("androidx.hilt:hilt-common:1.0.0")
-    implementation ("androidx.lifecycle:lifecycle-service:2.6.2")
-    kapt ("com.github.bumptech.glide:compiler:4.15.1")
+    implementation("androidx.work:work-runtime:2.8.0")
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    implementation("io.noties.markwon:core:4.6.2")
+    implementation("androidx.hilt:hilt-common:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-service:2.6.2")
+    kapt("com.github.bumptech.glide:compiler:4.15.1")
     kapt("androidx.room:room-compiler:2.5.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

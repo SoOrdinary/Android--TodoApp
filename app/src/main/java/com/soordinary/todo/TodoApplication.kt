@@ -18,6 +18,7 @@ class TodoApplication : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         private lateinit var _context: Context
+
         // 只允许取，不可修改
         val context get() = _context
     }

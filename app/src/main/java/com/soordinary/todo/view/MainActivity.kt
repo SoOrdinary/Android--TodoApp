@@ -51,10 +51,10 @@ import kotlinx.coroutines.launch
  */
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
-    companion object{
+    companion object {
         // 静态打开方法，指明打开该类需要哪些参数
-        fun actionStart(context: Context){
-            val intent = Intent(context, MainActivity::class.java).apply{
+        fun actionStart(context: Context) {
+            val intent = Intent(context, MainActivity::class.java).apply {
                 // putExtra()
             }
             context.startActivity(intent)
@@ -64,7 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     // 闹钟列表需要发出提醒,且其他fragment可能需要调用
     private val taskViewModel: TaskViewModel by viewModels()
     private val alarmViewModel: AlarmViewModel by viewModels()
-    private val userViewModel:UserViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
 
     override fun getBindingInflate() = ActivityMainBinding.inflate(layoutInflater)
 
@@ -82,42 +82,42 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             bottomLayoutParams.height = systemBars.bottom
             binding.topImprove.layoutParams = topLayoutParams
             binding.bottomImprove.layoutParams = bottomLayoutParams
-            binding.navBottom.setPadding(0,0,0,0)
+            binding.navBottom.setPadding(0, 0, 0, 0)
             // 侧边栏UI修正高度，默认选择today_task
-            binding.navSide.getHeaderView(0).setPadding(0,systemBars.top,0,0)
+            binding.navSide.getHeaderView(0).setPadding(0, systemBars.top, 0, 0)
             binding.navSide.setCheckedItem(R.id.today_task)
             insets
         }
 
         // 侧边栏UI修正
-        with(binding.navSide){
+        with(binding.navSide) {
             // 调整宽度,个人设置成了整个屏幕的2/3
             val params: ViewGroup.LayoutParams = layoutParams
             params.width = (SizeUnits.screenWidth * 0.66).toInt()
-            layoutParams=params
+            layoutParams = params
             // 观察个人信息
-            with(NavSideHeaderBinding.bind(getHeaderView(0))){
-                userViewModel.getIconUriLiveData().observe(this@MainActivity){
+            with(NavSideHeaderBinding.bind(getHeaderView(0))) {
+                userViewModel.getIconUriLiveData().observe(this@MainActivity) {
                     Glide.with(icon.context)
                         .load(it)  // 图片的 URL
                         .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
                         .placeholder(R.drawable.app_icon)  // 占位图
                         .into(icon)
                 }
-                userViewModel.getNameLiveData().observe(this@MainActivity){
-                    name.text =it
+                userViewModel.getNameLiveData().observe(this@MainActivity) {
+                    name.text = it
                 }
-                userViewModel.getSignatureLiveData().observe(this@MainActivity){
-                    signature.text=it
+                userViewModel.getSignatureLiveData().observe(this@MainActivity) {
+                    signature.text = it
                 }
             }
             // 获取当前所有的tags并渲染
-            taskViewModel.getNowTaskTagsLiveData().observe(this@MainActivity){
+            taskViewModel.getNowTaskTagsLiveData().observe(this@MainActivity) {
                 // 清空所有item
                 menu.clear()
                 // 先更新固定的，再根据tags更新菜单项
-                menu.add(R.id.classify_by_dates, R.id.today_task,  Menu.NONE, "Today Task")
-                menu.add(R.id.classify_by_dates, R.id.list_task,  Menu.NONE, "List  Task")
+                menu.add(R.id.classify_by_dates, R.id.today_task, Menu.NONE, "Today Task")
+                menu.add(R.id.classify_by_dates, R.id.list_task, Menu.NONE, "List  Task")
                 it.forEach { tag ->
                     // 为每个tag动态创建菜单项并添加到菜单中
                     menu.add(R.id.classify_by_tags, View.generateViewId(), Menu.NONE, tag)
@@ -137,7 +137,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
 
     // 点击事件初始化扩展函数
-    private fun ActivityMainBinding.initClick(){
+    private fun ActivityMainBinding.initClick() {
 
         // 获取一些必要的组件实例
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -145,17 +145,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
         // jetpack式底部导航栏点击与视图绑定
         val navController = navHostFragment.findNavController()
-        NavigationUI.setupWithNavController(binding.navBottom,navController)
-        with(binding.navBottom){
+        NavigationUI.setupWithNavController(binding.navBottom, navController)
+        with(binding.navBottom) {
             setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     // 如果是 "nav_add" 按钮，根据当前fragment设置逻辑，同时返回else表示add按钮不被选中
                     R.id.nav_add -> {
-                        when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
-                            is TaskFragment -> fragment.ListenTaskItemClick().onClickAddOrEdit(null){}
+                        when (val fragment = navHostFragment.childFragmentManager.fragments[0]) {
+                            is TaskFragment -> fragment.ListenTaskItemClick().onClickAddOrEdit(null) {}
                             is AlarmFragment -> fragment.ListenAlarmItemClick().onClickAdd()
-                            is RecordFragment->fragment.ListenRecordItemClick().onClickAdd()
-                            else->{}
+                            is RecordFragment -> fragment.ListenRecordItemClick().onClickAdd()
+                            else -> {}
                         }
                         false
                     }
@@ -164,12 +164,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 }
             }
             // 长按加号会进入更详细的页面去编辑
-            findViewById<View>(R.id.nav_add).setOnLongClickListener{
-                when(val fragment= navHostFragment.childFragmentManager.fragments[0]){
+            findViewById<View>(R.id.nav_add).setOnLongClickListener {
+                when (val fragment = navHostFragment.childFragmentManager.fragments[0]) {
                     is TaskFragment -> fragment.ListenTaskItemClick().onLongClickAdd()
                     is AlarmFragment -> fragment.ListenAlarmItemClick().onLongClickAdd()
-                    is RecordFragment-> fragment.ListenRecordItemClick().onLongClickAdd()
-                    else->{}
+                    is RecordFragment -> fragment.ListenRecordItemClick().onLongClickAdd()
+                    else -> {}
                 }
                 true
             }
@@ -178,7 +178,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         // 搜索框输入内容并按下回车，回调Fragment自定义方法，并清空内容,以及取消菜单栏按钮的选中情况Todo:回车后隐藏键盘，改为能够实时查询，以及单开一个dialog来查询？还有查询时取消其他tag的选择
         sideHeaderBinding.searchTask.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
-                if(v.text.isNullOrEmpty()) return@setOnEditorActionListener true
+                if (v.text.isNullOrEmpty()) return@setOnEditorActionListener true
                 val fragment = navHostFragment.childFragmentManager.fragments[0]
                 if (fragment is TaskFragment) fragment.ListenTaskItemClick().onSearchByTitle(v.text.toString().trim())
                 v.text = ""

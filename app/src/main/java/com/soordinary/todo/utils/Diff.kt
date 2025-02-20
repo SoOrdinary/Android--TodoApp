@@ -85,7 +85,7 @@ class Diff<T>(val equals: (T, T) -> Boolean) {
     }
 
     // 单项更新：移动加修改，同时多项不可用
-    fun buildU(oldList: List<T>, newList: List<T>, changeMethod: (oldIndex: Int) -> Any?,deleteMethod: (oldIndex: Int) -> Any?, addMethod: (newIndex: Int) -> Any?) {
+    fun buildU(oldList: List<T>, newList: List<T>, changeMethod: (oldIndex: Int) -> Any?, deleteMethod: (oldIndex: Int) -> Any?, addMethod: (newIndex: Int) -> Any?) {
         var processNode = shortestPath(oldList, newList)
         while (processNode.pre != null) {
             when (processNode.getStep) {
@@ -96,10 +96,10 @@ class Diff<T>(val equals: (T, T) -> Boolean) {
                 // "增加
                 1 -> {
                     // 同一位置则用更新，必定先删后增，倒着判断的，所以只需要关心增加前面是不是删就行了
-                    if(processNode.pre!=null&&processNode.pre!!.getStep==-1){
-                        changeMethod(processNode.pre!!.i-1)
+                    if (processNode.pre != null && processNode.pre!!.getStep == -1) {
+                        changeMethod(processNode.pre!!.i - 1)
                         return
-                    }else{
+                    } else {
                         addMethod(processNode.pre!!.i)
                     }
                 }

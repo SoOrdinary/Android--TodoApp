@@ -102,7 +102,6 @@ class RecordFragment : Fragment(R.layout.fragment_record) {
         fun onLongClickItem(recordSo: RecordSo) {
             val timeDiff = recordSo.finishTime - recordSo.planTime
             val diffStr = formatTimeDifference(timeDiff)
-
             val content = recordSo.content
             val message = when {
                 content.startsWith("##") -> {
@@ -110,14 +109,17 @@ class RecordFragment : Fragment(R.layout.fragment_record) {
                         false -> {
                             "🎉   提前 $diffStr 完成"
                         }
+
                         true -> {
                             "\uD83D\uDE22   超时 $diffStr 搞定"
                         }
                     }
                 }
+
                 content.startsWith("&&") -> {
                     "⏰    3--2--1-----"
                 }
+
                 else -> {
                     "📝    TodoTodoTodo...."
                 }

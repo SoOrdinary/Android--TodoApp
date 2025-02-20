@@ -9,25 +9,24 @@
         android:id="@+id/fragment_task"
         android:name="com.soordinary.todo.view.fragment.task.TaskFragment"
         android:label="task"
-        tools:layout="@layout/fragment_task"/>
+        tools:layout="@layout/fragment_task" />
 
     <fragment
         android:id="@+id/fragment_record"
         android:name="com.soordinary.todo.view.fragment.record.RecordFragment"
         android:label="list"
-        tools:layout="@layout/fragment_record"/>
+        tools:layout="@layout/fragment_record" />
 
     <fragment
         android:id="@+id/fragment_alarm"
         android:name="com.soordinary.todo.view.fragment.alarm.AlarmFragment"
         android:label="alarm"
-        tools:layout="@layout/fragment_alarm">
-    </fragment>
+        tools:layout="@layout/fragment_alarm" />
 
     <fragment
         android:id="@+id/fragment_user"
         android:name="com.soordinary.todo.view.fragment.user.UserFragment"
         android:label="user"
-        tools:layout="@layout/fragment_user"/>
+        tools:layout="@layout/fragment_user" />
 
 </navigation>

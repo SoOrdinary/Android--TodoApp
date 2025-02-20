@@ -15,7 +15,7 @@ class RecordRepository {
 
     // 插入记录
     suspend fun insertRecord(recordSo: RecordSo) {
-        if (recordSo.finishTime>recordSo.planTime)recordSo.isTimeout=true
+        if (recordSo.finishTime > recordSo.planTime) recordSo.isTimeout = true
         withContext(Dispatchers.IO) {
             recordDao.insert(recordSo)
         }

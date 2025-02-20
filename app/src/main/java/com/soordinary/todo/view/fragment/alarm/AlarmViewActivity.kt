@@ -22,11 +22,11 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
     private lateinit var handler: Handler
     private lateinit var alarmRunnable: Runnable
 
-    companion object{
+    companion object {
         // 静态打开方法，指明打开该类需要哪些参数
-        fun actionStart(context: Context,time:Long){
-            val intent = Intent(context, AlarmViewActivity::class.java).apply{
-                putExtra("time",time)
+        fun actionStart(context: Context, time: Long) {
+            val intent = Intent(context, AlarmViewActivity::class.java).apply {
+                putExtra("time", time)
             }
             context.startActivity(intent)
         }
@@ -45,9 +45,9 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
         alarmRunnable = object : Runnable {
             override fun run() {
                 // willDoTime大于当前时间，更新UI与viewModel
-                val currentTime =System.currentTimeMillis()
+                val currentTime = System.currentTimeMillis()
                 if (willDoTime > currentTime) {
-                    val remainTime = DateTimeUtils.convertFromTimestamp(willDoTime-currentTime)
+                    val remainTime = DateTimeUtils.convertFromTimestamp(willDoTime - currentTime)
                     val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                     binding.time.text = formattedTime
                     if (remainTime[0] == 0) {
@@ -56,10 +56,10 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
                         binding.timeDay.visibility = View.VISIBLE
                         binding.timeDay.text = "+${remainTime[0]}"
                     }
-                }else{
+                } else {
                     // 保证只在倒计时为0时只提醒一次
-                    if(willDoTime !=0L){
-                        binding.time.text ="00:00:00"
+                    if (willDoTime != 0L) {
+                        binding.time.text = "00:00:00"
                         binding.timeDay.visibility = View.INVISIBLE
                         willDoTime = 0
                     }

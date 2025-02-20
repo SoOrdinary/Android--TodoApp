@@ -43,7 +43,7 @@
             android:background="@drawable/input_box"
             android:gravity="top|left"
             android:hint="Details"
-            android:minHeight="200dp"/>
+            android:minHeight="200dp" />
     </ScrollView>
 
     <LinearLayout
@@ -127,12 +127,13 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:src="@drawable/app_icon" />
+
             <TextView
                 android:id="@+id/task_photo_uri"
                 android:layout_width="1dp"
                 android:layout_height="1dp"
                 android:text=""
-                android:visibility="gone"/>
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
     <!-- 确定与取消按钮 -->

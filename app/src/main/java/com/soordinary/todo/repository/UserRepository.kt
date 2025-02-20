@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
  */
 class UserRepository {
 
-    companion object{
+    companion object {
         private val _userIconUriLiveData = MutableLiveData<String>(UserInfoSharedPreference.userIconUri)
         private val _userNameLiveData = MutableLiveData<String>(UserInfoSharedPreference.userName)
         private val _userSignatureLiveData = MutableLiveData<String>(UserInfoSharedPreference.userSignature)
@@ -24,32 +24,32 @@ class UserRepository {
     val userPasswordLiveData get() = _userPasswordLiveData
 
     // 更新个人图标
-    suspend fun updateUserIcon(newIconUri:String){
-        withContext(Dispatchers.IO){
-            UserInfoSharedPreference.userIconUri=newIconUri
+    suspend fun updateUserIcon(newIconUri: String) {
+        withContext(Dispatchers.IO) {
+            UserInfoSharedPreference.userIconUri = newIconUri
             _userIconUriLiveData.postValue(newIconUri)
         }
     }
 
     // 更新个人姓名
-    suspend fun updateUserName(newName:String){
-        withContext(Dispatchers.IO){
-            UserInfoSharedPreference.userName=newName
+    suspend fun updateUserName(newName: String) {
+        withContext(Dispatchers.IO) {
+            UserInfoSharedPreference.userName = newName
             _userNameLiveData.postValue(newName)
         }
     }
 
     // 更新个人签名
-    suspend fun updateUserSignature(newSignature: String){
-        withContext(Dispatchers.IO){
-            UserInfoSharedPreference.userSignature=newSignature
+    suspend fun updateUserSignature(newSignature: String) {
+        withContext(Dispatchers.IO) {
+            UserInfoSharedPreference.userSignature = newSignature
             _userSignatureLiveData.postValue(newSignature)
         }
     }
 
-    suspend fun updateUserPassword(newPassword: String){
-        withContext(Dispatchers.IO){
-            UserInfoSharedPreference.userPassword=newPassword
+    suspend fun updateUserPassword(newPassword: String) {
+        withContext(Dispatchers.IO) {
+            UserInfoSharedPreference.userPassword = newPassword
             _userPasswordLiveData.postValue(newPassword)
         }
     }

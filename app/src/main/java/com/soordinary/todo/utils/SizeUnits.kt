@@ -14,8 +14,10 @@ object SizeUnits {
 
     // 获取屏幕密度
     val screenMetrics get() = systemResources.displayMetrics
+
     // 获取屏幕宽度
     val screenWidth get() = screenMetrics.widthPixels
+
     // 获取屏幕高度
     val screenHeight get() = screenMetrics.heightPixels
 

@@ -15,14 +15,14 @@ object UserInfoSharedPreference {
     private const val USER_ICON_URI: String = "user_icon_uri" // 个人头像的Uri
     private const val USER_NAME: String = "user_name" // 个人昵称
     private const val USER_SIGNATURE: String = "user_signature" // 个人签名
-    private const val USER_PASSWORD:String ="user_password"  // 用户密码
+    private const val USER_PASSWORD: String = "user_password"  // 用户密码
 
     private val sharedPreferences: SharedPreferences = TodoApplication.context.getSharedPreferences(SP_NAME, Context.MODE_PRIVATE)
 
     // get
-    val userId :Long get() = sharedPreferences.getLong(USER_ID,uniqueId())
-    private fun uniqueId():Long{
-        val id :Long=System.currentTimeMillis()
+    val userId: Long get() = sharedPreferences.getLong(USER_ID, uniqueId())
+    private fun uniqueId(): Long {
+        val id: Long = System.currentTimeMillis()
         sharedPreferences.edit().putLong(USER_ID, id).commit()
         return id
     }

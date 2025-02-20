@@ -14,7 +14,7 @@ import java.io.InputStreamReader
 object MarkDownUtils {
 
     // 从markDown中读取文件
-    fun loadMarkdownFromAssets(context: Context,url: String): String {
+    fun loadMarkdownFromAssets(context: Context, url: String): String {
         val stringBuilder = StringBuilder()
         try {
             val inputStream = context.assets.open(url)

@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TaskDao {
     @Insert
-    fun insert(task: Task):Unit
+    fun insert(task: Task): Unit
 
     @Update
-    fun update(task: Task):Unit
+    fun update(task: Task): Unit
 
     @Delete
-    fun delete(task: Task):Unit
+    fun delete(task: Task): Unit
 
     // 根据 ID 查询任务
     @Query("SELECT * FROM tasks WHERE id = :id")

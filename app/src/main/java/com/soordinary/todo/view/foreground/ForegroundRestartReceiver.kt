@@ -12,7 +12,7 @@ class ForegroundRestartReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
-        if(action.equals("error_close_foreground_service")){
+        if (action.equals("error_close_foreground_service")) {
             // 启动服务
             val serviceIntent = Intent(context, ForegroundService::class.java)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

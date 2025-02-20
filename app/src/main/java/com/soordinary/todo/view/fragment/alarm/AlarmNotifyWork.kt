@@ -28,7 +28,7 @@ class AlarmNotifyWork(context: Context?, workerParams: WorkerParameters?) : Work
 
     override fun doWork(): Result {
         // 通过协程删除
-        val date=inputData.getLong("date",0)
+        val date = inputData.getLong("date", 0)
         GlobalScope.launch {
             delay(15000)
             alarmRepository.deleteAlarmByDate(date)

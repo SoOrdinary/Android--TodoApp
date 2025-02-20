@@ -20,17 +20,17 @@ import java.io.File
 class TaskRepository() {
 
     // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData Todo:是否需要异步查询？这种还是共享的ViewModel好？
-    companion object{
+    companion object {
         private val _taskTagsLiveData = MutableLiveData<Set<String>>(TaskSharedPreference.tags)
     }
 
-    private val taskDao =TaskDatabase.getDatabase(TodoApplication.context).taskDao()
+    private val taskDao = TaskDatabase.getDatabase(TodoApplication.context).taskDao()
 
     // 可观察的tags
     val taskTagsLiveData = _taskTagsLiveData
 
     // 插入标签
-    suspend fun insertTaskTag(newTag:String){
+    suspend fun insertTaskTag(newTag: String) {
         withContext(Dispatchers.IO) {
             if (TaskSharedPreference.addTag(newTag)) {
                 _taskTagsLiveData.postValue(TaskSharedPreference.tags)
@@ -39,7 +39,7 @@ class TaskRepository() {
     }
 
     // 删除标签
-    suspend fun deleteTaskTag(oldTag:String){
+    suspend fun deleteTaskTag(oldTag: String) {
         withContext(Dispatchers.IO) {
             if (TaskSharedPreference.removeTag(oldTag)) {
                 _taskTagsLiveData.postValue(TaskSharedPreference.tags)
@@ -48,7 +48,7 @@ class TaskRepository() {
     }
 
     // 判断某标签是否包含 Todo:实现异步
-    fun isContain(tag:String):Boolean = TaskSharedPreference.isContain(tag)
+    fun isContain(tag: String): Boolean = TaskSharedPreference.isContain(tag)
 
     // 插入任务
     suspend fun insertTask(task: Task) {
@@ -106,7 +106,7 @@ class TaskRepository() {
 
     // 用于Service前台调用
     fun getCompletedTaskCount() = taskDao.getCompletedTaskCount()
-    fun getTaskCountInTimeRange(startDate: Long, endDate: Long) = taskDao.getTaskCountInTimeRange(startDate,endDate)
-    fun getCompletedTaskCountInTimeRange(startDate: Long, endDate: Long) = taskDao.getCompletedTaskCountInTimeRange(startDate,endDate)
+    fun getTaskCountInTimeRange(startDate: Long, endDate: Long) = taskDao.getTaskCountInTimeRange(startDate, endDate)
+    fun getCompletedTaskCountInTimeRange(startDate: Long, endDate: Long) = taskDao.getCompletedTaskCountInTimeRange(startDate, endDate)
     fun getOverdueUncompletedTaskCount(currentTime: Long) = taskDao.getOverdueUncompletedTaskCount(currentTime)
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group
         android:id="@+id/classify_by_dates"
         android:checkableBehavior="single">
@@ -13,6 +13,5 @@
     </group>
     <group
         android:id="@+id/classify_by_tags"
-        android:checkableBehavior="single">
-    </group>
+        android:checkableBehavior="single"></group>
 </menu>

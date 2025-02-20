@@ -15,13 +15,15 @@ import com.soordinary.todo.utils.DateTimeUtils
 /**
  * Record的列表适配器，原理同TaskAdapter基本一致
  */
-class RecordAdapter(private val fragment: RecordFragment, private val recordList: List<RecordSo>) : RecyclerView.Adapter<RecordAdapter.BaseViewHolder>() ,ItemSlideDeleteCallback.SlideDeleteListener{
+class RecordAdapter(private val fragment: RecordFragment, private val recordList: List<RecordSo>) : RecyclerView.Adapter<RecordAdapter.BaseViewHolder>(), ItemSlideDeleteCallback.SlideDeleteListener {
 
     init {
         setHasStableIds(true)
     }
+
     // 点击事件适配
     val listenRecordItemClick = fragment.ListenRecordItemClick()
+
     // 内部基类，简化多种适配item与bind的书写
     abstract inner class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun bind(recordSo: RecordSo)
@@ -37,18 +39,18 @@ class RecordAdapter(private val fragment: RecordFragment, private val recordList
     override fun getItemId(position: Int) = recordList[position].id
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) = holder.bind(recordList[position])
 
-    inner class ItemViewHolder(view:View): BaseViewHolder(view){
+    inner class ItemViewHolder(view: View) : BaseViewHolder(view) {
         private val binding = FragmentRecordItemBinding.bind(view)
         override fun bind(recordSo: RecordSo) {
-            with(binding){
+            with(binding) {
                 recordItem.setOnLongClickListener(null)
                 // UI渲染
-                var finishTime=DateTimeUtils.convertFromTimestamp(recordSo.finishTime)
-                val formattedTime = String.format("%02d:%02d", (finishTime[1]+8)%24, finishTime[2])
-                time.text=formattedTime
-                if(recordSo.isTimeout){
+                var finishTime = DateTimeUtils.convertFromTimestamp(recordSo.finishTime)
+                val formattedTime = String.format("%02d:%02d", (finishTime[1] + 8) % 24, finishTime[2])
+                time.text = formattedTime
+                if (recordSo.isTimeout) {
                     time.setTextColor(Color.RED)
-                }else{
+                } else {
                     time.setTextColor(Color.parseColor("#018786"))
                 }
                 // 用户自定义日志则自定义写法

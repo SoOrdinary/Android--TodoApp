@@ -13,11 +13,11 @@
         <item
             android:id="@+id/nav_add"
             android:icon="@drawable/nav_bottom_add"
-            android:title=""/>
+            android:title="" />
         <item
             android:id="@id/fragment_alarm"
             android:icon="@drawable/nav_bottom_alarm"
-            android:title=""/>
+            android:title="" />
         <item
             android:id="@id/fragment_user"
             android:icon="@drawable/nav_bottom_user"

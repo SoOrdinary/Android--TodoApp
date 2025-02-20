@@ -61,21 +61,21 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:background="@drawable/search_box"
-            android:textSize="10sp"
             android:fontFamily="@font/mono"
             android:hint="Search Task By Title"
+            android:imeOptions="actionSearch"
             android:inputType="text"
             android:paddingRight="30dp"
-            android:imeOptions="actionSearch"/>
+            android:textSize="10sp" />
     </LinearLayout>
 
     <ImageView
         android:id="@+id/search_button"
         android:layout_width="30dp"
         android:layout_height="20dp"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="15dp"
-        android:layout_alignParentEnd="true"
         android:src="@drawable/task_search"
         app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"

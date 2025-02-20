@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
  */
 class AlarmViewModel : ViewModel() {
 
-    private val recordRepository:RecordRepository = RecordRepository()
+    private val recordRepository: RecordRepository = RecordRepository()
     private val alarmRepository: AlarmRepository = AlarmRepository()
 
     // 用于触发数据更新的标志(LiveData开始时设置值，才能触发第一次映射)
@@ -33,8 +33,8 @@ class AlarmViewModel : ViewModel() {
     }
 
     // 缓存
-    var willDoName:String = "Hello world"
-    var willDoTime:Long = 0
+    var willDoName: String = "Hello world"
+    var willDoTime: Long = 0
     var alarmList = ArrayList<Alarm>()
 
     // 插入闹钟
@@ -42,22 +42,22 @@ class AlarmViewModel : ViewModel() {
         // 同时增加通知的定时任务Todo：第一次时请求权限
         val inputData = Data.Builder()
             .putString("title", alarm.name)
-            .putLong("date",alarm.alarmDate)
+            .putLong("date", alarm.alarmDate)
             .build()
         val workRequest = OneTimeWorkRequestBuilder<AlarmNotifyWork>()
-            .setInitialDelay(alarm.alarmDate-System.currentTimeMillis(),TimeUnit.MILLISECONDS)
+            .setInitialDelay(alarm.alarmDate - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
             .setInputData(inputData)
             .build()
         WorkManager.getInstance(TodoApplication.context).enqueue(workRequest)
-        alarm.alarmWordId=workRequest.id
+        alarm.alarmWordId = workRequest.id
         alarmRepository.insertAlarm(alarm)
         Toast.makeText(TodoApplication.context, "Alarm set : " + DateTimeUtils.timestampToString(alarm.alarmDate), Toast.LENGTH_LONG).show()
         // 随后更新日志
         val currentTime = System.currentTimeMillis()
-        val remain=DateTimeUtils.millisToMinutes(alarm.alarmDate-(currentTime/ 60000) * 60000)
+        val remain = DateTimeUtils.millisToMinutes(alarm.alarmDate - (currentTime / 60000) * 60000)
         val record = RecordSo(
             // 通过 && 判断此日志类型，不可乱改
-            content="&& 定时提醒：${alarm.name},倒计时${remain}分钟",
+            content = "&& 定时提醒：${alarm.name},倒计时${remain}分钟",
             // 这样倒计时为0的闹钟就不会一直显示超时红色，不然太讨厌了
             planTime = alarm.alarmDate + 59999,
             finishTime = currentTime
@@ -69,6 +69,7 @@ class AlarmViewModel : ViewModel() {
     fun removeAllFinishAlarm() = viewModelScope.launch {
         alarmRepository.deleteAlarmByDate(System.currentTimeMillis())
     }
+
     // 删除未使用闹钟
     fun deleteAlarm(alarm: Alarm) = viewModelScope.launch {
         WorkManager.getInstance(TodoApplication.context).cancelWorkById(alarm.alarmWordId)

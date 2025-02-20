@@ -21,7 +21,7 @@
             android:background="@drawable/input_box"
             android:gravity="top|left"
             android:hint="Record content"
-            android:minHeight="200dp"/>
+            android:minHeight="200dp" />
     </ScrollView>
 
     <LinearLayout
@@ -30,8 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:gravity="center_vertical"
-        android:visibility="gone"
-        >
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/record_date"
@@ -48,8 +47,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/input_box"
-            android:inputType="numberSigned"
-            android:hint="timeout/m" />
+            android:hint="timeout/m"
+            android:inputType="numberSigned" />
     </LinearLayout>
 
     <Button

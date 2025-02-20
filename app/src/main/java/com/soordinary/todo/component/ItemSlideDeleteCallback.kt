@@ -12,7 +12,6 @@ import kotlin.math.abs
  */
 class ItemSlideDeleteCallback(var slideDeleteListener: SlideDeleteListener) : ItemTouchHelper.Callback() {
 
-
     interface SlideDeleteListener {
         fun onSwipedItem(position: Int)
     }

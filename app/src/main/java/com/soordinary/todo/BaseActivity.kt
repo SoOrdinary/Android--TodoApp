@@ -13,9 +13,9 @@ import java.lang.ref.WeakReference
  * @role2 VB 填充泛型，为每个Activity自动绑定binding--需要子类实现getBinding方法,private后子类只能get不能set
  *
  */
-abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
+abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
-    private  var _binding: VB? = null
+    private var _binding: VB? = null
 
     val binding get() = _binding ?: throw NullPointerException("Binding is not initialized")
 
@@ -24,7 +24,7 @@ abstract class BaseActivity<VB:ViewBinding>: AppCompatActivity() {
         // 将该活动添加入列表
         ActivityCollector.addActivity(this)
         // binding初始化
-        _binding=getBindingInflate()
+        _binding = getBindingInflate()
         setContentView(binding.root)
     }
 

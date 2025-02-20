@@ -14,10 +14,10 @@ import com.soordinary.todo.data.room.entity.RecordSo
 @Dao
 interface RecordDao {
     @Insert
-    fun insert(recordSo: RecordSo):Unit
+    fun insert(recordSo: RecordSo): Unit
 
     @Delete
-    fun delete(recordSo: RecordSo):Unit
+    fun delete(recordSo: RecordSo): Unit
 
     // 根据 ID 查询记录
     @Query("SELECT * FROM record_so WHERE id = :id")
