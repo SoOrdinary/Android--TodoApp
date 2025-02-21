@@ -66,7 +66,7 @@ class ForegroundService : LifecycleService() {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
                 "前台显示服务渠道",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             )
             serviceChannel.setSound(null, null)
             notificationManager.createNotificationChannel(serviceChannel)
