@@ -135,6 +135,11 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                 Toast.makeText(requireActivity(), "error", Toast.LENGTH_SHORT).show()
             }
         }
+        // 长按头像可恢复默认头像
+        currentIcon.setOnLongClickListener {
+            viewModel.updateIconUri("")
+            true
+        }
 
         // 点击昵称，来修改昵称
         currentName.setOnClickListener {

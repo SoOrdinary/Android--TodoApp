@@ -26,6 +26,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            applicationIdSuffix =".debug"
+            isDebuggable = true
+        }
     }
     buildFeatures {
         viewBinding = true
