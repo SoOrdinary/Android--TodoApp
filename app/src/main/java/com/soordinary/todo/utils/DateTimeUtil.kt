@@ -14,7 +14,7 @@ import java.util.Locale
  * @role3 获取当天的时间起始与末尾
  * @role4 一些时间单位的转换
  */
-object DateTimeUtils {
+object DateTimeUtil {
 
     // 日期格式：yyyy.MM.dd'  'HH:mm
     private const val DATE_FORMAT = "yyyy.MM.dd'  'HH:mm"

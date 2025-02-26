@@ -317,6 +317,30 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/menu_data_migration"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginVertical="10dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/user_menu_data_migration" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginHorizontal="15dp"
+                    android:fontFamily="@font/mono"
+                    android:text="数据迁移"
+                    android:textColor="@color/black"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/menu_check_version"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"

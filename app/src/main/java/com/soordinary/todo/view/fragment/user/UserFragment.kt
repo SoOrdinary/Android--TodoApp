@@ -17,12 +17,15 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.soordinary.todo.R
 import com.soordinary.todo.databinding.DialogUserChangeNameOrSignatureBinding
+import com.soordinary.todo.databinding.DialogUserCheckVersionBinding
+import com.soordinary.todo.databinding.DialogUserDataMigrationBinding
 import com.soordinary.todo.databinding.DialogUserMenuLockBinding
 import com.soordinary.todo.databinding.DialogUserMenuSubmitBugBinding
 import com.soordinary.todo.databinding.DialogUserMenuTaskTagBinding
 import com.soordinary.todo.databinding.DialogUserShowMarkdownBinding
 import com.soordinary.todo.databinding.FragmentUserBinding
-import com.soordinary.todo.utils.MarkDownUtils
+import com.soordinary.todo.utils.MarkDownUtil
+import com.soordinary.todo.utils.encryption.MD5Util
 import io.noties.markwon.Markwon
 import java.io.File
 import java.io.FileOutputStream
@@ -104,10 +107,10 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                             val inputStream = requireActivity().contentResolver.openInputStream(uri)
                             // 获取缓存目录
                             val cacheDir = requireContext().cacheDir
-                            val fileName = "user_icon.jpg"
+                            val fileName = "user_icon${System.currentTimeMillis()}.jpg"
                             val file = File(cacheDir, fileName)
                             // 将图片流保存到缓存目录
-                            val outputStream = FileOutputStream(file)
+                            val outputStream = FileOutputStream(file,false)
                             inputStream?.copyTo(outputStream)
                             // 保存为缓存目录中的文件路径
                             viewModel.updateIconUri(file.absolutePath)
@@ -222,24 +225,24 @@ class UserFragment : Fragment(R.layout.fragment_user) {
             }
         }
 
-        // 菜单-密码锁
+        // 菜单-密码锁 [添加的密码是MD5形式]
         menuLock.setOnClickListener {
             with(DialogUserMenuLockBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                var currentPassword = viewModel.getPasswordLiveData().value
+                val currentPassword = viewModel.getPasswordLiveData().value
 
                 // 删除密码 有密码且输入正确才能删除
                 confirmDelete.setOnClickListener {
-                    val newPassword = changePassword.text.toString().trim()
+                    val inputPasswordToMD5 = MD5Util.encryptByMD5(changePassword.text.toString().trim())
                     // 判断
                     if (currentPassword.isNullOrEmpty()) {
                         Toast.makeText(requireActivity(), "删除失败，暂无密码", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if (newPassword != currentPassword) {
+                    if (inputPasswordToMD5 != currentPassword) {
                         Toast.makeText(requireActivity(), "删除失败，输入密码错误", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
@@ -250,18 +253,18 @@ class UserFragment : Fragment(R.layout.fragment_user) {
 
                 // 添加密码 无密码且有输入才正确
                 confirmSet.setOnClickListener {
-                    val newPassword = changePassword.text.toString().trim()
-                    // 判断 Todo:开启界面密码锁
+                    val newPasswordToMD5 = MD5Util.encryptByMD5(changePassword.text.toString().trim())
+                    // 判断
                     if (!currentPassword.isNullOrEmpty()) {
                         Toast.makeText(requireActivity(), "添加失败，已有密码", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if (newPassword.isNullOrEmpty()) {
+                    if (newPasswordToMD5.isNullOrEmpty()) {
                         Toast.makeText(requireActivity(), "添加失败，密码不可为空", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    viewModel.updatePassword(newPassword)
-                    Toast.makeText(requireActivity(), "添加成功,密码为${newPassword}", Toast.LENGTH_LONG).show()
+                    viewModel.updatePassword(newPasswordToMD5)
+                    Toast.makeText(requireActivity(), "添加成功,密码为${changePassword.text.toString().trim()}", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 }
 
@@ -276,7 +279,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                val markDown = MarkDownUtils.loadMarkdownFromAssets(requireActivity(), "user_manual.md")
+                val markDown = MarkDownUtil.loadMarkdownFromAssets(requireActivity(), "user_manual.md")
                 Markwon.create(requireActivity()).setMarkdown(textContent, markDown)
 
                 dialog.show()
@@ -340,8 +343,28 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                val markDown = MarkDownUtils.loadMarkdownFromAssets(requireActivity(), "author.md")
+                val markDown = MarkDownUtil.loadMarkdownFromAssets(requireActivity(), "author.md")
                 Markwon.create(requireActivity()).setMarkdown(textContent, markDown)
+
+                dialog.show()
+            }
+        }
+
+        // 菜单-数据迁移
+        menuDataMigration.setOnClickListener {
+            with(DialogUserDataMigrationBinding.inflate(LayoutInflater.from(requireActivity()))) {
+                val dialog = Dialog(requireActivity())
+                dialog.setContentView(root)
+                dialog.setCancelable(true)
+
+                // 点击事件Todo:判断输入是否正确
+                confirmToSend.setOnClickListener {
+
+                }
+
+                confirmToReceive.setOnClickListener {
+
+                }
 
                 dialog.show()
             }
@@ -349,8 +372,23 @@ class UserFragment : Fragment(R.layout.fragment_user) {
 
         // 菜单-检查更新 Todo:实现远程更新
         menuCheckVersion.setOnClickListener {
-            Toast.makeText(requireActivity(), "暂未配置服务器", Toast.LENGTH_SHORT).show()
-            Toast.makeText(requireActivity(), "\uD83D\uDC46可前往github或百度网盘查询最新版本", Toast.LENGTH_LONG).show()
+            with(DialogUserCheckVersionBinding.inflate(LayoutInflater.from(requireActivity()))) {
+                val dialog = Dialog(requireActivity())
+                dialog.setContentView(root)
+                dialog.setCancelable(true)
+
+                val oldVersion = "v2.0.0"
+                val newVersion = "v2.0.1"
+                // Todo:视图更新加点击事件
+                versionDiff.text = "当前版本--${oldVersion}\n最新版本--${newVersion}"
+
+                confirmUpdate.setOnClickListener {
+                    // Todo开启服务更新
+
+                }
+
+                dialog.show()
+            }
         }
     }
 

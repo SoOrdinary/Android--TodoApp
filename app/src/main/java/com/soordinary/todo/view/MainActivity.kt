@@ -21,8 +21,7 @@ import com.soordinary.todo.BaseActivity
 import com.soordinary.todo.R
 import com.soordinary.todo.databinding.ActivityMainBinding
 import com.soordinary.todo.databinding.NavSideHeaderBinding
-import com.soordinary.todo.utils.SizeUnits
-import com.soordinary.todo.view.foreground.ForegroundService
+import com.soordinary.todo.utils.SizeUtil
 import com.soordinary.todo.view.fragment.alarm.AlarmFragment
 import com.soordinary.todo.view.fragment.alarm.AlarmViewModel
 import com.soordinary.todo.view.fragment.record.RecordFragment
@@ -93,7 +92,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         with(binding.navSide) {
             // 调整宽度,个人设置成了整个屏幕的2/3
             val params: ViewGroup.LayoutParams = layoutParams
-            params.width = (SizeUnits.screenWidth * 0.66).toInt()
+            params.width = (SizeUtil.screenWidth * 0.66).toInt()
             layoutParams = params
             // 观察个人信息
             with(NavSideHeaderBinding.bind(getHeaderView(0))) {

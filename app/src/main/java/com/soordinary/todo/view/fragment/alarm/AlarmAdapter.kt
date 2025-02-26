@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.soordinary.todo.R
 import com.soordinary.todo.data.room.entity.Alarm
 import com.soordinary.todo.databinding.FragmentAlarmItemBinding
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 
 
 /**
@@ -49,7 +49,7 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
                 delete.setOnClickListener(null)
                 // UI绑定[统一绑定一个时间计时器，逻辑写入Fragment]
                 alarmName.text = alarm.name
-                val remain = DateTimeUtils.millisToMinutes(alarm.alarmDate - (System.currentTimeMillis() / 60000) * 60000)
+                val remain = DateTimeUtil.millisToMinutes(alarm.alarmDate - (System.currentTimeMillis() / 60000) * 60000)
                 if (remain > 0) {
                     remainTime.text = "${remain} 分钟"
                     remainTime.setTextColor(Color.parseColor("#018786"))
@@ -57,7 +57,7 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
                     remainTime.text = "时间到"
                     remainTime.setTextColor(Color.RED)
                 }
-                alarmDate.text = DateTimeUtils.timestampToString(alarm.alarmDate)
+                alarmDate.text = DateTimeUtil.timestampToString(alarm.alarmDate)
                 // 事件绑定
                 alarmItem.setOnClickListener {
                     listenAlarmItemClick.onClickItem(binding)

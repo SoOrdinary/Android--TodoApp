@@ -11,7 +11,7 @@ import java.io.InputStreamReader
  * @role1 根据url读取assets文件夹中对应的Markdown文件
  */
 
-object MarkDownUtils {
+object MarkDownUtil {
 
     // 从markDown中读取文件
     fun loadMarkdownFromAssets(context: Context, url: String): String {

@@ -15,7 +15,6 @@ import java.io.File
  * @role1 为对room数据库Task进行异步查询提供了常用的函数以便调用
  * @role2 管理SharePreference中的taskTag
  *
- * @improve1 Todo:增加缓存
  */
 class TaskRepository() {
 
@@ -47,7 +46,7 @@ class TaskRepository() {
         }
     }
 
-    // 判断某标签是否包含 Todo:实现异步
+    // 判断某标签是否包含
     fun isContain(tag: String): Boolean = TaskSharedPreference.isContain(tag)
 
     // 插入任务
@@ -79,7 +78,7 @@ class TaskRepository() {
         withContext(Dispatchers.IO) {
             // 判断是否有图片 URL，如果有则删除文件
             task.image?.let {
-                val coverFile: File = File(it)
+                val coverFile = File(it)
                 if (coverFile.exists()) {
                     coverFile.delete()
                 }

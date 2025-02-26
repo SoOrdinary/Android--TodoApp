@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.soordinary.todo.data.room.entity.RecordSo
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 import com.soordinary.todo.repository.RecordRepository
 import kotlinx.coroutines.launch
 
@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
  */
 class RecordViewModel(
     private val queryTypeLiveData: MutableLiveData<QueryType> = MutableLiveData<QueryType>(QueryType.DUE_DATE),
-    private var startDate: Long = DateTimeUtils.getStartOfDay(0),
-    private var endDate: Long = DateTimeUtils.getEndOfDay(0)
+    private var startDate: Long = DateTimeUtil.getStartOfDay(0),
+    private var endDate: Long = DateTimeUtil.getEndOfDay(0)
 ) : ViewModel() {
 
     private val recordRepository: RecordRepository = RecordRepository()

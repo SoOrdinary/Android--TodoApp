@@ -1,10 +1,8 @@
 package com.soordinary.todo.view.foreground
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
@@ -19,7 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.soordinary.todo.R
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 import com.soordinary.todo.view.StartActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -197,7 +195,7 @@ class ForegroundService : LifecycleService() {
         if (millisInFuture > 0) {
             countDownTimer = object : CountDownTimer(millisInFuture, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    val remainTime = DateTimeUtils.convertFromTimestamp(millisUntilFinished)
+                    val remainTime = DateTimeUtil.convertFromTimestamp(millisUntilFinished)
                     val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                     if (remainTime[0] == 0) {
                         view.setViewVisibility(R.id.time_day, View.INVISIBLE)

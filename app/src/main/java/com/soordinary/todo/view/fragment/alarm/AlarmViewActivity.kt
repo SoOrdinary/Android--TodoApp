@@ -10,7 +10,7 @@ import android.view.View
 import androidx.activity.enableEdgeToEdge
 import com.soordinary.todo.BaseActivity
 import com.soordinary.todo.databinding.ActivityAlarmViewBinding
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 
 /**
  * 沉浸模式页面
@@ -47,7 +47,7 @@ class AlarmViewActivity : BaseActivity<ActivityAlarmViewBinding>() {
                 // willDoTime大于当前时间，更新UI与viewModel
                 val currentTime = System.currentTimeMillis()
                 if (willDoTime > currentTime) {
-                    val remainTime = DateTimeUtils.convertFromTimestamp(willDoTime - currentTime)
+                    val remainTime = DateTimeUtil.convertFromTimestamp(willDoTime - currentTime)
                     val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                     binding.time.text = formattedTime
                     if (remainTime[0] == 0) {

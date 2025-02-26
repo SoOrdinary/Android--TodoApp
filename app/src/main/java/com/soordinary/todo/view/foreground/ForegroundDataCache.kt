@@ -1,10 +1,9 @@
 package com.soordinary.todo.view.foreground
 
-import androidx.lifecycle.ViewModel
 import com.soordinary.todo.data.room.entity.Alarm
 import com.soordinary.todo.repository.AlarmRepository
 import com.soordinary.todo.repository.TaskRepository
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -28,11 +27,11 @@ class ForegroundDataCache {
 
     // 某一时间段任务总数的 Flow
     val taskCountInTimeRangeFlow: Flow<Int> =
-        taskRepository.getTaskCountInTimeRange(DateTimeUtils.getStartOfDay(0), DateTimeUtils.getEndOfDay(0))
+        taskRepository.getTaskCountInTimeRange(DateTimeUtil.getStartOfDay(0), DateTimeUtil.getEndOfDay(0))
 
     // 某一时间段完成任务数量的 Flow
     val completedTaskCountInTimeRangeFlow: Flow<Int> =
-        taskRepository.getCompletedTaskCountInTimeRange(DateTimeUtils.getStartOfDay(0), DateTimeUtils.getEndOfDay(0))
+        taskRepository.getCompletedTaskCountInTimeRange(DateTimeUtil.getStartOfDay(0), DateTimeUtil.getEndOfDay(0))
 
     // 超时未完成任务数量的 Flow
     val overdueUncompletedTaskCountFlow: Flow<Int> =

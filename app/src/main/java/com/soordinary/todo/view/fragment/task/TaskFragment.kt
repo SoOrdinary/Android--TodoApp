@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
@@ -32,9 +31,9 @@ import com.soordinary.todo.databinding.DialogTaskClickDeleteBinding
 import com.soordinary.todo.databinding.DialogTaskClickEditBinding
 import com.soordinary.todo.databinding.DialogTaskClickViewBinding
 import com.soordinary.todo.databinding.FragmentTaskBinding
-import com.soordinary.todo.utils.DateTimeUtils
-import com.soordinary.todo.utils.DateTimeUtils.getSeparatedStringFromTimestamp
-import com.soordinary.todo.utils.DateTimeUtils.timestampToString
+import com.soordinary.todo.utils.DateTimeUtil
+import com.soordinary.todo.utils.DateTimeUtil.getSeparatedStringFromTimestamp
+import com.soordinary.todo.utils.DateTimeUtil.timestampToString
 import com.soordinary.todo.utils.Diff
 import com.soordinary.todo.view.MainActivity
 import com.soordinary.todo.view.fragment.alarm.AlarmViewModel
@@ -286,7 +285,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                     val minute = earlyMinutes.text.toString().toInt()
 
                     val advanceTime =
-                        task.dueDate - DateTimeUtils.convertToTimestamp(day, hour, minute)
+                        task.dueDate - DateTimeUtil.convertToTimestamp(day, hour, minute)
                     val alarm = Alarm(
                         name = task.title,
                         alarmDate = advanceTime
@@ -399,7 +398,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                     val day = taskDueDateDay.text.toString().trim()
                     val hour = taskDueDateHour.text.toString().trim()
                     val minute = taskDueDateMinute.text.toString().trim()
-                    val dueTimestamp = DateTimeUtils.stringToTimestamp("$day  $hour:$minute}")
+                    val dueTimestamp = DateTimeUtil.stringToTimestamp("$day  $hour:$minute}")
                     // 将图片保存至应用缓存目录
                     if (taskPhotoUri.text.isNotEmpty()) {
                         try {
@@ -470,9 +469,9 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                 R.id.classify_by_dates ->
                     when (item.itemId) {
                         R.id.today_task -> taskViewModel.getTasksByDueDateAndFinish(
-                            DateTimeUtils.getStartOfDay(
+                            DateTimeUtil.getStartOfDay(
                                 0
-                            ), DateTimeUtils.getEndOfDay(0), null
+                            ), DateTimeUtil.getEndOfDay(0), null
                         )
 
                         R.id.list_task -> taskViewModel.getTasksByFinish(null)

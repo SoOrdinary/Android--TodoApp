@@ -8,7 +8,14 @@ import androidx.room.PrimaryKey
 /**
  * Task的实体关系类
  */
-@Entity(tableName = "tasks", indices = [Index(value = ["due_date"])])
+@Entity(tableName = "tasks",
+    indices = [
+    Index(value = ["due_date"]),
+    Index(value = ["is_finish", "due_date"]),
+    Index(value = ["title"]),
+    Index(value = ["tag"])
+    ]
+)
 data class Task(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0,                    // 自增ID

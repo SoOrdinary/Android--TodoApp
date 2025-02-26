@@ -12,7 +12,7 @@ import com.soordinary.todo.R
 import com.soordinary.todo.data.room.entity.Task
 import com.soordinary.todo.databinding.FragmentTaskItemGridBinding
 import com.soordinary.todo.databinding.FragmentTaskItemLinearBinding
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 
 /**
  * Task列表适配器 Todo:写一个带基类的RecycleView扩展库，方便不同布局的实现
@@ -75,7 +75,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                 // 基本属性赋值与UI优化
                 taskLinearTitle.text = task.title
                 taskLinearSubtitle.text = task.subtitle
-                taskLinearDueDate.text = DateTimeUtils.timestampToString(task.dueDate)
+                taskLinearDueDate.text = DateTimeUtil.timestampToString(task.dueDate)
                 taskLinearStatus.isChecked = task.isFinish
                 // 完成的事件变得透明一点
                 taskLinear.alpha = if (task.isFinish) 0.3f else 1.0f
@@ -117,7 +117,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
                     taskGridSubtitle.visibility = View.VISIBLE
                     taskGridSubtitle.text = task.subtitle
                 }
-                taskGridDueDate.text = DateTimeUtils.timestampToString(task.dueDate)
+                taskGridDueDate.text = DateTimeUtil.timestampToString(task.dueDate)
                 taskGridStatus.isChecked = task.isFinish
                 // 没有图片的不会占用空间
                 if (task.image.isNullOrEmpty()) {

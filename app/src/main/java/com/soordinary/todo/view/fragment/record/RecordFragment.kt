@@ -15,7 +15,7 @@ import com.soordinary.todo.data.room.entity.RecordSo
 import com.soordinary.todo.databinding.DialogRecordAddBinding
 import com.soordinary.todo.databinding.DialogRecordDateBinding
 import com.soordinary.todo.databinding.FragmentRecordBinding
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 import com.soordinary.todo.utils.Diff
 
 /**
@@ -34,8 +34,8 @@ class RecordFragment : Fragment(R.layout.fragment_record) {
         binding = FragmentRecordBinding.bind(view)
 
         // 更新UI
-        val timeString = DateTimeUtils.timestampToString(System.currentTimeMillis())
-        binding.date.text = DateTimeUtils.getSeparatedStringFromTimestamp(timeString)[0]
+        val timeString = DateTimeUtil.timestampToString(System.currentTimeMillis())
+        binding.date.text = DateTimeUtil.getSeparatedStringFromTimestamp(timeString)[0]
         // 初始化RecycleView的配置
         binding.recordList.apply {
             layoutManager = LinearLayoutManager(
@@ -132,7 +132,7 @@ class RecordFragment : Fragment(R.layout.fragment_record) {
             if (absDiff < 60 * 1000) {
                 return "${absDiff / 1000} 秒"
             }
-            val converted = DateTimeUtils.convertFromTimestamp(absDiff)
+            val converted = DateTimeUtil.convertFromTimestamp(absDiff)
             var result = ""
             if (converted[0] > 0) {
                 result += "${converted[0]} 天 "
@@ -161,7 +161,7 @@ class RecordFragment : Fragment(R.layout.fragment_record) {
                         finishTime = time
                     )
                     viewModel.insertRecord(record)
-                    Toast.makeText(requireActivity(), "新增日志: ${DateTimeUtils.timestampToString(time)}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireActivity(), "新增日志: ${DateTimeUtil.timestampToString(time)}", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 }
 
@@ -178,18 +178,18 @@ class RecordFragment : Fragment(R.layout.fragment_record) {
 
                 // UI绑定
                 customizeTime.visibility = View.VISIBLE
-                recordDate.setText(DateTimeUtils.timestampToString(System.currentTimeMillis()))
+                recordDate.setText(DateTimeUtil.timestampToString(System.currentTimeMillis()))
                 timeout.setText("0")
 
                 confirm.setOnClickListener {
-                    val time = DateTimeUtils.stringToTimestamp(recordDate.text.toString().trim())
+                    val time = DateTimeUtil.stringToTimestamp(recordDate.text.toString().trim())
                     val record = RecordSo(
                         content = recordContent.text.toString().trim(),
                         planTime = time - timeout.text.toString().toLong() * 60000,
                         finishTime = time
                     )
                     viewModel.insertRecord(record)
-                    Toast.makeText(requireActivity(), "新增日志: ${DateTimeUtils.timestampToString(time)}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireActivity(), "新增日志: ${DateTimeUtil.timestampToString(time)}", Toast.LENGTH_LONG).show()
                     dialog.dismiss()
                 }
 

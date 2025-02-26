@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.soordinary.todo.R
 import com.soordinary.todo.data.room.entity.Alarm
@@ -19,9 +18,9 @@ import com.soordinary.todo.databinding.DialogAlarmAddDateBinding
 import com.soordinary.todo.databinding.DialogAlarmAddRemainBinding
 import com.soordinary.todo.databinding.FragmentAlarmBinding
 import com.soordinary.todo.databinding.FragmentAlarmItemBinding
-import com.soordinary.todo.utils.DateTimeUtils
-import com.soordinary.todo.utils.DateTimeUtils.getSeparatedStringFromTimestamp
-import com.soordinary.todo.utils.DateTimeUtils.timestampToString
+import com.soordinary.todo.utils.DateTimeUtil
+import com.soordinary.todo.utils.DateTimeUtil.getSeparatedStringFromTimestamp
+import com.soordinary.todo.utils.DateTimeUtil.timestampToString
 import com.soordinary.todo.utils.Diff
 
 /**
@@ -61,7 +60,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
                 // willDoTime大于当前时间，更新UI与viewModel
                 val currentTime = System.currentTimeMillis()
                 if (viewModel.willDoTime > currentTime) {
-                    val remainTime = DateTimeUtils.convertFromTimestamp(viewModel.willDoTime - currentTime)
+                    val remainTime = DateTimeUtil.convertFromTimestamp(viewModel.willDoTime - currentTime)
                     val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                     binding.willDo.text = viewModel.willDoName
                     binding.time.text = formattedTime
@@ -150,7 +149,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
                     val hour = alarmDueDateHour.text.toString().toInt()
                     val minute = alarmDueDateMinute.text.toString().toInt()
                     // 约去毫秒
-                    val dueTimestamp = ((System.currentTimeMillis() + DateTimeUtils.convertToTimestamp(day, hour, minute)) / 60000) * 60000
+                    val dueTimestamp = ((System.currentTimeMillis() + DateTimeUtil.convertToTimestamp(day, hour, minute)) / 60000) * 60000
                     val alarm = Alarm(
                         name = alarmName.text.toString().trim(),
                         alarmDate = dueTimestamp
@@ -186,7 +185,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
                     // 校验输入，错误则直接返回
                     if (!checkInput(alarmName, alarmDueDateDay, alarmDueDateHour, alarmDueDateMinute)) return@setOnClickListener
                     // 成功则插入数据
-                    val dueTimestamp = DateTimeUtils.stringToTimestamp("${alarmDueDateDay.text.toString().trim()}  ${alarmDueDateHour.text.toString().trim()}:${alarmDueDateMinute.text.toString().trim()}")
+                    val dueTimestamp = DateTimeUtil.stringToTimestamp("${alarmDueDateDay.text.toString().trim()}  ${alarmDueDateHour.text.toString().trim()}:${alarmDueDateMinute.text.toString().trim()}")
                     val alarm = Alarm(
                         name = alarmName.text.toString().trim(),
                         alarmDate = dueTimestamp
@@ -238,7 +237,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
                 viewModel.willDoTime = willDoTime
                 // 因为定时器会有一点点延迟，需要直接更新一下UI
                 binding.willDo.text = name
-                val remainTime = DateTimeUtils.convertFromTimestamp(viewModel.willDoTime - currentTime)
+                val remainTime = DateTimeUtil.convertFromTimestamp(viewModel.willDoTime - currentTime)
                 val formattedTime = String.format("%02d:%02d:%02d", remainTime[1], remainTime[2], remainTime[3])
                 binding.time.text = formattedTime
                 if (remainTime[0] == 0) {

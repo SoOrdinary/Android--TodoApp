@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="282dp"
+    android:layout_height="wrap_content"
+    android:background="@color/input_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/migration_instruction"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_box"
+        android:gravity="top|left"
+        android:hint="选择+密码[eg:数据转出+12]" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/confirm_to_send"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_gravity="right"
+            android:paddingHorizontal="0dp"
+            android:text="数据转出" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/confirm_to_receive"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_gravity="right"
+            android:paddingHorizontal="0dp"
+            android:text="数据转入" />
+
+    </LinearLayout>
+
+</LinearLayout>

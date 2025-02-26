@@ -9,7 +9,7 @@ import com.soordinary.todo.R
 import com.soordinary.todo.component.ItemSlideDeleteCallback
 import com.soordinary.todo.data.room.entity.RecordSo
 import com.soordinary.todo.databinding.FragmentRecordItemBinding
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 
 
 /**
@@ -45,7 +45,7 @@ class RecordAdapter(private val fragment: RecordFragment, private val recordList
             with(binding) {
                 recordItem.setOnLongClickListener(null)
                 // UI渲染
-                var finishTime = DateTimeUtils.convertFromTimestamp(recordSo.finishTime)
+                var finishTime = DateTimeUtil.convertFromTimestamp(recordSo.finishTime)
                 val formattedTime = String.format("%02d:%02d", (finishTime[1] + 8) % 24, finishTime[2])
                 time.text = formattedTime
                 if (recordSo.isTimeout) {

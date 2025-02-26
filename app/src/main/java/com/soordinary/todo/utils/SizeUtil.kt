@@ -7,7 +7,7 @@ import com.soordinary.todo.TodoApplication
  *
  * @role1 获取屏幕密度、宽度、高度
  */
-object SizeUnits {
+object SizeUtil {
 
     // 系统资源
     private val systemResources = TodoApplication.context.resources

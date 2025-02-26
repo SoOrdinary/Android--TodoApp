@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.soordinary.todo.repository.TaskRepository
 import com.soordinary.todo.data.room.entity.Task
 import com.soordinary.todo.repository.UserRepository
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 import kotlinx.coroutines.launch
 
 /**
@@ -24,8 +24,8 @@ class TaskViewModel(
     private var isFinish: Boolean? = null,
     private var title: String = "",
     private var tag: String = "",
-    private var startDate: Long = DateTimeUtils.getStartOfDay(0),
-    private var endDate: Long = DateTimeUtils.getEndOfDay(0)
+    private var startDate: Long = DateTimeUtil.getStartOfDay(0),
+    private var endDate: Long = DateTimeUtil.getEndOfDay(0)
 ) : ViewModel() {
 
     private val taskRepository: TaskRepository = TaskRepository()
@@ -62,7 +62,7 @@ class TaskViewModel(
             QueryType.TITLE_AND_FINISH -> taskRepository.getTasksByTitleAndFinish(title, isFinish)
             QueryType.TAG_AND_FINISH -> taskRepository.getTasksByTagAndFinish(tag, isFinish)
             QueryType.DUE_DATE_AND_FINISH -> taskRepository.getTasksByDueDateAndFinish(startDate, endDate, isFinish)
-            else -> taskRepository.getTasksByDueDateAndFinish(0, DateTimeUtils.getEndOfDay(0), null)
+            else -> taskRepository.getTasksByDueDateAndFinish(0, DateTimeUtil.getEndOfDay(0), null)
         }
     }
 

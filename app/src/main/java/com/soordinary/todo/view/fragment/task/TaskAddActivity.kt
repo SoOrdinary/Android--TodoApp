@@ -20,10 +20,10 @@ import com.soordinary.todo.BaseActivity
 import com.soordinary.todo.R
 import com.soordinary.todo.data.room.entity.Task
 import com.soordinary.todo.databinding.ActivityTaskAddBinding
-import com.soordinary.todo.utils.DateTimeUtils
-import com.soordinary.todo.utils.DateTimeUtils.getSeparatedStringFromTimestamp
-import com.soordinary.todo.utils.DateTimeUtils.timestampToString
-import com.soordinary.todo.utils.SizeUnits
+import com.soordinary.todo.utils.DateTimeUtil
+import com.soordinary.todo.utils.DateTimeUtil.getSeparatedStringFromTimestamp
+import com.soordinary.todo.utils.DateTimeUtil.timestampToString
+import com.soordinary.todo.utils.SizeUtil
 import java.io.File
 import java.io.FileOutputStream
 
@@ -140,7 +140,7 @@ class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
                     it.data?.data?.let { uri ->
                         taskPhotoUri.text = uri.toString()
                         val bitmap = BitmapFactory.decodeStream(this@TaskAddActivity.contentResolver.openInputStream(uri))
-                        val size15dp = SizeUnits.dpToPx(15)
+                        val size15dp = SizeUtil.dpToPx(15)
                         taskPhoto.setImageBitmap(bitmap)
                         taskPhoto.setPadding(size15dp, size15dp, size15dp, size15dp)
                     }
@@ -168,7 +168,7 @@ class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
             val day = taskDueDateDay.text.toString().trim()
             val hour = taskDueDateHour.text.toString().trim()
             val minute = taskDueDateMinute.text.toString().trim()
-            var dueTimestamp = DateTimeUtils.stringToTimestamp("$day  $hour:$minute}")
+            var dueTimestamp = DateTimeUtil.stringToTimestamp("$day  $hour:$minute}")
             // 将图片保存至应用缓存目录
             if (taskPhotoUri.text.isNotEmpty()) {
                 try {

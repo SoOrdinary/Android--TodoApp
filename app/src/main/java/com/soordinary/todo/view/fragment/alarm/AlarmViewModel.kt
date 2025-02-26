@@ -14,7 +14,7 @@ import com.soordinary.todo.data.room.entity.Alarm
 import com.soordinary.todo.data.room.entity.RecordSo
 import com.soordinary.todo.repository.AlarmRepository
 import com.soordinary.todo.repository.RecordRepository
-import com.soordinary.todo.utils.DateTimeUtils
+import com.soordinary.todo.utils.DateTimeUtil
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
@@ -51,10 +51,10 @@ class AlarmViewModel : ViewModel() {
         WorkManager.getInstance(TodoApplication.context).enqueue(workRequest)
         alarm.alarmWordId = workRequest.id
         alarmRepository.insertAlarm(alarm)
-        Toast.makeText(TodoApplication.context, "Alarm set : " + DateTimeUtils.timestampToString(alarm.alarmDate), Toast.LENGTH_LONG).show()
+        Toast.makeText(TodoApplication.context, "Alarm set : " + DateTimeUtil.timestampToString(alarm.alarmDate), Toast.LENGTH_LONG).show()
         // 随后更新日志
         val currentTime = System.currentTimeMillis()
-        val remain = DateTimeUtils.millisToMinutes(alarm.alarmDate - (currentTime / 60000) * 60000)
+        val remain = DateTimeUtil.millisToMinutes(alarm.alarmDate - (currentTime / 60000) * 60000)
         val record = RecordSo(
             // 通过 && 判断此日志类型，不可乱改
             content = "&& 定时提醒：${alarm.name},倒计时${remain}分钟",
