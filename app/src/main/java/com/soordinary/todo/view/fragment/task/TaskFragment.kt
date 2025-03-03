@@ -38,6 +38,12 @@ import com.soordinary.todo.utils.Diff
 import com.soordinary.todo.view.MainActivity
 import com.soordinary.todo.view.fragment.alarm.AlarmViewModel
 import com.soordinary.todo.view.fragment.record.RecordViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
@@ -63,6 +69,9 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     // 相册取照的相关回调函数
     private lateinit var launcher: ActivityResultLauncher<Intent>
     private lateinit var handleWay: (ActivityResult) -> Unit
+
+    // 用于观测即将超时的任务的协程工作引用
+    private var job: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -97,6 +106,9 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
         // 观察数据变化实时更新ViewModel的缓存并通知列表更新
         with(taskViewModel) {
             taskLiveData.observe(viewLifecycleOwner) {
+                // 清除之前的协程
+                job?.cancel()
+
                 val oldTaskList = ArrayList<Task>(taskList)
                 taskList.clear()
                 taskList.addAll(it)
@@ -112,6 +124,18 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                         diffTask.buildU(oldTaskList, taskList, { binding.taskList.adapter?.notifyItemChanged(it) }, { binding.taskList.adapter?.notifyItemRemoved(it) }, { binding.taskList.adapter?.notifyItemInserted(it) })
                     }
                 }
+
+                // 当最近的任务超时，提醒更新
+                job = CoroutineScope(Dispatchers.Main).launch {
+                    for (i in 0 until taskList.size) {
+                        val task = taskList[i]
+                        if (task.isFinish) break
+                        if (task.dueDate >= System.currentTimeMillis()) {
+                            delay(task.dueDate - System.currentTimeMillis())
+                            binding.taskList.adapter?.notifyItemChanged(i)
+                        }
+                    }
+                }
             }
         }
 
@@ -122,6 +146,12 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                 .placeholder(R.drawable.app_icon)  // 占位图
                 .into(iconP)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 清除协程
+        job?.cancel()
     }
 
     // 将组件点击事件绑定放入一个函数中[扩展函数，直接拥有binding上下文，方便设置]
@@ -174,7 +204,6 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
      * @role2 在长按时
      * @role3 一些个性化组件的单击事件
      *
-     * @improve1 Todo：加一些Toast响应（要用协程根据返回值成功与否改正）
      */
     inner class ListenTaskItemClick {
         // 单击任务打开详细情况页面
@@ -198,6 +227,16 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                 }
                 taskTag.text = task.tag
                 taskDueDate.text = timestampToString(task.dueDate)
+                // 有图片则渲染
+                if (!task.image.isNullOrEmpty()) {
+                    taskPhoto.visibility = View.VISIBLE
+                    // Todo:自适应高度
+                    Glide.with(taskPhoto.context)
+                        .load(task.image)  // 图片的 URL
+                        .downsample(DownsampleStrategy.CENTER_INSIDE) // 根据目标区域缩放图片
+                        .placeholder(R.drawable.app_icon)  // 占位图
+                        .into(taskPhoto)
+                }
                 // 闹钟响应
                 taskAlarm.setOnClickListener {
                     onClickAlarm(task)
@@ -205,23 +244,11 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                 // 编辑响应
                 taskEdit.setOnClickListener {
                     onClickAddOrEdit(task) { newTask ->
-                        // 更新现有界面
-                        taskTitle.text = newTask.title
-                        if (newTask.subtitle.isEmpty()) {
-                            taskSubtitle.visibility = View.GONE
-                        } else {
-                            taskSubtitle.text = newTask.subtitle
-                        }
-                        if (newTask.details.isEmpty()) {
-                            taskDetails.visibility = View.GONE
-                        } else {
-                            taskDetails.text = "  ${newTask.details}"
-                        }
-                        taskTag.text = newTask.tag
-                        taskDueDate.text = timestampToString(newTask.dueDate)
+                        dialog.cancel()
+                        // 重用，开一个新界面，更简单
+                        onClickItem(newTask)
                     }
                 }
-
                 dialog.show()
             }
         }
@@ -299,7 +326,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
             }
         }
 
-        // 点击底部导航栏加号或详情页面修改，取决于是否传入Task，第二个参数是用来回调异步修改UI的,
+        // 点击底部导航栏加号或详情页面修改，取决于是否传入Task，第二个参数是用来回调异步修改UI的
         fun onClickAddOrEdit(oldTask: Task?, block: (newTask: Task) -> Unit) {
             with(DialogTaskClickEditBinding.inflate(LayoutInflater.from(requireActivity()))) {
 
@@ -346,6 +373,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                     val position: Int = taskTags.indexOf(oldTask.tag)
                     if (position != -1) taskTag.setSelection(position)
                     taskTag.tag = oldTask.tag
+                    taskPhotoUri.text = oldTask.image
                     taskDueDateDay.setText(day)
                     taskDueDateHour.setText(hour)
                     taskDueDateMinute.setText(minute)
@@ -408,8 +436,14 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                             )
                             // 获取缓存目录
                             val cacheDir = requireContext().cacheDir
+                            // 定义要创建的子文件夹名称
+                            val imageFolderName = "task_photo_cache"
+                            // 创建子文件夹的 File 对象
+                            val imageFolder = File(cacheDir, imageFolderName)
+                            // 直接创建文件夹，如果已存在则不做任何操作
+                            imageFolder.mkdirs()
                             val fileName = "task_image_${System.currentTimeMillis()}.jpg"
-                            val file = File(cacheDir, fileName)
+                            val file = File(imageFolder, fileName)
                             // 将图片流保存到缓存目录
                             val outputStream = FileOutputStream(file)
                             inputStream?.copyTo(outputStream)
@@ -465,15 +499,11 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
         // 点击侧边栏菜单查询时
         fun onClickMenuItem(item: MenuItem) {
             when (item.groupId) {
-                // 前两个是默认有的，查询当天/查询所有Todo:当天之前的所有未完成的
+                // 前两个是默认有的，查询当天/查询所有Todo:所有超时任务
                 R.id.classify_by_dates ->
                     when (item.itemId) {
-                        R.id.today_task -> taskViewModel.getTasksByDueDateAndFinish(
-                            DateTimeUtil.getStartOfDay(
-                                0
-                            ), DateTimeUtil.getEndOfDay(0), null
-                        )
-
+                        R.id.today_task -> taskViewModel.getTasksByDueDateAndFinish(DateTimeUtil.getStartOfDay(0), DateTimeUtil.getEndOfDay(0), null)
+                        R.id.timeout_task -> taskViewModel.getTasksByDueDateAndFinish(0, System.currentTimeMillis(), false)
                         R.id.list_task -> taskViewModel.getTasksByFinish(null)
                     }
                 // 后面的都是tag，直接根据title查询
@@ -486,27 +516,17 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
     }
 
     // 校验函数(每次修改要保持和AddActivity中的checkInput同步)Todo:检测具体时间是否规范
-    private fun checkInput(
-        taskTitle: EditText,
-        taskDueDateDay: EditText,
-        taskDueDateHour: EditText,
-        taskDueDateMinute: EditText
-    ): Boolean {
-
-        val title = taskTitle.text.toString().trim()
-        val day = taskDueDateDay.text.toString().trim()
-        val hour = taskDueDateHour.text.toString().trim()
-        val minute = taskDueDateMinute.text.toString().trim()
+    private fun checkInput(taskTitle: EditText, taskDueDateDay: EditText, taskDueDateHour: EditText, taskDueDateMinute: EditText): Boolean {
 
         // 校验任务标题
-        if (title.isEmpty()) {
-            Toast.makeText(requireContext(), "标题不可为空", Toast.LENGTH_SHORT).show()
+        if (taskTitle.text.isNullOrEmpty()) {
+            Toast.makeText(requireActivity(), "标题不可为空", Toast.LENGTH_SHORT).show()
             return false // 如果标题为空，返回 false
         }
 
         // 校验日期输入
-        if (day.isEmpty() || hour.isEmpty() || minute.isEmpty()) {
-            Toast.makeText(requireContext(), "日期不可为空", Toast.LENGTH_SHORT).show()
+        if (taskDueDateDay.text.isNullOrEmpty() || taskDueDateHour.text.isNullOrEmpty() || taskDueDateMinute.text.isNullOrEmpty()) {
+            Toast.makeText(requireActivity(), "日期不可为空", Toast.LENGTH_SHORT).show()
             return false // 如果日期不完整，返回 false
         }
 

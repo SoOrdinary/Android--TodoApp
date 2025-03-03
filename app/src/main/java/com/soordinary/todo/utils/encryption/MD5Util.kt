@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException
  * MD5单向加密工具类
  */
 object MD5Util {
-    // 输入字符串，输出加密字符
+    // 输入字符串，输出加密字符(转换字符时4位作为一个字符，所以128位一共32字符)
     fun encryptByMD5(input: String): String {
         try {
             val md = MessageDigest.getInstance("MD5")

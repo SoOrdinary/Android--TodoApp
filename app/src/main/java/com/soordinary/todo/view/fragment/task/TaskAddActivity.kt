@@ -67,7 +67,7 @@ class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
             handleWay(result)
         }
 
-        // 绑定UI样式与默认值
+        // 绑定UI样式与默认值、点击事件
         with(binding) {
             // 分隔时间
             val parts = getSeparatedStringFromTimestamp(timestampToString(System.currentTimeMillis()))
@@ -178,8 +178,14 @@ class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
                     )
                     // 获取缓存目录
                     val cacheDir = cacheDir
+                    // 定义要创建的子文件夹名称
+                    val imageFolderName = "task_photo_cache"
+                    // 创建子文件夹的 File 对象
+                    val imageFolder = File(cacheDir, imageFolderName)
+                    // 直接创建文件夹，如果已存在则不做任何操作
+                    imageFolder.mkdirs()
                     val fileName = "task_image_${System.currentTimeMillis()}.jpg"
-                    val file = File(cacheDir, fileName)
+                    val file = File(imageFolder, fileName)
                     // 将图片流保存到缓存目录
                     val outputStream = FileOutputStream(file)
                     inputStream?.copyTo(outputStream)
@@ -221,30 +227,23 @@ class TaskAddActivity : BaseActivity<ActivityTaskAddBinding>() {
 
     }
 
-    // 校验函数(每次修改要保持和TaskFragment中的checkInput同步)
+    // 校验函数(每次修改要保持和AddActivity中的checkInput同步)Todo:检测具体时间是否规范
     private fun checkInput(taskTitle: EditText, taskDueDateDay: EditText, taskDueDateHour: EditText, taskDueDateMinute: EditText): Boolean {
 
-        val title = taskTitle.text.toString().trim()
-        val day = taskDueDateDay.text.toString().trim()
-        val hour = taskDueDateHour.text.toString().trim()
-        val minute = taskDueDateMinute.text.toString().trim()
-
         // 校验任务标题
-        if (title.isEmpty()) {
+        if (taskTitle.text.isNullOrEmpty()) {
             Toast.makeText(this, "标题不可为空", Toast.LENGTH_SHORT).show()
             return false // 如果标题为空，返回 false
         }
 
         // 校验日期输入
-        if (day.isEmpty() || hour.isEmpty() || minute.isEmpty()) {
+        if (taskDueDateDay.text.isNullOrEmpty() || taskDueDateHour.text.isNullOrEmpty() || taskDueDateMinute.text.isNullOrEmpty()) {
             Toast.makeText(this, "日期不可为空", Toast.LENGTH_SHORT).show()
             return false // 如果日期不完整，返回 false
         }
-        // Todo:检测具体时间是否规范
 
         // 所有校验通过，返回 true
         return true
     }
-
 
 }

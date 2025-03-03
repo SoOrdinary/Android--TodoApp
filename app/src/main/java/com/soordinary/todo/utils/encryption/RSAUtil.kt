@@ -82,65 +82,60 @@ object RSAUtil {
 
     /**
      * 使用公钥加密数据
-     * @param plainText 明文数据
+     * @param plainBytes 明文数据的字节数组
      * @param publicKey 公钥对象
-     * @return 加密后的 Base64 编码字符串
+     * @return 加密后的字节数组
      * @throws Exception 如果加密过程中出现异常
      */
     @Throws(Exception::class)
-    fun encrypt(plainText: String, publicKey: PublicKey?): String {
+    fun encrypt(plainBytes: ByteArray, publicKey: PublicKey): ByteArray {
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.ENCRYPT_MODE, publicKey)
-        val encryptedBytes = cipher.doFinal(plainText.toByteArray(StandardCharsets.UTF_8))
-        return Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
+        return cipher.doFinal(plainBytes)
     }
 
     /**
      * 使用私钥解密数据
-     * @param encryptedBase64 加密后的 Base64 编码字符串
+     * @param encryptedBytes 加密后的字节数组
      * @param privateKey 私钥对象
-     * @return 解密后的明文数据
+     * @return 解密后的字节数组
      * @throws Exception 如果解密过程中出现异常
      */
     @Throws(Exception::class)
-    fun decrypt(encryptedBase64: String?, privateKey: PrivateKey?): String {
-        val encryptedBytes = Base64.decode(encryptedBase64, Base64.DEFAULT)
+    fun decrypt(encryptedBytes: ByteArray, privateKey: PrivateKey): ByteArray {
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, privateKey)
-        val decryptedBytes = cipher.doFinal(encryptedBytes)
-        return String(decryptedBytes, StandardCharsets.UTF_8)
+        return cipher.doFinal(encryptedBytes)
     }
 
     /**
      * 使用私钥进行签名
-     * @param data 待签名的数据
+     * @param dataBytes 待签名的数据的字节数组
      * @param privateKey 私钥对象
-     * @return 签名后的 Base64 编码字符串
+     * @return 签名后的字节数组
      * @throws Exception 如果签名过程中出现异常
      */
     @Throws(Exception::class)
-    fun sign(data: String, privateKey: PrivateKey?): String {
+    fun sign(dataBytes: ByteArray, privateKey: PrivateKey): ByteArray {
         val signature = Signature.getInstance("SHA256withRSA")
         signature.initSign(privateKey)
-        signature.update(data.toByteArray(StandardCharsets.UTF_8))
-        val signBytes = signature.sign()
-        return Base64.encodeToString(signBytes, Base64.DEFAULT)
+        signature.update(dataBytes)
+        return signature.sign()
     }
 
     /**
      * 使用公钥验证签名
-     * @param data 原始数据
-     * @param signBase64 签名后的 Base64 编码字符串
+     * @param dataBytes 原始数据的字节数组
+     * @param signBytes 签名后的字节数组
      * @param publicKey 公钥对象
      * @return 签名是否有效
      * @throws Exception 如果验证签名过程中出现异常
      */
     @Throws(Exception::class)
-    fun verify(data: String, signBase64: String?, publicKey: PublicKey?): Boolean {
+    fun verify(dataBytes: ByteArray, signBytes: ByteArray, publicKey: PublicKey): Boolean {
         val signature = Signature.getInstance("SHA256withRSA")
         signature.initVerify(publicKey)
-        signature.update(data.toByteArray(StandardCharsets.UTF_8))
-        val signBytes = Base64.decode(signBase64, Base64.DEFAULT)
+        signature.update(dataBytes)
         return signature.verify(signBytes)
     }
 }

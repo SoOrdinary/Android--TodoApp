@@ -1,32 +1,49 @@
 package com.soordinary.todo.view.fragment.user
 
 import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.soordinary.todo.R
+import com.soordinary.todo.data.network.socket.DataTransferNew
+import com.soordinary.todo.data.network.socket.DataTransferOld
+import com.soordinary.todo.data.network.xml.AppVersionInfo
+import com.soordinary.todo.data.network.xml.VersionXml
 import com.soordinary.todo.databinding.DialogUserChangeNameOrSignatureBinding
-import com.soordinary.todo.databinding.DialogUserCheckVersionBinding
 import com.soordinary.todo.databinding.DialogUserDataMigrationBinding
+import com.soordinary.todo.databinding.DialogUserDataMigrationNewBinding
+import com.soordinary.todo.databinding.DialogUserDataMigrationOldBinding
 import com.soordinary.todo.databinding.DialogUserMenuLockBinding
 import com.soordinary.todo.databinding.DialogUserMenuSubmitBugBinding
 import com.soordinary.todo.databinding.DialogUserMenuTaskTagBinding
 import com.soordinary.todo.databinding.DialogUserShowMarkdownBinding
 import com.soordinary.todo.databinding.FragmentUserBinding
 import com.soordinary.todo.utils.MarkDownUtil
+import com.soordinary.todo.utils.NetworkUtil
 import com.soordinary.todo.utils.encryption.MD5Util
+import com.soordinary.todo.view.foreground.download.DownloadService
 import io.noties.markwon.Markwon
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -45,6 +62,18 @@ class UserFragment : Fragment(R.layout.fragment_user) {
     // 相册取照的相关回调函数
     private lateinit var launcher: ActivityResultLauncher<Intent>
     private lateinit var handleWay: (ActivityResult) -> Unit
+
+    // 下载版本号及请求权限回调
+    private var versionCode: Int = 0
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            startDownloadService()
+        } else {
+            Toast.makeText(requireActivity(), "权限被拒绝，无法下载", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -107,10 +136,24 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                             val inputStream = requireActivity().contentResolver.openInputStream(uri)
                             // 获取缓存目录
                             val cacheDir = requireContext().cacheDir
+                            // 定义要创建的子文件夹名称
+                            val imageFolderName = "user_icon_cache"
+                            // 创建子文件夹的 File 对象
+                            val imageFolder = File(cacheDir, imageFolderName)
+                            // 直接创建文件夹，如果已存在则不做任何操作
+                            imageFolder.mkdirs()
                             val fileName = "user_icon${System.currentTimeMillis()}.jpg"
-                            val file = File(cacheDir, fileName)
+                            val file = File(imageFolder, fileName)
+                            // 判断原来是否有头像 Todo:若不删除历史图片，可写界面，选择直接切换历史头像
+//                            val oldIconUri = viewModel.getIconUriLiveData().value
+//                            if (!oldIconUri.isNullOrEmpty()) {
+//                                val oldIconFile = File(oldIconUri)
+//                                if (oldIconFile.exists()) {
+//                                    oldIconFile.delete() // 删除原有图
+//                                }
+//                            }
                             // 将图片流保存到缓存目录
-                            val outputStream = FileOutputStream(file,false)
+                            val outputStream = FileOutputStream(file, false)
                             inputStream?.copyTo(outputStream)
                             // 保存为缓存目录中的文件路径
                             viewModel.updateIconUri(file.absolutePath)
@@ -294,8 +337,11 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                  链接: https://pan.baidu.com/s/17nlVIVCPMdmzWI7P4lnCSw
                  提取码: mw74
                  
+                 gitee链接
+                 https://gitee.com/ly0919/todo/releases/download/latest/Todo.zip
+                 
                  github链接
-                 https://github.com/SoOrdinary/Android--TodoApp/releases/download/v2.0.0/Todo.zip
+                 https://github.com/SoOrdinary/Android--TodoApp/releases/download/latest/Todo.zip
                  """.trimIndent()
 
             // 创建 Intent 来分享 URL
@@ -352,44 +398,183 @@ class UserFragment : Fragment(R.layout.fragment_user) {
 
         // 菜单-数据迁移
         menuDataMigration.setOnClickListener {
+            val currentPassword = viewModel.getPasswordLiveData().value
+            if (currentPassword.isNullOrEmpty()) {
+                Toast.makeText(requireActivity(), "该操作需先为本机设置密码", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             with(DialogUserDataMigrationBinding.inflate(LayoutInflater.from(requireActivity()))) {
                 val dialog = Dialog(requireActivity())
                 dialog.setContentView(root)
                 dialog.setCancelable(true)
 
-                // 点击事件Todo:判断输入是否正确
-                confirmToSend.setOnClickListener {
+                if (!NetworkUtil.isValid(requireActivity())) {
+                    confirmToSend.isEnabled = false
+                    confirmToReceive.isEnabled = false
+                    internetHint.text = "该操作需打开WIFI"
+                }
 
+                confirmToSend.setOnClickListener {
+                    dialog.dismiss()
+                    // 唤起转出设置界面
+                    transferOld(requireActivity())
                 }
 
                 confirmToReceive.setOnClickListener {
-
+                    dialog.dismiss()
+                    // 唤起转入设置界面
+                    transfernew(requireActivity())
                 }
 
                 dialog.show()
             }
         }
 
-        // 菜单-检查更新 Todo:实现远程更新
+        // 菜单-检查更新
         menuCheckVersion.setOnClickListener {
-            with(DialogUserCheckVersionBinding.inflate(LayoutInflater.from(requireActivity()))) {
-                val dialog = Dialog(requireActivity())
-                dialog.setContentView(root)
-                dialog.setCancelable(true)
-
-                val oldVersion = "v2.0.0"
-                val newVersion = "v2.0.1"
-                // Todo:视图更新加点击事件
-                versionDiff.text = "当前版本--${oldVersion}\n最新版本--${newVersion}"
-
-                confirmUpdate.setOnClickListener {
-                    // Todo开启服务更新
-
+            Toast.makeText(requireActivity(), "正在查询最新版本", Toast.LENGTH_SHORT).show()
+            val activity = requireActivity()
+            CoroutineScope(Dispatchers.IO).launch {
+                val xmlUrl = "https://gitee.com/ly0919/todo/releases/download/lastest/version_info.xml"
+                val oldVersion = getAppCurVersionInfo()
+                val newVersion = VersionXml.getAppVersionFromXml(xmlUrl)
+                // 有新版则提示更新
+                withContext(Dispatchers.Main) {
+                    if(newVersion == null){
+                        Toast.makeText(activity, "无法请求，请检查网络", Toast.LENGTH_SHORT).show()
+                        return@withContext
+                    }
+                    if ((oldVersion?.versionCode?.toLong() ?: 9999) >= (newVersion.versionCode?.toLong() ?: 0)) {
+                        Toast.makeText(activity, "当前已是最新版", Toast.LENGTH_SHORT).show()
+                    }
+                    val dialogBuilder = AlertDialog.Builder(activity)
+                    dialogBuilder.setCancelable(false)
+                        .setTitle("更新内容可前往github查看")
+                        .setMessage("当前版本: ${oldVersion!!.versionName}\n最新版本: ${newVersion!!.versionName}")
+                        .setPositiveButton("更新") { dialog, _ ->
+                            versionCode = newVersion.versionCode!!.toInt()
+                            if (checkStoragePermission()) {
+                                startDownloadService()
+                            } else {
+                                requestPermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            }
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton("取消") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                    val dialog = dialogBuilder.create()
+                    dialog.show()
                 }
-
-                dialog.show()
             }
         }
+    }
+
+    // 旧设备转出、新设备转入界面
+    private fun transferOld(context: Context) {
+        with(DialogUserDataMigrationOldBinding.inflate(LayoutInflater.from(context))) {
+            val dialog = Dialog(context)
+            dialog.setContentView(root)
+            dialog.setCancelable(true)
+
+            oldIp.text = "${NetworkUtil.getLocalIpAddress(context)} -- 本机IP"
+
+            confirm.setOnClickListener {
+                if (newPassword.text.isNullOrEmpty()) {
+                    Toast.makeText(requireActivity(), "密码不可为空", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                dialog.setCancelable(false)
+                oldIp.visibility = View.GONE
+                newPassword.visibility = View.GONE
+                confirm.visibility = View.GONE
+                oldLogParent.visibility = View.VISIBLE
+                tip.text = "传输数据过程日志"
+
+                val old = DataTransferOld(requireActivity(), 8888, MD5Util.encryptByMD5(newPassword.text.toString()), oldLog) {
+                    dialog.setCancelable(true)
+                }
+                Thread {
+                    old.start()
+                }.start()
+
+            }
+
+            dialog.show()
+        }
+    }
+
+    private fun transfernew(context: Context) {
+        with(DialogUserDataMigrationNewBinding.inflate(LayoutInflater.from(context))) {
+            val dialog = Dialog(context)
+            dialog.setContentView(root)
+            dialog.setCancelable(true)
+
+            confirm.setOnClickListener {
+                if (oldIp.text.isNullOrEmpty() || oldPassword.text.isNullOrEmpty()) {
+                    Toast.makeText(requireActivity(), "IP与密码不可为空", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                dialog.setCancelable(false)
+                oldIp.visibility = View.GONE
+                oldPassword.visibility = View.GONE
+                confirm.visibility = View.GONE
+                newLogParent.visibility = View.VISIBLE
+                tip.text = "接收数据过程日志"
+
+                val new = DataTransferNew(requireActivity(), oldIp.text.toString(), 8888, MD5Util.encryptByMD5(oldPassword.text.toString()), newLog) {
+                    dialog.setCancelable(true)
+                }
+                Thread {
+                    new.start()
+                }.start()
+            }
+
+            dialog.show()
+        }
+    }
+
+    // 获取当前的版本号
+    private fun getAppCurVersionInfo(): AppVersionInfo? {
+        try {
+            // 获取 PackageManager 实例
+            val packageManager = requireActivity().packageManager
+            // 获取当前应用的包名
+            val packageName = requireActivity().packageName
+
+            // 获取 PackageInfo 对象
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            // 兼容不同 Android 版本获取 versionCode
+            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode.toLong()
+            }
+            // 获取 versionName
+            val versionName = packageInfo.versionName
+            return AppVersionInfo(versionCode.toString(), versionName)
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    // 检查存储权限
+    private fun checkStoragePermission() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            true
+        else
+            ContextCompat.checkSelfPermission(requireActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+    // 启动下载的服务
+    private fun startDownloadService() {
+        DownloadService.serviceStart(
+            requireActivity(),
+            "https://gitee.com/ly0919/todo/releases/download/lastest/Todo.apk",
+            "Version${versionCode}.apk",
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
+        )
     }
 
 }

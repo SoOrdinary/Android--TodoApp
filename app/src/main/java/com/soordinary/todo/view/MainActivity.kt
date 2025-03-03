@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -116,6 +117,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 menu.clear()
                 // 先更新固定的，再根据tags更新菜单项
                 menu.add(R.id.classify_by_dates, R.id.today_task, Menu.NONE, "Today Task")
+                menu.add(R.id.classify_by_dates, R.id.timeout_task, Menu.NONE, "Tout  Task")
                 menu.add(R.id.classify_by_dates, R.id.list_task, Menu.NONE, "List  Task")
                 it.forEach { tag ->
                     // 为每个tag动态创建菜单项并添加到菜单中
@@ -174,13 +176,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         }
 
-        // 搜索框输入内容并按下回车，回调Fragment自定义方法，并清空内容,以及取消菜单栏按钮的选中情况Todo:回车后隐藏键盘，改为能够实时查询，以及单开一个dialog来查询？还有查询时取消其他tag的选择
+        // 搜索框输入内容并按下回车，回调Fragment自定义方法，并清空内容,以及取消菜单栏按钮的选中情况
         sideHeaderBinding.searchTask.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
                 if (v.text.isNullOrEmpty()) return@setOnEditorActionListener true
                 val fragment = navHostFragment.childFragmentManager.fragments[0]
                 if (fragment is TaskFragment) fragment.ListenTaskItemClick().onSearchByTitle(v.text.toString().trim())
                 v.text = ""
+                // 关闭软键盘
+                val imm = v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+                // 关闭侧边栏
                 layoutMain.closeDrawers()
             }
             true

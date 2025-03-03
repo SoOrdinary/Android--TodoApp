@@ -31,7 +31,6 @@
             android:fontFamily="@font/mono"
             android:paddingTop="4dp"
             android:text=""
-
             android:textColor="@color/gray"
             android:textSize="16sp" />
     </LinearLayout>

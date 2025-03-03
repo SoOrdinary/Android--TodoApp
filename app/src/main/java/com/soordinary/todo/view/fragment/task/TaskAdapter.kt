@@ -15,7 +15,7 @@ import com.soordinary.todo.databinding.FragmentTaskItemLinearBinding
 import com.soordinary.todo.utils.DateTimeUtil
 
 /**
- * Task列表适配器 Todo:写一个带基类的RecycleView扩展库，方便不同布局的实现
+ * Task列表适配器
  *
  * @role1 用于适配Task界面的列表每一项
  *
@@ -23,7 +23,7 @@ import com.soordinary.todo.utils.DateTimeUtil
  *
  * @improve1 基类BaseViewHolder统管不同的item，拥有抽象函数bind将事件绑定同一归属
  * @improve2 适配图片等用Glide，增加流畅度
- * @improve3 Todo:通过diff优化查询更新
+ * @improve3 通过diff优化查询更新
  */
 class TaskAdapter(private val fragment: TaskFragment, private val taskList: List<Task>, private val itemType: Int) : RecyclerView.Adapter<TaskAdapter.BaseViewHolder>() {
 
@@ -68,7 +68,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
         private val binding = FragmentTaskItemLinearBinding.bind(view)
         override fun bind(task: Task) {
             with(binding) {
-                // 解绑先前的事件Todo:优化
+                // 解绑先前的事件
                 taskLinear.setOnClickListener(null)
                 taskLinear.setOnLongClickListener(null)
                 taskLinearStatus.setOnCheckedChangeListener(null)
@@ -104,7 +104,7 @@ class TaskAdapter(private val fragment: TaskFragment, private val taskList: List
         private val binding = FragmentTaskItemGridBinding.bind(view)
         override fun bind(task: Task) {
             with(binding) {
-                // 解绑先前的事件Todo:优化
+                // 解绑先前的事件
                 taskGrid.setOnClickListener(null)
                 taskGrid.setOnLongClickListener(null)
                 taskGridStatus.setOnCheckedChangeListener(null)

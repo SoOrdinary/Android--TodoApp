@@ -8,12 +8,13 @@ import androidx.room.PrimaryKey
 /**
  * Task的实体关系类
  */
-@Entity(tableName = "tasks",
+@Entity(
+    tableName = "tasks",
     indices = [
-    Index(value = ["due_date"]),
-    Index(value = ["is_finish", "due_date"]),
-    Index(value = ["title"]),
-    Index(value = ["tag"])
+        Index(value = ["due_date"]),
+        Index(value = ["is_finish", "due_date"]),
+        Index(value = ["title"]),
+        Index(value = ["tag"])
     ]
 )
 data class Task(
@@ -22,7 +23,7 @@ data class Task(
     var title: String,                  // 标题
     var subtitle: String,               // 副标题
     var details: String,                // 具体内容
-    var voice: String?,                 // 录音    Todo: 多录音？
+    var voice: String?,                 // 录音    Todo: 多录音
     var image: String?,                 // 图片URI Todo：多图
     @ColumnInfo(name = "due_date")
     var dueDate: Long,                 // 截止日期（时间戳，毫秒值）

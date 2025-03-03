@@ -12,8 +12,8 @@ android {
         applicationId = "com.soordinary.todo"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "2.0.2"
+        versionCode = 4
+        versionName = "2.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -65,6 +65,9 @@ dependencies {
     implementation("io.noties.markwon:core:4.6.2")
     implementation("androidx.hilt:hilt-common:1.0.0")
     implementation("androidx.lifecycle:lifecycle-service:2.6.2")
+    implementation("com.google.android.exoplayer:extension-okhttp:2.19.1")
+    implementation ("org.jsoup:jsoup:1.16.1")
+    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
     kapt("com.github.bumptech.glide:compiler:4.15.1")
     kapt("androidx.room:room-compiler:2.5.1")
     testImplementation(libs.junit)

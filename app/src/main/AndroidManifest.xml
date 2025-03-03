@@ -8,6 +8,15 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:name=".TodoApplication"
@@ -42,12 +51,17 @@
             android:windowSoftInputMode="adjustPan|stateHidden" />
 
         <receiver
-            android:name=".view.foreground.ForegroundRestartReceiver"
+            android:name=".view.foreground.summarize.ForegroundRestartReceiver"
             android:enabled="true"
             android:exported="true" />
 
         <service
-            android:name=".view.foreground.ForegroundService"
+            android:name=".view.foreground.summarize.ForegroundService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".view.foreground.download.DownloadService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback" />

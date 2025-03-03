@@ -53,6 +53,14 @@
                 android:fontFamily="@font/mono"
                 android:text=""
                 android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/task_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:visibility="gone"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

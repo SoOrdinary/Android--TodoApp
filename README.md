@@ -1,10 +1,18 @@
-# Todo 👆 2.0.2
+# Todo 👆 2.1.0
 
 一个待办事项管理应用，集成了任务、日志、闹钟功能。
 
-## 直接在手机上下载.apk文件
+## 从此下载地址下载最新版本的版本信息和安装包及其压缩包
 
-- https://github.com/SoOrdinary/Android--TodoApp/releases/download/v2.0.1/Todo.zip
+- https://github.com/SoOrdinary/Android--TodoApp/releases/download/latest/version_info.xml
+- https://github.com/SoOrdinary/Android--TodoApp/releases/download/latest/Todo.zip
+- https://github.com/SoOrdinary/Android--TodoApp/releases/download/latest/Todo.apk
+
+## 国内gitee地址
+
+- https://gitee.com/ly0919/todo/releases/download/lastest/version_info.xml
+- https://gitee.com/ly0919/todo/releases/download/latest/Todo.zip
+- https://gitee.com/ly0919/todo/releases/download/latest/Todo.apk
 
 ## 使用手册
 
@@ -104,13 +112,19 @@
 
 ---
 
-### 6. 一些漏洞提醒
+### 6. 一些提醒
 
 - **信息输入**  
-  如时间等的信息的错误输入形式，软件的自动检查不一定全面，尽量按照规范输入，如果遇到比较严重的输入bug，如会导致软件闪退，可发邮件阐述
+  如时间等的信息的错误输入形式，软件的自动检查不一定全面，尽量按照规范输入，如果遇到比较严重的输入bug，如会导致软件闪退，可于邮件阐述
 
 - **通知权限**  
-  首次设置闹钟，当计时结束时会提醒开启权限（若没有开启通知权限），且会屏蔽本次的通知，需再次设置；同时，Android手机设置，会自动清理后台程序，或一键杀死所有非白名单应用，这会导致应用清理掉后闹钟失效，为应用在后台上锁可能会有用；若想要通知时消息能够弹出前台，也需进行权限设置
+  首次打开软件将提醒设置通知权限，如若拒绝，设置闹钟后不会提醒打开权限，需要自己去系统设置设置权限，建议打开通知权限，许多功能都与通知有关  
+  同时，Android手机设置，会自动清理后台程序，或一键杀死所有非白名单应用，这会导致应用清理掉后闹钟失效，为应用在后台上锁可能会有用；若想要通知时消息能够弹出前台，也需进行权限设置  
+  在进行定时任务时，若想避免倒计时被系统暂停，可进入闹钟的沉浸模式再锁屏
+- **数据迁移**  
+  迁移时请选择网络环境比较好的地点进行，迁移完毕后最好直接重启，因为打开的应用存在一些缓存  
+  因为迁移功能的实现写在设置界面内，而设置界面上有用户信息等，其渲染时存在引用，所以迁移覆盖时该持久化文件存在引用而无法覆盖，可自行重新添加  
+  网络方面还是有一点奇怪的问题的，如果遇到bug可以多试几次，也可以发邮件give me
 
 ---
 
@@ -132,7 +146,7 @@
 
 ```bash
 有时网络或配置问题会失败，可以先fork到自己的仓库然后使用ssl拉取
-git clone https://github.com/yourusername/Android--TodoApp.git
+git clone https://github.com/SoOrdinary/Android--TodoApp.git
 cd Android--TodoApp
 ```
 
@@ -154,10 +168,19 @@ local.properties中sdk位置可能需要自行更改
 
 ## 更新日志
 
-**v2.1.0**
+**v2.1.0[2025.03.04]**
 - 数据库结构修改，与前版不兼容
 - 密码存储提升安全性，采用MD5单向加密
-- 解决头像更换第二次以上无效的bug
+- 修复头像更换第二次以上无效的bug
+- 修复了首页不切换界面任务不自动超时变红的bug
+- 修复了前台显示的超时标准只和当次打开app的时间关联的bug
+- 修复了更新Task后不退出连续更新时更新界面数据不同步的bug
+- 优化了闹钟倒计时界面的倒计时性能
+- 优化了图片类数据存储与更新管理
+- 任务默认查询增加超时任务查询
+- 增加沉浸默认锁屏功能
+- 增加更新版本功能
+- 增加数据迁移功能
 
 **v2.0.2[2025.02.20]**
 

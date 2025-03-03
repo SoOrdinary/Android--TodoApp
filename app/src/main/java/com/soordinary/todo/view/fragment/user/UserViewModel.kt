@@ -27,7 +27,7 @@ class UserViewModel : ViewModel() {
         taskRepository.deleteTaskTag(oldTag)
     }
 
-    // 判断某个标签是否存在Todo:异步
+    // 判断某个标签是否存在
     fun isContain(tag: String) = taskRepository.isContain(tag)
 
     // 修改当前的个人头像

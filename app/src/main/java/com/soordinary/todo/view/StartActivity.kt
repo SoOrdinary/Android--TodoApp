@@ -10,7 +10,7 @@ import com.soordinary.todo.BaseActivity
 import com.soordinary.todo.databinding.ActivityStartBinding
 import com.soordinary.todo.databinding.DiagStartForgetPasswordBinding
 import com.soordinary.todo.utils.encryption.MD5Util
-import com.soordinary.todo.view.foreground.ForegroundService
+import com.soordinary.todo.view.foreground.summarize.ForegroundService
 import com.soordinary.todo.view.fragment.user.UserViewModel
 
 /**
@@ -25,6 +25,7 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        binding.version.text = packageManager.getPackageInfo(packageName, 0).versionName
         // 启动前台服务
         startForeground()
 
@@ -41,7 +42,7 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
 
     private fun ActivityStartBinding.initClick() {
         password.addTextChangedListener { input ->
-            val inputToMD5=MD5Util.encryptByMD5(input.toString())
+            val inputToMD5 = MD5Util.encryptByMD5(input.toString())
             if (inputToMD5 == currentPassword) {
                 passwordAfter()
             }

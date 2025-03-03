@@ -7,7 +7,7 @@ import androidx.viewbinding.ViewBinding
 import java.lang.ref.WeakReference
 
 /**
- * 建立Activity基类，方便后续为所有Activity增加共有变量or方法 Todo:写一个公有库
+ * 建立Activity基类，方便后续为所有Activity增加共有变量or方法
  *
  * @role1 定义静态内部类ActivityCollector，在每个活动create|destroy时分别改变记录器的值
  * @role2 VB 填充泛型，为每个Activity自动绑定binding--需要子类实现getBinding方法,private后子类只能get不能set

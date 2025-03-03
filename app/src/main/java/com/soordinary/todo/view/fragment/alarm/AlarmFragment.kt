@@ -1,6 +1,7 @@
 package com.soordinary.todo.view.fragment.alarm
 
 import android.app.Dialog
+import android.graphics.Color
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
@@ -8,6 +9,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -83,7 +85,22 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
                 val currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
                 if (currentMinute != lastMinute) {
                     lastMinute = currentMinute
-                    binding.alarmList.adapter?.notifyDataSetChanged()
+                    // 优化，不再需要视图全部渲染
+                    for (remainTimeView in (binding.alarmList.adapter as? AlarmAdapter)?.textViewList ?: ArrayList<TextView>()) {
+                        val currentText = remainTimeView.text.toString()
+                        if (currentText == "时间到") {
+                            continue
+                        } else {
+                            val remain = currentText.dropLast(3).toInt() - 1
+                            if (remain > 0) {
+                                remainTimeView.text = "${remain} 分钟"
+                                remainTimeView.setTextColor(Color.parseColor("#018786"))
+                            } else {
+                                remainTimeView.text = "时间到"
+                                remainTimeView.setTextColor(Color.RED)
+                            }
+                        }
+                    }
                 }
                 // 继续每秒钟检查一次
                 handler.postDelayed(this, 1000)
@@ -201,19 +218,14 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
         // 校验函数(每次修改要保持和TaskFragment中的checkInput同步)
         private fun checkInput(taskTitle: EditText, taskDueDateDay: EditText, taskDueDateHour: EditText, taskDueDateMinute: EditText): Boolean {
 
-            val title = taskTitle.text.toString().trim()
-            val day = taskDueDateDay.text.toString().trim()
-            val hour = taskDueDateHour.text.toString().trim()
-            val minute = taskDueDateMinute.text.toString().trim()
-
             // 校验任务标题
-            if (title.isEmpty()) {
+            if (taskTitle.text.isNullOrEmpty()) {
                 Toast.makeText(requireActivity(), "标题不可为空", Toast.LENGTH_SHORT).show()
                 return false // 如果标题为空，返回 false
             }
 
             // 校验日期输入
-            if (day.isEmpty() || hour.isEmpty() || minute.isEmpty()) {
+            if (taskDueDateDay.text.isNullOrEmpty() || taskDueDateHour.text.isNullOrEmpty() || taskDueDateMinute.text.isNullOrEmpty()) {
                 Toast.makeText(requireActivity(), "日期不可为空", Toast.LENGTH_SHORT).show()
                 return false // 如果日期不完整，返回 false
             }

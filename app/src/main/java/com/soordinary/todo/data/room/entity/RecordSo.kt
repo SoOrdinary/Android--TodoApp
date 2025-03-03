@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 /**
  * RecordSo实体类，用于记录task完成情况(Record与库函数重名)
  */
-@Entity(tableName = "record_so",
+@Entity(
+    tableName = "record_so",
     indices = [
         Index(value = ["finish_time"])
     ]

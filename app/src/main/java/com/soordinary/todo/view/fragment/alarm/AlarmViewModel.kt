@@ -39,7 +39,7 @@ class AlarmViewModel : ViewModel() {
 
     // 插入闹钟
     fun insertAlarm(alarm: Alarm) = viewModelScope.launch {
-        // 同时增加通知的定时任务Todo：第一次时请求权限
+        // 同时增加通知的定时任务
         val inputData = Data.Builder()
             .putString("title", alarm.name)
             .putLong("date", alarm.alarmDate)

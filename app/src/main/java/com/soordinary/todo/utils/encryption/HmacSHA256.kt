@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 object HmacSHA256 {
     // 输入字符串，输出加密字符
-    fun encryptBySHA256(secretKey: String, message: String): String {
+    fun encryptBySHA256(secretKey: String, message: String): ByteArray {
         // 指定使用的 HMAC 算法，这里使用 HMAC-SHA256
         val algorithm = "HmacSHA256"
         // 创建 Mac 实例
@@ -24,11 +24,6 @@ object HmacSHA256 {
         val messageBytes = message.toByteArray(StandardCharsets.UTF_8)
         // 计算 HMAC 值
         val hmacBytes = mac.doFinal(messageBytes)
-        // 将字节数组转换为十六进制字符串
-        val result = java.lang.StringBuilder()
-        for (b in hmacBytes) {
-            result.append(String.format("%02x", b))
-        }
-        return result.toString()
+        return hmacBytes
     }
 }

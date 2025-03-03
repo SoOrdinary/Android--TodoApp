@@ -10,7 +10,8 @@ import java.util.UUID
 /**
  * TaskAlarm实体类，用于记录task完成情况
  */
-@Entity(tableName = "task_alarms",
+@Entity(
+    tableName = "task_alarms",
     indices = [
         Index(value = ["alarm_date"])
     ]

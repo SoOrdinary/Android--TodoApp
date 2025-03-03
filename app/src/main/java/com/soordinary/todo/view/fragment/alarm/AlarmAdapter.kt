@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.soordinary.todo.R
 import com.soordinary.todo.data.room.entity.Alarm
@@ -21,6 +22,9 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
     init {
         setHasStableIds(true)
     }
+
+    // 缓存所有TextView
+    val textViewList: MutableSet<TextView> = HashSet()
 
     // 点击事件适配
     val listenAlarmItemClick = fragment.ListenAlarmItemClick()
@@ -44,6 +48,7 @@ class AlarmAdapter(private val fragment: AlarmFragment, private val alarmList: L
         private val binding = FragmentAlarmItemBinding.bind(view)
         override fun bind(alarm: Alarm) {
             with(binding) {
+                textViewList.add(binding.remainTime)
                 alarmItem.setOnLongClickListener(null)
                 alarmItem.setOnLongClickListener(null)
                 delete.setOnClickListener(null)

@@ -63,11 +63,12 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
+        android:id="@+id/version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:fontFamily="@font/mono"
-        android:text="version:2.0.2"
+        android:text="version:2.0.0"
         android:textColor="#DDDDDD"
         android:textSize="7sp"
         app:layout_constraintBottom_toBottomOf="parent"

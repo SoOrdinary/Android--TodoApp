@@ -104,9 +104,8 @@ class SwipeRecyclerView @JvmOverloads constructor(context: Context, attrs: Attri
         return super.onInterceptTouchEvent(e)
     }
 
-    // 寻找触摸的子View Todo:不用first？
-    fun pointToPosition(x: Int, y: Int): Int {
-        // val firstPosition = (layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+    // 寻找触摸的子View
+    private fun pointToPosition(x: Int, y: Int): Int {
         var frame = childRangeSearchCache
         if (childRangeSearchCache == null) {
             childRangeSearchCache = Rect()
