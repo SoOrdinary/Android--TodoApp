@@ -19,6 +19,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.soordinary.todo.R
 import com.soordinary.todo.utils.DateTimeUtil
+import com.soordinary.todo.view.MainActivity
 import com.soordinary.todo.view.StartActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -235,9 +236,20 @@ class ForegroundService : LifecycleService() {
 
     // 更新数据,发送新通知
     private fun emitNewNotification() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+        // 创建 PendingIntent
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         val notification = builder
             .setSmallIcon(R.drawable.app_icon)
             .setCustomContentView(view)
+            .setContentIntent(pendingIntent)
             .build()
         notificationManager.notify(NOTIFICATION_ID, notification)
     }

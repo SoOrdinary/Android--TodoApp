@@ -302,7 +302,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                         Toast.makeText(requireActivity(), "添加失败，已有密码", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }
-                    if (newPasswordToMD5.isNullOrEmpty()) {
+                    if (changePassword.text.toString().trim().isNullOrEmpty()) {
                         Toast.makeText(requireActivity(), "添加失败，密码不可为空", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
                     }

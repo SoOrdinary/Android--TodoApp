@@ -466,7 +466,7 @@ class TaskFragment : Fragment(R.layout.fragment_task) {
                         voice = null,
                         image = taskPhotoUri.text.toString().trim(),
                         dueDate = dueTimestamp,
-                        isFinish = false,
+                        isFinish = oldTask?.isFinish ?: false,
                         tag = taskTag.selectedItem.toString()
                     )
 
