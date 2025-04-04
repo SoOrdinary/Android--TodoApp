@@ -35,10 +35,12 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
     private var isSend = true
     private var isReceive = true
     private var expectMessageId = 0
+
+    @Volatile
     private var step = 0
 
     // 打印加密过程log
-    private val process=false
+    private val process = false
 
     // 中间态的变量
     private lateinit var newPrivateKey: PrivateKey
@@ -50,6 +52,16 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
     private lateinit var preMasterSecret: ByteArray
     private lateinit var masterSecret: ByteArray
 
+    // 加密传输的全局量(加密传输标志、最大重传次数、已接收文件量)
+    private var isTLSFlag = false
+    private var retransmissionMax = 3
+
+    @Volatile
+    private var fileCount = 0
+
+    // 心跳检测标志
+    private var isDancing:Boolean? = false
+
     init {
         // 生成自己的公私钥
         val pair = RSAUtil.generateKeyPair()
@@ -60,14 +72,14 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
         preMasterSecret = RandomUtil.generateRandomBytes(48)
     }
 
-
-    fun start() {
+    // 开启加密协商与加密传输，加密协商已经完成则传入true
+    fun start(isTLSFinish: Boolean) {
         newSocket = Socket()
         // 准备输入输出流
-        var output : OutputStream? = null
+        var output: OutputStream? = null
         var input: InputStream? = null
-        var sendRequest: OutputStreamWriter?=null
-        var readResponse : BufferedReader?=null
+        var sendRequest: OutputStreamWriter? = null
+        var readResponse: BufferedReader? = null
 
         try {
             addLog("尝试发起连接，倒计时10s...")
@@ -92,15 +104,16 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
                             val message = sendRequest(step)
                             sendRequest!!.write("$message\n")
                             sendRequest!!.flush()
-                            if(process)  addLog("(本机)新设备请求:$message")
+                            if (process) addLog("(本机)新设备请求:$message")
                             step = 0
                         }
+                        Thread.sleep(10)
                     }
                 } catch (e: Exception) {
                     addLog("!!异常出错:${e.message}")
                     e.printStackTrace()
-                    isReceive=false
-                    isSend=false
+                    isReceive = false
+                    isSend = false
                     step = -1
                 }
             }
@@ -111,41 +124,66 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
                 try {
                     while (isReceive) {
                         response = readResponse!!.readLine()
-                        if(process)addLog("旧设备应答: $response")
+                        if (process) addLog("旧设备应答: $response")
                         if (!defResponse(expectMessageId, response)) {
                             step = -1
                             return@Thread
                         }
+                        Thread.sleep(10)
                     }
                 } catch (e: Exception) {
                     addLog("!!异常出错:${e.message}")
                     e.printStackTrace()
-                    isReceive=false
-                    isSend=false
+                    isReceive = false
+                    isSend = false
                     step = -1
                 }
             }
             // 接收文件的线程
             val inputFileThread = Thread {
                 try {
-                    receiveFileContents(input)
+                    receiveFileContents(input, output)
                 } catch (e: Exception) {
                     e.printStackTrace()
-                } finally {
-                    input.close()
                 }
             }
-            inputThread.start()
-            outputThread.start()
-            // 开始请求
-            step = 1
-            // 等待两个线程结束
-            inputThread.join()
-            outputThread.join()
+            // 心跳线程初始化
+            val heartThread = Thread {
+                while (true){
+                    isDancing=false
+                    Thread.sleep(10000)
+                    // 10秒内心跳还是false就强制关闭
+                    if(isDancing!=true){
+                        // 没有心跳说明已经结束啦，跳出
+                        if(isDancing==null) break
+                        // 尝试提醒一下服务器
+                        output.write((-999).toFixedLengthString(8).toByteArray(StandardCharsets.UTF_8))
+                        // 强制关闭
+                        sendRequest?.close()
+                        readResponse?.close()
+                        output?.close()
+                        input?.close()
+                        newSocket.close()
+                        inputFileThread.interrupt()
+                        break
+                    }
+                }
+            }
 
-            // step小于0说明出现问题了，直接结束
-            if(step<0){
-                return
+            // 根据传入参数决定是否执行加密协商
+            if(!isTLSFinish){
+                inputThread.start()
+                outputThread.start()
+                // 开始请求
+                step = 1
+                // 等待两个线程结束
+                inputThread.join()
+                outputThread.join()
+
+                // step小于0说明出现问题了，直接结束
+                if (step < 0) {
+                    return
+                }
             }
 
             addLog("******")
@@ -153,16 +191,26 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
             addLog("开始接收加密数据")
 
             inputFileThread.start()
+            heartThread.start()
             inputFileThread.join()
         } catch (e: IOException) {
             e.printStackTrace()
             addLog("!!异常出错:${e.message}")
         } finally {
+            // 已经结尾则置空
+            isDancing = null
             sendRequest?.close()
             readResponse?.close()
             output?.close()
             input?.close()
             newSocket.close()
+            // 检查加密传输过程是否出现问题,进行断点重传
+            if (isTLSFlag && retransmissionMax > 0) {
+                retransmissionMax--
+                addLog("------")
+                addLog("已同步${fileCount}份文件，中途异常，尝试第${3 - retransmissionMax}次重新同步...")
+                start(isTLSFlag)
+            }
             // 执行传递进来的首尾工作
             end()
         }
@@ -201,15 +249,16 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
 
                 val payload = Payload(preMasterSecretEncrypted = preMasterSecretEncrypted, anotherInfo = anotherInfo)
                 message = Message(id = "3", payload = payload)
-                message.checksum=RSAUtil.sign(message.checksum, newPrivateKey)
+                message.checksum = RSAUtil.sign(message.checksum, newPrivateKey)
                 // 等待第四次握手的消息
                 expectMessageId = 4
-                isSend=false
+                isSend = false
                 addLog("发送第三次握手信息")
             }
         }
         return ObjectMapper().writeValueAsString(message)
     }
+
     // 辨别应答
     private fun defResponse(expectMessageId: Int, response: String): Boolean {
         val message = ObjectMapper().readValue(response, Message::class.java)
@@ -263,6 +312,7 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
                 // 握手结束，开始接收数据
                 isReceive = false
                 addLog("  第四次握手信息验证无误")
+                isTLSFlag = true
             }
         }
         return true
@@ -274,41 +324,44 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
      */
 
     // 接收文件内容
-    private fun receiveFileContents(inputStream: InputStream) {
+    private fun receiveFileContents(inputStream: InputStream, outputStream: OutputStream) {
         try {
             while (true) {
                 addLog("------")
                 // 读取文件标志是否正确
                 val fileSymbol = ByteArray(10)
-                inputStream.read(fileSymbol)
+                readFully(inputStream, fileSymbol)
                 val fileSymbolString = String(fileSymbol, Charsets.UTF_8)
-                if(fileSymbolString != "SoOrdinary"){
-                    if(fileSymbolString=="completed~"){
+                if (fileSymbolString != "SoOrdinary") {
+                    if (fileSymbolString == "completed~") {
                         addLog("数据同步完成,重启软件可完成更新")
                         UserInfoSharedPreference.userPassword = ""
                         addLog("软件密码已重置")
+                        outputStream.write(0.toFixedLengthString(8).toByteArray(StandardCharsets.UTF_8))
+                        isTLSFlag = false
                         break
                     }
-                    addLog("!!数据同步出错，可检查网络状况后重试")
+                    outputStream.write((-1).toFixedLengthString(8).toByteArray(StandardCharsets.UTF_8))
+                    addLog("!!数据同步出错，网络波动")
                     break
                 }
                 // 读取文件相对路径长度
                 val relativePathLengthBytes = ByteArray(4)
-                inputStream.read(relativePathLengthBytes)
+                readFully(inputStream, relativePathLengthBytes)
                 val relativePathLength = byteArrayToInt(relativePathLengthBytes)
 
                 // 读取文件相对路径
                 val relativePathBytes = ByteArray(relativePathLength)
-                inputStream.read(relativePathBytes)
+                readFully(inputStream, relativePathBytes)
                 val relativePath = String(relativePathBytes, Charsets.UTF_8)
 
                 // 读取文件长度
                 val fileLengthBytes = ByteArray(8)
-                inputStream.read(fileLengthBytes)
+                readFully(inputStream, fileLengthBytes)
                 val fileLength = byteArrayToLong(fileLengthBytes)
                 addLog("文件大小：${fileLength}B")
                 // 创建文件保存路径
-                val file = File(activity.dataDir,relativePath)
+                val file = File(activity.dataDir, relativePath)
                 file.parentFile?.mkdirs()
                 // 保存文件内容（未加密）
 //                var remainToRead: Long = fileLength
@@ -328,26 +381,45 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
 //                }
                 // 保存文件内容
                 var remainToRead: Long = fileLength
-                val fileOutputStream=FileOutputStream(file)
+                val fileOutputStream = FileOutputStream(file)
                 val buffer = ByteArray(8224)
-                while (remainToRead > 0 ) {
-                    inputStream.read(buffer)
-                    val partFile=AESUtil.decrypt(buffer,masterSecret)
-                    if(remainToRead>8192){
+                while (remainToRead > 0) {
+                    readFully(inputStream, buffer)
+                    val partFile = AESUtil.decrypt(buffer, masterSecret)
+                    if (remainToRead > 8192) {
                         fileOutputStream.write(partFile)
-                    }else{
-                        fileOutputStream.write(partFile,0,remainToRead.toInt())
+                    } else {
+                        fileOutputStream.write(partFile, 0, remainToRead.toInt())
                     }
-                    remainToRead -=8192
+                    remainToRead -= 8192
                 }
                 fileOutputStream.flush()
                 fileOutputStream.close()
                 addLog("已接收：$relativePath")
+                // 发送已完成文件数
+                fileCount++
+                outputStream.write(fileCount.toFixedLengthString(8).toByteArray(StandardCharsets.UTF_8))
             }
         } catch (e: IOException) {
+            outputStream.write((-2).toFixedLengthString(8).toByteArray(StandardCharsets.UTF_8))
             addLog("!!异常出错:${e.message}")
             e.printStackTrace()
         }
+    }
+
+    // 保证接收到完整长度
+    private fun readFully(inputStream: InputStream, buffer: ByteArray): Int {
+        var totalBytesRead = 0
+
+        while (totalBytesRead < buffer.size) {
+            val bytesRead = inputStream.read(buffer, totalBytesRead, buffer.size - totalBytesRead)
+            if (bytesRead == -1) {
+                continue
+            }
+            totalBytesRead += bytesRead
+        }
+        isDancing = true
+        return totalBytesRead
     }
 
     // 将字节数组转换为整数
@@ -368,5 +440,15 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
                 (bytes[5].toLong() and 0xFF shl 16) or
                 (bytes[6].toLong() and 0xFF shl 8) or
                 (bytes[7].toLong() and 0xFF)
+    }
+
+    // 将Int转换为固定长度字符串
+    private fun Int.toFixedLengthString(length: Int): String {
+        val str = this.toString()
+        return if (str.length < length) {
+            "0".repeat(length - str.length) + str
+        } else {
+            str.take(length)
+        }
     }
 }

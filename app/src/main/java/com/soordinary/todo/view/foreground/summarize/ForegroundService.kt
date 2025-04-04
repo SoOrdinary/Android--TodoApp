@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 
 /**
  * 前台服务，实时显示应用的一些数据
+ * todo:多进程
  */
 class ForegroundService : LifecycleService() {
 
@@ -184,7 +185,7 @@ class ForegroundService : LifecycleService() {
             }
         }
 
-        return START_STICKY
+        return START_STICKY_COMPATIBILITY
     }
 
     override fun onBind(intent: Intent): IBinder? {

@@ -5,6 +5,7 @@ package com.soordinary.todo.utils
  *
  * @role shortestPath：返回更新序列Node，查询当前Node的getStep，可知该步怎样得来的，一直向前索引最终得到全部流程
  * @role 可直接通过build构建,传入新旧列表与增删规则
+ * Todo：双向迭代
  */
 class Diff<T>(val equals: (T, T) -> Boolean) {
 

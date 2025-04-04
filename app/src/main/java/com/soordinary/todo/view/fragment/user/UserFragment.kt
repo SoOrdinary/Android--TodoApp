@@ -423,7 +423,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                 confirmToReceive.setOnClickListener {
                     dialog.dismiss()
                     // 唤起转入设置界面
-                    transfernew(requireActivity())
+                    transferNew(requireActivity())
                 }
 
                 dialog.show()
@@ -440,7 +440,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                 val newVersion = VersionXml.getAppVersionFromXml(xmlUrl)
                 // 有新版则提示更新
                 withContext(Dispatchers.Main) {
-                    if(newVersion == null){
+                    if (newVersion == null) {
                         Toast.makeText(activity, "无法请求，请检查网络", Toast.LENGTH_SHORT).show()
                         return@withContext
                     }
@@ -495,7 +495,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                     dialog.setCancelable(true)
                 }
                 Thread {
-                    old.start()
+                    old.start(false)
                 }.start()
 
             }
@@ -504,7 +504,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
         }
     }
 
-    private fun transfernew(context: Context) {
+    private fun transferNew(context: Context) {
         with(DialogUserDataMigrationNewBinding.inflate(LayoutInflater.from(context))) {
             val dialog = Dialog(context)
             dialog.setContentView(root)
@@ -526,7 +526,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
                     dialog.setCancelable(true)
                 }
                 Thread {
-                    new.start()
+                    new.start(false)
                 }.start()
             }
 

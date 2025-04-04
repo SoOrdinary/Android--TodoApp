@@ -4,6 +4,7 @@ import com.soordinary.todo.data.room.entity.Alarm
 import com.soordinary.todo.repository.AlarmRepository
 import com.soordinary.todo.repository.TaskRepository
 import com.soordinary.todo.utils.DateTimeUtil
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,6 +45,7 @@ class ForegroundDataCache {
         taskRepository.getCompletedTaskCountInTimeRange(DateTimeUtil.getStartOfDay(0), DateTimeUtil.getEndOfDay(0))
 
     // 超时未完成任务数量的 Flow(需要随着时间更新)
+    @OptIn(ExperimentalCoroutinesApi::class)
     val overdueUncompletedTaskCountFlow: Flow<Int> = timestampFlow.flatMapLatest { timestamp ->
         taskRepository.getOverdueUncompletedTaskCount(timestamp)
     }
@@ -51,6 +53,5 @@ class ForegroundDataCache {
     // 最近的闹钟
     val nearestAlarmFlow: Flow<Alarm?> =
         alarmRepository.getNearestAlarm()
-
 
 }

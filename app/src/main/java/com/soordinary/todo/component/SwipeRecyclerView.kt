@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
 import android.view.ViewGroup
@@ -46,7 +47,7 @@ class SwipeRecyclerView @JvmOverloads constructor(context: Context, attrs: Attri
         val y = e.y.toInt()
         obtainVelocity(e)
         when (e.action) {
-            MotionEvent.ACTION_DOWN -> {
+            ACTION_DOWN -> {
                 if (!scroller.isFinished) {  // 如果动画还没停止，则立即终止动画
                     scroller.abortAnimation()
                 }
@@ -130,7 +131,7 @@ class SwipeRecyclerView @JvmOverloads constructor(context: Context, attrs: Attri
             val x = e.x
             obtainVelocity(e)
             when (e.action) {
-                MotionEvent.ACTION_DOWN -> {}
+                ACTION_DOWN -> {}
                 // 随手指滑动
                 MotionEvent.ACTION_MOVE -> {
                     if (touchedChildMenuWidth != INVALID_CHILD_WIDTH) {

@@ -87,7 +87,7 @@ class DownloadService : LifecycleService() {
             fileName = intent.getStringExtra("name")!!
             directory = intent.getStringExtra("path")!!
             coroutineScope.launch {
-                val status = downloadTask!!.download(downloadUrl, directory, fileName) ?: DownloadTask.TYPE_FAILED
+                val status = downloadTask?.download(downloadUrl, directory, fileName) ?: DownloadTask.TYPE_FAILED
                 when (status) {
                     DownloadTask.TYPE_SUCCESS -> listener.onSuccess()
                     DownloadTask.TYPE_FAILED -> listener.onFailed()

@@ -38,6 +38,7 @@
             android:exported="false" />
         <activity
             android:name=".view.StartActivity"
+            android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

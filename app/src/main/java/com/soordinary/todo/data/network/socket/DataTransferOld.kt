@@ -23,6 +23,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.security.PrivateKey
 import java.security.PublicKey
+import kotlin.jvm.Throws
 
 /**
  * 基于局域网的服务器，数据传输的定制流程
@@ -36,9 +37,11 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
     private var isSend = true
     private var isReceive = true
     private var expectMessageId = 0
+    @Volatile
     private var step = 0
+
     // 打印加密过程log
-    private val process=false
+    private val process = false
 
     // 中间态的变量
     private lateinit var oldPrivateKey: PrivateKey
@@ -50,6 +53,13 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
     private lateinit var preMasterSecret: ByteArray
     private lateinit var masterSecret: ByteArray
 
+    // 加密传输的全局量(完成加密协商、最大重传次数、发送后已被接收文件量、临时同步量)
+    private var isTLSFlag = false
+    private var retransmissionMax = 3
+    @Volatile
+    private var receivedFileCount = 0
+    private var tempCount = 0
+
     init {
         // 生成自己的公私钥
         val pair = RSAUtil.generateKeyPair()
@@ -59,16 +69,16 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
         romNumber2 = RandomUtil.generateRandomBytes(32)
     }
 
-
-    fun start() {
+    // 开启加密协商与加密传输，加密协商已经完成则传入true
+    fun start(isTLSFinish: Boolean) {
         serverSocket = ServerSocket(oldPort)
         serverSocket.soTimeout = 10000
 
         // 准备输入输出流
-        var output : OutputStream? = null
+        var output: OutputStream? = null
         var input: InputStream? = null
-        var sendRequest: OutputStreamWriter?=null
-        var readResponse : BufferedReader?=null
+        var sendRequest: OutputStreamWriter? = null
+        var readResponse: BufferedReader? = null
 
         try {
             addLog("正在搜索，倒计时10s..." + "")
@@ -84,18 +94,19 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
                 try {
                     while (isReceive) {
                         request = readResponse!!.readLine()
-                        if(process)addLog("新设备请求: $request")
+                        if (process) addLog("新设备请求: $request")
                         if (!defRequest(expectMessageId, request)) {
                             addLog("!!加密过程出现错误")
                             step = -1
                             return@Thread
                         }
+                        Thread.sleep(10)
                     }
                 } catch (e: Exception) {
                     addLog("!!异常出错:${e.message}")
                     e.printStackTrace()
-                    isReceive=false
-                    isSend=false
+                    isReceive = false
+                    isSend = false
                     step = -1
                 }
             }
@@ -112,58 +123,93 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
                             val message = responseByStep(step)
                             sendRequest!!.write("$message\n")
                             sendRequest!!.flush()
-                            if(process)addLog("(本机)旧设备应答:$message")
+                            if (process) addLog("(本机)旧设备应答:$message")
                             step = 0
                         }
+                        Thread.sleep(10)
                     }
                 } catch (e: Exception) {
                     addLog("!!异常出错:${e.message}")
                     e.printStackTrace()
-                    isReceive=false
-                    isSend=false
+                    isReceive = false
+                    isSend = false
                     step = -1
                 }
             }
             // 传输数据的线程
             val outputFileThread = Thread {
                 try {
+                    // 获取同步量
+                    tempCount = receivedFileCount
                     // 填写需要传过去的文件或文件夹,基于包名的相对路径
-                    val fileList = listOf("cache/task_photo_cache","cache/user_icon_cache","databases","shared_prefs")
-                    for(subFile in fileList){
-                        val file = File(activity.dataDir,subFile)
+                    val fileList = listOf("cache/task_photo_cache", "cache/user_icon_cache", "databases", "shared_prefs")
+                    for (subFile in fileList) {
+                        val file = File(activity.dataDir, subFile)
                         if (file.exists() && file.isDirectory) {
                             sendFolderContents(file, output)
-                        }else if(file.isFile){
-                            sendSingleFile(file,output)
+                        } else if (file.isFile) {
+                            sendSingleFile(file, output)
                         }
                     }
                     output.write("completed~".toByteArray(StandardCharsets.UTF_8))
+                    addLog("------")
+                    addLog("数据传输完毕")
+                } catch (e: Exception) {
+                    addLog("!!异常出错:${e.message}")
+                    e.printStackTrace()
+                }
+            }
+            // 监听异常的线程
+            val inputErrorThread = Thread {
+                try {
+                    val symbolArray = ByteArray(8)
+                    while (true) {
+                        readFully(input, symbolArray)
+                        val symbol = String(symbolArray, Charsets.UTF_8).toInt()
+                        if (symbol > 0) {
+                            receivedFileCount = symbol
+                        } else if (symbol == 0) {
+                            // 数据同步成功
+                            isTLSFlag = false
+                            addLog("------")
+                            addLog("数据同步成功")
+                            break
+                        } else {
+                            // 发生异常情况传递负数并打断
+                            addLog("------")
+                            addLog("!!数据同步出现异常")
+                            break
+                        }
+                    }
                 } catch (e: Exception) {
                     addLog("!!异常出错:${e.message}")
                     e.printStackTrace()
                 }
             }
 
-            inputThread.start()
-            outputThread.start()
-            // 开始响应
-            expectMessageId = 1
-            // 等待两个线程结束
-            inputThread.join()
-            outputThread.join()
-            // step小于0，出现异常，直接结束
-            if(step<0) {
-                return
+            // 根据传入参数决定是否执行加密协商
+            if (!isTLSFinish) {
+                inputThread.start()
+                outputThread.start()
+                // 开始响应
+                expectMessageId = 1
+                // 等待两个线程结束
+                inputThread.join()
+                outputThread.join()
+                // step小于0，出现异常，直接结束
+                if (step < 0) {
+                    return
+                }
+                addLog("******")
             }
-            addLog("******")
             // 等待一段时间，因为读取方要花费时间一定时间验证第四次握手信息后，再来创建读取流，不延时无法保证在写入输入流前读取流能够成功创建，而本次文件量也很大，容易把缓冲区循环覆盖掉，所以最好等待一下
             Thread.sleep(1000)
             // 加密并发送文件
             addLog("开始传输加密数据")
             outputFileThread.start()
+            inputErrorThread.start()
             outputFileThread.join()
-            addLog("------")
-            addLog("数据传输完毕")
+            inputErrorThread.join()
         } catch (e: IOException) {
             addLog("!!异常出错:${e.message}")
             e.printStackTrace()
@@ -177,6 +223,15 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
                 oldSocket.close()
             }
             serverSocket.close()
+
+            // 检查加密传输过程是否出现问题,进行断点重传
+            if (isTLSFlag && retransmissionMax > 0) {
+                retransmissionMax--
+                addLog("------")
+                addLog("已同步${receivedFileCount}份文件，中途异常，尝试第${3 - retransmissionMax}次重新同步...")
+                start(isTLSFlag)
+            }
+
             // 执行传递进来的首尾工作
             end()
         }
@@ -248,7 +303,7 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
                 }
                 // 第三次握手成功，开始第四次
                 step = 4
-                isReceive=false
+                isReceive = false
                 addLog("  第四次握手信息验证无误")
             }
         }
@@ -278,10 +333,11 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
 
                 val payload = Payload(anotherInfo = anotherInfo)
                 message = Message(id = "4", payload = payload)
-                message.checksum=RSAUtil.sign(message.checksum, oldPrivateKey)
+                message.checksum = RSAUtil.sign(message.checksum, oldPrivateKey)
                 // 握手结束，发送数据
                 isSend = false
                 addLog("发送第四次握手信息")
+                isTLSFlag = true
             }
         }
         return ObjectMapper().writeValueAsString(message)
@@ -305,25 +361,29 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
             }
         }
     }
+
     // 发送单个文件
+    @Throws(java.io.IOException::class)
     private fun sendSingleFile(file: File, outputStream: OutputStream) {
-        try {
-            addLog("------")
-            // 每次传输文件都等一下,让接收方可以有时间存完Todo:隐性bug？也许，不知道需不需要
-            //Thread.sleep(100)
-            // 传输每个文件的读取标志，用来检测乱序覆盖
-            outputStream.write("SoOrdinary".toByteArray(StandardCharsets.UTF_8))
-            // 获取文件相对于根文件夹的相对路径
-            val relativePath = file.absolutePath.removePrefix(activity.dataDir.absolutePath + File.separator)
-            val relativePathBytes = relativePath.toByteArray(StandardCharsets.UTF_8)
-            val relativePathLength = relativePathBytes.size
-            outputStream.write(intToByteArray(relativePathLength))
-            outputStream.write(relativePathBytes)
-            // 发送文件长度
-            val fileLength = file.length()
-            outputStream.write(longToByteArray(fileLength))
-            addLog("文件大小：${fileLength}B")
-            // 发送文件内容(未加密)
+        // 已经同步的文件不再发送
+        if(tempCount>0){
+            tempCount--
+            return
+        }
+        addLog("------")
+        // 传输每个文件的读取标志，用来检测乱序覆盖
+        outputStream.write("SoOrdinary".toByteArray(StandardCharsets.UTF_8))
+        // 获取文件相对于根文件夹的相对路径
+        val relativePath = file.absolutePath.removePrefix(activity.dataDir.absolutePath + File.separator)
+        val relativePathBytes = relativePath.toByteArray(StandardCharsets.UTF_8)
+        val relativePathLength = relativePathBytes.size
+        outputStream.write(intToByteArray(relativePathLength))
+        outputStream.write(relativePathBytes)
+        // 发送文件长度
+        val fileLength = file.length()
+        outputStream.write(longToByteArray(fileLength))
+        addLog("文件大小：${fileLength}B")
+        // 发送文件内容(未加密)
 //            val fileInputStream=FileInputStream(file)
 //            val buffer = ByteArray(8192)
 //            var bytes = fileInputStream.read(buffer)
@@ -331,19 +391,29 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
 //                outputStream.write(buffer, 0, bytes)
 //                bytes = fileInputStream.read(buffer)
 //            }
-            // 发送文件内容
-            val fileInputStream=FileInputStream(file)
-            val buffer = ByteArray(8192)
-            while (fileInputStream.read(buffer) >= 0) {
-                outputStream.write(AESUtil.encrypt(buffer,masterSecret))
-            }
-            outputStream.flush()
-            fileInputStream.close()
-            addLog("传输: $relativePath")
-        } catch (e: IOException) {
-            addLog("!!异常出错:${e.message}")
-            e.printStackTrace()
+        // 发送文件内容
+        val fileInputStream = FileInputStream(file)
+        val buffer = ByteArray(8192)
+        while (fileInputStream.read(buffer) >= 0) {
+            outputStream.write(AESUtil.encrypt(buffer, masterSecret))
         }
+        outputStream.flush()
+        fileInputStream.close()
+        addLog("传输: $relativePath")
+    }
+
+    // 保证接收到完整长度
+    private fun readFully(inputStream: InputStream, buffer: ByteArray): Int {
+        var totalBytesRead = 0
+
+        while (totalBytesRead < buffer.size) {
+            val bytesRead = inputStream.read(buffer, totalBytesRead, buffer.size - totalBytesRead)
+            if (bytesRead == -1) {
+                continue
+            }
+            totalBytesRead += bytesRead
+        }
+        return totalBytesRead
     }
 
     // 将整数转换为字节数组，用于转换文件路径大小
@@ -369,4 +439,5 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
             value.toByte()
         )
     }
+
 }

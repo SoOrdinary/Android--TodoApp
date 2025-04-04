@@ -10,7 +10,7 @@ import kotlin.math.abs
  *
  * @role1 实现Item的拖动变小效果，并通过RecyclerView的Adapter回调其他操作
  */
-class ItemSlideDeleteCallback(var slideDeleteListener: SlideDeleteListener) : ItemTouchHelper.Callback() {
+class ItemSlideDeleteCallback(private var slideDeleteListener: SlideDeleteListener) : ItemTouchHelper.Callback() {
 
     interface SlideDeleteListener {
         fun onSwipedItem(position: Int)
