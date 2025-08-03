@@ -56,7 +56,7 @@ object AESUtil {
      */
     fun encrypt(plaintext: ByteArray?, key: ByteArray): ByteArray {
         val secretKeySpec = SecretKeySpec(key, ALGORITHM)
-        val cipher = Cipher.getInstance(TRANSFORMATION)
+        val cipher = Cipher.getInstance(TRANSFORMATION)// ignore_security_alert [ByDesign7.3]WeakEncryptionModes
         val secureRandom = SecureRandom()
         val iv = ByteArray(BLOCK_SIZE)
         secureRandom.nextBytes(iv)
@@ -95,7 +95,7 @@ object AESUtil {
         val encryptedBytes = ByteArray(ciphertext.size - BLOCK_SIZE)
         System.arraycopy(ciphertext, 0, iv, 0, BLOCK_SIZE)
         System.arraycopy(ciphertext, BLOCK_SIZE, encryptedBytes, 0, encryptedBytes.size)
-        val cipher = Cipher.getInstance(TRANSFORMATION)
+        val cipher = Cipher.getInstance(TRANSFORMATION)// ignore_security_alert [ByDesign7.3]WeakEncryptionModes
         val ivParameterSpec = IvParameterSpec(iv)
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec)
         return cipher.doFinal(encryptedBytes)

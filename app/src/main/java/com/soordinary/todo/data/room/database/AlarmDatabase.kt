@@ -25,6 +25,7 @@ abstract class AlarmDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AlarmDatabase {
             instance?.let { return it }
             databaseBuilder(context.applicationContext, AlarmDatabase::class.java, "alarm_database")
+                .enableMultiInstanceInvalidation()
                 .build()
                 .apply { instance = this }
             return instance as AlarmDatabase

@@ -11,12 +11,14 @@ import android.icu.util.Calendar
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
+import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.soordinary.foreground.IForeground
 import com.soordinary.todo.R
 import com.soordinary.todo.utils.DateTimeUtil
 import com.soordinary.todo.view.MainActivity
@@ -32,13 +34,26 @@ import kotlinx.coroutines.launch
  */
 class ForegroundService : LifecycleService() {
 
-    companion object {
-        // 密码输入完成与否标志
-        var passwordFinish: Boolean = false
+    private val binder =object : IForeground.Stub() {
+        override fun setPasswordFinish(isFinish: Boolean) {
+            passwordFinish = isFinish
+        }
 
-        // 是否需要关闭前台显示[拒绝广播接收器重启服务]
-        var closeComplete: Boolean = false
+        override fun setCloseComplete(isClose: Boolean) {
+            closeComplete = isClose
+        }
     }
+
+    override fun onBind(intent: Intent): IBinder? {
+        super.onBind(intent)
+        return binder
+    }
+
+    // 密码输入完成与否标志
+    var passwordFinish: Boolean = false
+
+    // 是否需要关闭前台显示[拒绝广播接收器重启服务]
+    var closeComplete: Boolean = false
 
     private val CHANNEL_ID = "前台显示服务渠道"
     private val NOTIFICATION_ID = 999
@@ -52,7 +67,6 @@ class ForegroundService : LifecycleService() {
     // 在onCreate中创建渠道和显示第一次通知
     override fun onCreate() {
         super.onCreate()
-
         // 注册广播接收器
         foregroundRestartReceiver = ForegroundRestartReceiver()
         val foregroundFilter = IntentFilter()
@@ -100,7 +114,7 @@ class ForegroundService : LifecycleService() {
     // 更新数据
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-
+        Log.d("liuyan", "setPasswor55")
         // 首次启动时先不要更新数据，等待用户输入密码后，再次执行该方法时再更新数据
         if (!passwordFinish) {
             return START_STICKY
@@ -188,10 +202,6 @@ class ForegroundService : LifecycleService() {
         return START_STICKY_COMPATIBILITY
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        super.onBind(intent)
-        return null
-    }
 
     override fun onDestroy() {
         // 发送错误关闭广播

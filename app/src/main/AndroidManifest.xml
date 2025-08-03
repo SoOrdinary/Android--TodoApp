@@ -60,6 +60,7 @@
             android:name=".view.foreground.summarize.ForegroundService"
             android:enabled="true"
             android:exported="true"
+            android:process=":foreground_service"
             android:foregroundServiceType="mediaPlayback" />
         <service
             android:name=".view.foreground.download.DownloadService"

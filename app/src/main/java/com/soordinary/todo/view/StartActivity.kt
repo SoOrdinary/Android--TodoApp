@@ -10,13 +10,14 @@ import com.soordinary.todo.BaseActivity
 import com.soordinary.todo.databinding.ActivityStartBinding
 import com.soordinary.todo.databinding.DiagStartForgetPasswordBinding
 import com.soordinary.todo.utils.encryption.MD5Util
-import com.soordinary.todo.view.foreground.summarize.ForegroundService
+import com.soordinary.todo.view.foreground.summarize.ForegroundServiceTool
 import com.soordinary.todo.view.fragment.user.UserViewModel
 
 /**
  * 制作一些启动动画、用户自定义的全局设置等
  */
 class StartActivity : BaseActivity<ActivityStartBinding>() {
+
 
     private val viewModel: UserViewModel by viewModels()
     private var currentPassword: String? = null
@@ -27,15 +28,15 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
 
         binding.version.text = packageManager.getPackageInfo(packageName, 0).versionName
         // 启动前台服务
-        startForeground()
+        ForegroundServiceTool.startForeground()
 
         currentPassword = viewModel.getPasswordLiveData().value
         // 当前无密码才能直接进入
         if (currentPassword.isNullOrEmpty()) {
             passwordAfter()
+        }else{
+            binding.initClick()
         }
-
-        binding.initClick()
     }
 
     override fun getBindingInflate() = ActivityStartBinding.inflate(layoutInflater)
@@ -77,24 +78,10 @@ class StartActivity : BaseActivity<ActivityStartBinding>() {
 
     // 无密码或输入正确做的事
     private fun passwordAfter() {
-        // 重写调用前台服务，开始更新数据
-        ForegroundService.passwordFinish = true
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
-        }
+        // 绑定前台服务得到aidl
+        ForegroundServiceTool.bindForegroundAfterPassword()
         MainActivity.actionStart(this)
         finish()
     }
 
-    private fun startForeground() {
-        // 启动服务
-        serviceIntent = Intent(this, ForegroundService::class.java)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent)
-        } else {
-            startService(serviceIntent)
-        }
-    }
 }

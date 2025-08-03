@@ -41,7 +41,14 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-
+    buildFeatures {
+        aidl = true // 显式启用AIDL支持
+    }
+    sourceSets.configureEach {
+        if (name == "main") {
+            aidl.srcDirs("src/main/aidl")
+        }
+    }
 }
 
 dependencies {

@@ -25,6 +25,7 @@ abstract class RecordDatabase : RoomDatabase() {
         fun getDatabase(context: Context): RecordDatabase {
             instance?.let { return it }
             databaseBuilder(context.applicationContext, RecordDatabase::class.java, "record_database")
+                .enableMultiInstanceInvalidation()
                 .build()
                 .apply { instance = this }
             return instance as RecordDatabase

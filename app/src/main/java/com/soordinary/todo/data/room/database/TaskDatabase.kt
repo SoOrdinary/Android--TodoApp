@@ -25,6 +25,7 @@ abstract class TaskDatabase : RoomDatabase() {
         fun getDatabase(context: Context): TaskDatabase {
             instance?.let { return it }
             databaseBuilder(context.applicationContext, TaskDatabase::class.java, "task_database")
+                .enableMultiInstanceInvalidation()
                 .build()
                 .apply { instance = this }
             return instance as TaskDatabase
