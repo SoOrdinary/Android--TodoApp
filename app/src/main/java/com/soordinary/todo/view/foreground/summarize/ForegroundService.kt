@@ -114,7 +114,6 @@ class ForegroundService : LifecycleService() {
     // 更新数据
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        Log.d("liuyan", "setPasswor55")
         // 首次启动时先不要更新数据，等待用户输入密码后，再次执行该方法时再更新数据
         if (!passwordFinish) {
             return START_STICKY

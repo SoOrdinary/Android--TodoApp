@@ -1,6 +1,7 @@
 package com.soordinary.todo.data.network.file
 
 import android.os.Environment
+import android.util.Log
 import java.io.File
 import java.io.InputStream
 import java.io.RandomAccessFile
@@ -23,6 +24,7 @@ class DownloadTask(private val listener: DownloadListener) {
     private var lastProgress = 0
 
     suspend fun download(downloadUrl: String, savePath: String, fileName: String): Int = withContext(Dispatchers.IO) {
+        Log.d("liuyan","88")
         var inputStream: InputStream? = null
         var savedFile: RandomAccessFile? = null
         var file: File? = null
@@ -66,6 +68,7 @@ class DownloadTask(private val listener: DownloadListener) {
             response.body?.close()
             return@withContext TYPE_SUCCESS
         } catch (e: Exception) {
+            Log.d("liuyan",e.toString())
             e.printStackTrace()
         } finally {
             try {

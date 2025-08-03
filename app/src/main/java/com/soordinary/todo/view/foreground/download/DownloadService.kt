@@ -9,6 +9,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import android.os.Build
+import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleService
 import com.soordinary.todo.R
@@ -88,6 +89,7 @@ class DownloadService : LifecycleService() {
             directory = intent.getStringExtra("path")!!
             coroutineScope.launch {
                 val status = downloadTask?.download(downloadUrl, directory, fileName) ?: DownloadTask.TYPE_FAILED
+                Log.d("liuyan","status:$status")
                 when (status) {
                     DownloadTask.TYPE_SUCCESS -> listener.onSuccess()
                     DownloadTask.TYPE_FAILED -> listener.onFailed()
