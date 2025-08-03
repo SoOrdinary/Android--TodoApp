@@ -4,7 +4,7 @@ import android.app.Activity
 import android.widget.TextView
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.soordinary.todo.TodoApplication
-import com.soordinary.todo.data.shared.UserInfoSharedPreference
+import com.soordinary.todo.data.shared.UserMMKV
 import com.soordinary.todo.utils.encryption.AESUtil
 import com.soordinary.todo.utils.encryption.HmacSHA256
 import com.soordinary.todo.utils.encryption.RSAUtil
@@ -233,7 +233,7 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
             1 -> {
                 val newPublicKeyToString = RSAUtil.publicKeyToBase64(newPublicKey)
                 val romNumber1 = romNumber1
-                val anotherInfo = HmacSHA256.encryptBySHA256(UserInfoSharedPreference.userPassword!!, newPublicKeyToString)
+                val anotherInfo = HmacSHA256.encryptBySHA256(UserMMKV.userPassword!!, newPublicKeyToString)
 
                 val payload = Payload(newPublicKeyToString = newPublicKeyToString, romNumber1 = romNumber1, anotherInfo = anotherInfo)
                 message = Message(id = "1", payload = payload)
@@ -335,7 +335,7 @@ class DataTransferNew(private val activity: Activity, private val oldIP: String,
                 if (fileSymbolString != "SoOrdinary") {
                     if (fileSymbolString == "completed~") {
                         addLog("数据同步完成,重启软件可完成更新")
-                        UserInfoSharedPreference.userPassword = ""
+                        UserMMKV.userPassword = ""
                         addLog("软件密码已重置")
                         outputStream.write(0.toFixedLengthString(8).toByteArray(StandardCharsets.UTF_8))
                         isTLSFlag = false

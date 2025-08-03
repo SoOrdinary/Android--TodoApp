@@ -3,7 +3,10 @@ package com.soordinary.todo
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import com.soordinary.todo.data.shared.UserInfoSharedPreference
+import android.util.Log
+import com.soordinary.todo.data.shared.UserMMKV
+import com.soordinary.todo.utils.ProcessUtils
+import com.tencent.mmkv.MMKV
 
 /**
  * 定义一些应用全程跟随的变量
@@ -26,7 +29,11 @@ class TodoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         _context = applicationContext
+        // todo：前台服务也需要初始化，每个单独进程都会有一个application创建并create，看后续有没有什么优化手段
+        // 初始化MMKV
+        MMKV.initialize(context)
         // 获取id，让id初始化一下
-        UserInfoSharedPreference.userId
+        UserMMKV.userId
+        Log.d("TodoApplication", "onCreate: ${UserMMKV.userId}")
     }
 }

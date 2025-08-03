@@ -4,7 +4,7 @@ import android.app.Activity
 import android.widget.TextView
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.soordinary.todo.TodoApplication
-import com.soordinary.todo.data.shared.UserInfoSharedPreference
+import com.soordinary.todo.data.shared.UserMMKV
 import com.soordinary.todo.utils.encryption.AESUtil
 import com.soordinary.todo.utils.encryption.HmacSHA256
 import com.soordinary.todo.utils.encryption.RSAUtil
@@ -319,7 +319,7 @@ class DataTransferOld(private val activity: Activity, private val oldPort: Int, 
             2 -> {
                 val oldPublicKeyToString = RSAUtil.publicKeyToBase64(oldPublicKey)
                 val romNumber2Encrypted = RSAUtil.encrypt(romNumber2, newPublicKey)
-                val anotherInfo = HmacSHA256.encryptBySHA256(UserInfoSharedPreference.userPassword!!, oldPublicKeyToString)
+                val anotherInfo = HmacSHA256.encryptBySHA256(UserMMKV.userPassword!!, oldPublicKeyToString)
 
                 val payload = Payload(oldPublicKeyToString = oldPublicKeyToString, romNumber2Encrypted = romNumber2Encrypted, anotherInfo = anotherInfo)
                 message = Message(id = "2", payload = payload)

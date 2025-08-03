@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.soordinary.todo.TodoApplication
 import com.soordinary.todo.data.room.database.TaskDatabase
 import com.soordinary.todo.data.room.entity.Task
-import com.soordinary.todo.data.shared.TaskSharedPreference
+import com.soordinary.todo.data.shared.TaskMMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -20,7 +20,7 @@ class TaskRepository() {
 
     // 这样子所有调用该仓库的viewModel才能拿到同一个LiveData Todo:是否需要异步查询？这种还是共享的ViewModel好？
     companion object {
-        private val _taskTagsLiveData = MutableLiveData<Set<String>>(TaskSharedPreference.tags)
+        private val _taskTagsLiveData = MutableLiveData<Set<String>>(TaskMMKV.tags)
     }
 
     private val taskDao = TaskDatabase.getDatabase(TodoApplication.context).taskDao()
@@ -31,8 +31,8 @@ class TaskRepository() {
     // 插入标签
     suspend fun insertTaskTag(newTag: String) {
         withContext(Dispatchers.IO) {
-            if (TaskSharedPreference.addTag(newTag)) {
-                _taskTagsLiveData.postValue(TaskSharedPreference.tags)
+            if (TaskMMKV.addTag(newTag)) {
+                _taskTagsLiveData.postValue(TaskMMKV.tags)
             }
         }
     }
@@ -40,14 +40,14 @@ class TaskRepository() {
     // 删除标签
     suspend fun deleteTaskTag(oldTag: String) {
         withContext(Dispatchers.IO) {
-            if (TaskSharedPreference.removeTag(oldTag)) {
-                _taskTagsLiveData.postValue(TaskSharedPreference.tags)
+            if (TaskMMKV.removeTag(oldTag)) {
+                _taskTagsLiveData.postValue(TaskMMKV.tags)
             }
         }
     }
 
     // 判断某标签是否包含
-    fun isContain(tag: String): Boolean = TaskSharedPreference.isContain(tag)
+    fun isContain(tag: String): Boolean = TaskMMKV.isContain(tag)
 
     // 插入任务
     suspend fun insertTask(task: Task) {
