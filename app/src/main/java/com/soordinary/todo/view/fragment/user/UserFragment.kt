@@ -572,6 +572,7 @@ class UserFragment : Fragment(R.layout.fragment_user) {
         DownloadService.serviceStart(
             requireActivity(),
             "https://gitee.com/ly0919/todo/releases/download/lastest/Todo.apk",
+            // todo：发版后新增改动只能继续往上加code再发，否则用户下载断点续传会合并出bug
             "Version${versionCode}.apk",
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).path
         )
